@@ -1,0 +1,855 @@
+import {
+    Button,
+    Container,
+    MediaQuery,
+    Paper,
+    Stack,
+    Textarea,
+    TextInput,
+    Title,
+    Notification,
+    Group,
+    Text,
+    Skeleton,
+    createStyles,
+    Divider,
+    ActionIcon,
+    Image,
+    Select,
+    Avatar,
+} from "@mantine/core";
+import axios from "axios";
+import { forwardRef, useEffect, useState } from "react";
+import { useQuery } from "react-query";
+import {
+    IconAlertOctagon,
+    IconAnchor,
+    IconCalendarEvent,
+    IconCheck,
+    IconHomeCancel,
+    IconLocation,
+    IconPencil,
+    IconPlant2,
+    IconPlus,
+    IconShare,
+    IconTrash,
+    IconX,
+} from "@tabler/icons";
+import {
+    events_list,
+    get_auto_title,
+    get_event_label,
+} from "../../../lib/static_lists";
+import { citiesData } from "../../../pages/demo/auth-demo/cities";
+import { DatePicker } from "@mantine/dates";
+
+export function AddEventCard({
+    profileUser,
+    sessionUser,
+    refetchEvents,
+    sessionProfileRelation,
+}) {
+    const get_auto_title2 = (eventType, profileName, location, date) => {
+        return get_auto_title(eventType, profileName, location, date);
+    };
+    const SelectItem = forwardRef(
+        ({ image, label, description, ...others }, ref) => (
+            <div ref={ref} {...others}>
+                <Group noWrap>
+                    <Avatar src={image} />
+
+                    <div>
+                        <Text size="sm">{label}</Text>
+                        <Text size="xs" opacity={0.65}>
+                            {description}
+                        </Text>
+                    </div>
+                </Group>
+            </div>
+        )
+    );
+
+    const [eventType, setEventType] = useState("");
+    const [eventTypeError, setEventTypeError] = useState(false);
+    const [eventDescription, setEventDescription] = useState("");
+    const [eventDescError, setEventDescError] = useState(false);
+    const [addEventNotification, setAddEventNotification] = useState(false);
+    const [location, setLocation] = useState("");
+    const [locationError, setLocationError] = useState(false);
+    const [eventDate, setEventDate] = useState("");
+    const [eventDateError, setEventDateError] = useState(false);
+
+    const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
+        queryKey: "post-event",
+        queryFn: () => {
+            return axios.post("/api/events/", {
+                userId: profileUser._id,
+                authorId: sessionUser._id,
+                authorName: sessionUser.name,
+                type: eventType,
+                description: eventDescription,
+                location: location,
+                eventDate: eventDate,
+                factSource: null,
+            });
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            console.log("event created", d.data.data);
+            setEventType("");
+            setEventDescription("");
+            setAddEventNotification(true);
+            refetchEvents();
+        },
+    });
+
+    const handleAddEvent = () => {
+        if (
+            eventType === "" ||
+            eventDescription === "" ||
+            location === "" ||
+            eventDate === ""
+        ) {
+            eventType === "" && setEventTypeError(true);
+            eventDescription === "" && setEventDescError(true);
+            location === "" && setLocationError(true);
+            eventDate === "" && setEventDateError(true);
+        } else {
+            /*console.log(
+                profileUser._id,
+                sessionUser._id,
+                sessionUser.name,
+                eventType,
+                eventDescription,
+                location,
+                eventDate
+            );*/
+            refetch();
+        }
+    };
+
+    if (sessionProfileRelation === "none") {
+        return <div>RESTRICTED</div>;
+    }
+
+    return (
+        <Paper withBorder p="md">
+            <Stack spacing="sm">
+                <Title order={4} fw={500} align="center">
+                    Do you have an event to add about {profileUser.name}?
+                </Title>
+                <Divider />
+                <Select
+                    label="What's the occasion?"
+                    value={eventType}
+                    onChange={setEventType}
+                    data={events_list}
+                    error={eventTypeError && "event can't be empty"}
+                    onFocus={() => {
+                        setAddEventNotification(false);
+                        setEventTypeError(false);
+                    }}
+                />
+                <Textarea
+                    label="Description"
+                    autosize
+                    minRows={5}
+                    value={eventDescription}
+                    onChange={(event) =>
+                        setEventDescription(event.currentTarget.value)
+                    }
+                    error={eventDescError && "description can't be empty"}
+                    onFocus={() => {
+                        setAddEventNotification(false);
+                        setEventDescError(false);
+                    }}
+                    placeholder="Tell us about the event..."
+                />
+
+                <Select
+                    label="Location"
+                    placeholder="Pick one"
+                    icon={<IconLocation size={19} />}
+                    itemComponent={SelectItem}
+                    description="Location of the event"
+                    data={citiesData}
+                    searchable
+                    maxDropdownHeight={300}
+                    nothingFound="Nothing found"
+                    filter={(value, item) =>
+                        item.label
+                            .toLowerCase()
+                            .includes(value.toLowerCase().trim()) ||
+                        item.description
+                            .toLowerCase()
+                            .includes(value.toLowerCase().trim())
+                    }
+                    value={location}
+                    onChange={setLocation}
+                    error={locationError && "location can't be empty"}
+                    onFocus={() => {
+                        setAddEventNotification(false);
+                        setLocationError(false);
+                    }}
+                />
+                <DatePicker
+                    placeholder="Pick date of the event"
+                    label="Date"
+                    icon={<IconCalendarEvent size={19} />}
+                    value={eventDate}
+                    onChange={setEventDate}
+                    error={eventDateError && "date can't be empty"}
+                    onFocus={() => {
+                        setAddEventNotification(false);
+                        setEventDateError(false);
+                    }}
+                />
+                {addEventNotification && (
+                    <Notification
+                        icon={<IconCheck size={18} />}
+                        color="teal"
+                        title="Event Added!"
+                        onClose={() => setAddEventNotification(false)}
+                    >
+                        Event has been added to {profileUser.name}'s wall!
+                    </Notification>
+                )}
+                <Button
+                    variant="filled"
+                    radius="xl"
+                    loading={isLoading || isFetching}
+                    onClick={handleAddEvent}
+                >
+                    Add Event
+                </Button>
+            </Stack>
+        </Paper>
+    );
+}
+
+export function MiniEventCard({
+    event,
+    profileName,
+    setDrawerOpened,
+    selectedEvent,
+    setSelectedEvent,
+    setViewMode,
+    viewMode,
+}) {
+    const useStyles = createStyles((theme) => ({
+        treeLink: {
+            textDecoration: "none",
+            "&:hover": {
+                //border: "1px solid",
+                textDecoration: "underline",
+                transition: "0.5s",
+            },
+        },
+        card: {
+            cursor: "pointer",
+            border:
+                selectedEvent &&
+                viewMode !== "add" &&
+                event._id.toString() === selectedEvent._id.toString()
+                    ? "1px solid"
+                    : "",
+            "&:hover": {
+                border: "1px solid",
+                textDecoration: "underline",
+                transition: "0.5s",
+            },
+        },
+    }));
+    const { classes } = useStyles();
+    const get_auto_title2 = (eventType, profileName, location, date) => {
+        return get_auto_title(eventType, profileName, location, date);
+    };
+    return (
+        <Paper
+            className={classes.card}
+            withBorder
+            p="md"
+            onClick={() => {
+                setViewMode("view");
+                setSelectedEvent(event);
+                setDrawerOpened(true);
+            }}
+        >
+            <Stack spacing={2}>
+                <Text size="sm" c="dimmed">
+                    {get_auto_title(
+                        event.type,
+                        profileName,
+                        event.location,
+                        event.eventDate
+                    )}
+                </Text>
+                <Group>
+                    <Text size="sm">{event.authorName}</Text>
+                    <Divider orientation="vertical" />
+                    <Text size="sm">
+                        {event.eventDate.toString().split("T")[0]}
+                    </Text>
+                </Group>
+            </Stack>
+        </Paper>
+    );
+}
+
+export function MiniEventCardSkeleton() {
+    return (
+        <Paper withBorder p="md">
+            <Group grow>
+                <Skeleton height={20} circle mb="xl" width={20} />
+                <Stack spacing={2}>
+                    <Skeleton height={8} radius="xl" />
+                    <Skeleton height={8} mt={6} radius="xl" />
+                    <Skeleton height={8} mt={6} radius="xl" />
+                    <Skeleton height={8} mt={6} width="70%" radius="xl" />
+                    <Group>
+                        <Skeleton height={8} mt={6} width="30%" radius="xl" />
+                        <Skeleton height={8} mt={6} width="30%" radius="xl" />
+                    </Group>
+                </Stack>
+            </Group>
+        </Paper>
+    );
+}
+
+export function MiniAddEventCard({ setViewMode, viewMode, setDrawerOpened }) {
+    const useStyles = createStyles((theme) => ({
+        card: {
+            cursor: "pointer",
+            border: viewMode === "add" && "1px solid",
+            "&:hover": {
+                border: "1px solid",
+                textDecoration: "underline",
+                transition: "0.5s",
+            },
+        },
+    }));
+    const { classes } = useStyles();
+    return (
+        <Paper
+            withBorder
+            p="md"
+            className={classes.card}
+            onClick={() => {
+                setDrawerOpened(true);
+
+                setViewMode("add");
+            }}
+        >
+            <Group>
+                <IconPencil size={20} color="green" />
+                <Title order={5} fw={500} c="blue">
+                    Add an Event
+                </Title>
+            </Group>
+        </Paper>
+    );
+}
+
+export function EventCard({
+    event,
+    refetchEvents,
+    profileUser,
+    sessionProfileRelation,
+}) {
+    const SelectItem = forwardRef(
+        ({ image, label, description, ...others }, ref) => (
+            <div ref={ref} {...others}>
+                <Group noWrap>
+                    <Avatar src={image} />
+
+                    <div>
+                        <Text size="sm">{label}</Text>
+                        <Text size="xs" opacity={0.65}>
+                            {description}
+                        </Text>
+                    </div>
+                </Group>
+            </div>
+        )
+    );
+    /*authorName: sessionUser.name,
+                type,
+                description,
+                location,
+                eventDate,
+                factSource,*/
+
+    const [eventTypeValue, setEventTypeValue] = useState("");
+    const [eventDescriptionValue, setEventDescriptionValue] = useState("");
+    const [locationValue, setLocationValue] = useState("");
+    const [eventDateValue, setEventDateValue] = useState("");
+
+    const [editMode, setEditMode] = useState(false);
+    const [editEventNotification, setEditEventNotification] = useState(false);
+    const [deleteEventNotification, setDeleteEventNotification] =
+        useState(false);
+    const [eventDeleted, setEventDeleted] = useState(false);
+
+    const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
+        queryKey: "edit-event",
+        queryFn: () => {
+            return axios.put("/api/events/" + event._id, {
+                type: eventTypeValue,
+                description: eventDescriptionValue,
+                location: locationValue,
+                eventDate: eventDateValue,
+            });
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            console.log("edited", d.data.data);
+            setEditMode(false);
+            setEditEventNotification(true);
+            refetchEvents();
+        },
+    });
+
+    const {
+        isLoading: isLoadingDeleteEvent,
+        isFetching: isFetchingDeleteEvent,
+        refetch: refetchDeleteEvent,
+    } = useQuery({
+        queryKey: "delete-event",
+        queryFn: () => {
+            return axios.delete("/api/events/" + event._id);
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            console.log("deleted", d.data.data);
+            setEditMode(false);
+            setEventDeleted(true);
+            refetchEvents();
+        },
+    });
+
+    const handleSaveEdit = () => {
+        refetch();
+    };
+
+    const handleDeleteEvent = () => {
+        refetchDeleteEvent();
+    };
+
+    useEffect(() => {
+        setEventDeleted(false);
+        setEventDescriptionValue(event.description);
+        setEventTypeValue(event.type);
+        setLocationValue(event.location);
+        setEventDateValue(event.eventDate);
+        setDeleteEventNotification(false);
+        setEditMode(false);
+    }, [event]);
+    if (eventDeleted) {
+        return (
+            <Paper withBorder p="md" bg="#f7f9fc">
+                <Stack align="center" justify="center" spacing={0}>
+                    <Image
+                        style={{
+                            width: 200,
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                        }}
+                        radius="xs"
+                        src="https://img.freepik.com/free-vector/illustration-trash-bin-icon_53876-5598.jpg"
+                        alt="event deleted"
+                    />
+                    <Title order={2} fw={500} color="dimmed">
+                        Event Deleted!
+                    </Title>
+                </Stack>
+            </Paper>
+        );
+    }
+    return (
+        <>
+            <Stack>
+                <Paper withBorder p="md">
+                    <Stack>
+                        {editMode ? (
+                            <Select
+                                label="What's the occasion?"
+                                value={eventTypeValue}
+                                onChange={setEventTypeValue}
+                                data={events_list}
+                            />
+                        ) : (
+                            <Title
+                                className="storyTitle"
+                                align="center"
+                                color="darkgreen"
+                            >
+                                {get_event_label(eventTypeValue)}
+                            </Title>
+                        )}
+                        <Title
+                            className="autoTitle"
+                            align="center"
+                            color="gray"
+                            order={3}
+                        >
+                            {get_auto_title(
+                                eventTypeValue,
+                                profileUser.name,
+                                locationValue,
+                                eventDateValue
+                            )}
+                        </Title>
+                        {deleteEventNotification && (
+                            <Notification
+                                icon={<IconAlertOctagon size={18} />}
+                                color="red"
+                                title="Delete event?"
+                                onClose={() =>
+                                    setDeleteEventNotification(false)
+                                }
+                            >
+                                <Group>
+                                    <Button
+                                        size="sm"
+                                        color="red"
+                                        compact
+                                        loading={
+                                            isLoadingDeleteEvent ||
+                                            isFetchingDeleteEvent
+                                        }
+                                        onClick={handleDeleteEvent}
+                                    >
+                                        Delete{" "}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        compact
+                                        onClick={() => {
+                                            setDeleteEventNotification(false);
+                                            setEditMode(false);
+                                        }}
+                                    >
+                                        Cancel{" "}
+                                    </Button>
+                                </Group>
+                            </Notification>
+                        )}
+                        <Group mt="sm" spacing="xs">
+                            {editMode ? (
+                                <>
+                                    {(sessionProfileRelation === "self" ||
+                                        sessionProfileRelation === "owner") && (
+                                        <>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                                onClick={handleSaveEdit}
+                                                loading={
+                                                    isLoading || isFetching
+                                                }
+                                            >
+                                                <IconCheck
+                                                    size={20}
+                                                    color="green"
+                                                />
+                                            </ActionIcon>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                                onClick={() =>
+                                                    setDeleteEventNotification(
+                                                        true
+                                                    )
+                                                }
+                                            >
+                                                <IconTrash
+                                                    size={20}
+                                                    color="red"
+                                                />
+                                            </ActionIcon>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                                onClick={() => {
+                                                    setDeleteEventNotification(
+                                                        false
+                                                    );
+                                                    setEditMode(false);
+                                                }}
+                                            >
+                                                <IconX size={20} color="blue" />
+                                            </ActionIcon>
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    {(sessionProfileRelation === "self" ||
+                                        sessionProfileRelation === "owner") && (
+                                        <>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                                onClick={() =>
+                                                    setEditMode(true)
+                                                }
+                                            >
+                                                <IconPencil
+                                                    size={20}
+                                                    color="green"
+                                                />
+                                            </ActionIcon>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                            >
+                                                <IconShare
+                                                    size={20}
+                                                    color="teal"
+                                                />
+                                            </ActionIcon>
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </Group>
+                        {editEventNotification && (
+                            <Notification
+                                icon={<IconCheck size={18} />}
+                                color="teal"
+                                title="Story updated!"
+                                onClose={() => setEditEventNotification(false)}
+                            >
+                                Event has been edited!
+                            </Notification>
+                        )}
+                    </Stack>
+                </Paper>
+                <Paper withBorder p="md">
+                    <Stack>
+                        {editMode ? (
+                            <Textarea
+                                autosize
+                                minRows={5}
+                                value={eventDescriptionValue}
+                                onChange={(event) =>
+                                    setEventDescriptionValue(
+                                        event.currentTarget.value
+                                    )
+                                }
+                            />
+                        ) : (
+                            <Text>{eventDescriptionValue}</Text>
+                        )}
+                        <Text c="dimmed" fs="italic" td="underline">
+                            {event.authorName}
+                        </Text>
+                    </Stack>
+                </Paper>
+                <Paper withBorder p="md">
+                    {editMode ? (
+                        <Stack>
+                            <Select
+                                label="Location"
+                                placeholder="Pick one"
+                                icon={<IconLocation size={19} />}
+                                itemComponent={SelectItem}
+                                description="Location of the event"
+                                data={citiesData}
+                                searchable
+                                maxDropdownHeight={300}
+                                nothingFound="Nothing found"
+                                filter={(value, item) =>
+                                    item.label
+                                        .toLowerCase()
+                                        .includes(value.toLowerCase().trim()) ||
+                                    item.description
+                                        .toLowerCase()
+                                        .includes(value.toLowerCase().trim())
+                                }
+                                value={locationValue}
+                                onChange={setLocationValue}
+                            />
+                            <DatePicker
+                                placeholder="Pick date of the event"
+                                label="Date"
+                                icon={<IconCalendarEvent size={19} />}
+                                value={eventDateValue}
+                                onChange={setEventDateValue}
+                            />
+                        </Stack>
+                    ) : (
+                        <Stack spacing="xs">
+                            <Text>
+                                This event happened in:{" "}
+                                <Text span c="darkgreen" fw={700}>
+                                    {locationValue}
+                                </Text>
+                            </Text>
+                            <Text c="dimmed" fs="italic">
+                                {eventDateValue.toString().split("T")[0]}
+                            </Text>
+                        </Stack>
+                    )}
+                </Paper>
+            </Stack>
+            {/*<Paper withBorder p="md" mih="100vh">
+                <Stack justify="center">
+                    <Stack spacing={1} justify="center" align="center">
+                        {editMode ? (
+                            <TextInput
+                                value={eventTypeValue}
+                                onChange={(event) =>
+                                    setEventTypeValue(event.currentTarget.value)
+                                }
+                                size="xl"
+                            />
+                        ) : (
+                            <Title
+                                className="storyTitle"
+                                align="center"
+                                color="darkgreen"
+                            >
+                                {eventTypeValue}
+                            </Title>
+                        )}
+                        <Group>
+                            <Title order={6} color="dimmed" fw={450}>
+                                {story.authorName}
+                            </Title>
+                            <Divider orientation="vertical" />
+                            <Title order={6} color="dimmed" fw={450}>
+                                {story.createdAt.split("T")[0]}
+                            </Title>
+                        </Group>
+                        {deleteStoryNotification && (
+                            <Notification
+                                icon={<IconAlertOctagon size={18} />}
+                                color="red"
+                                title="Delete Story?"
+                                onClose={() =>
+                                    setDeleteStoryNotification(false)
+                                }
+                            >
+                                <Group>
+                                    <Button
+                                        size="sm"
+                                        color="red"
+                                        compact
+                                        loading={
+                                            isLoadingDeleteStory ||
+                                            isFetchingDeleteStory
+                                        }
+                                        onClick={handleDeleteStory}
+                                    >
+                                        Delete{" "}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        compact
+                                        onClick={() => {
+                                            setDeleteStoryNotification(false);
+                                            setEditMode(false);
+                                        }}
+                                    >
+                                        Cancel{" "}
+                                    </Button>
+                                </Group>
+                            </Notification>
+                        )}
+                        <Group mt="sm" spacing="xs">
+                            {editMode ? (
+                                <>
+                                    <ActionIcon
+                                        color="dark"
+                                        radius="xl"
+                                        variant="default"
+                                        onClick={handleSaveEdit}
+                                        loading={isLoading || isFetching}
+                                    >
+                                        <IconCheck size={20} color="green" />
+                                    </ActionIcon>
+                                    <ActionIcon
+                                        color="dark"
+                                        radius="xl"
+                                        variant="default"
+                                        onClick={() =>
+                                            setDeleteStoryNotification(true)
+                                        }
+                                    >
+                                        <IconTrash size={20} color="red" />
+                                    </ActionIcon>
+                                    <ActionIcon
+                                        color="dark"
+                                        radius="xl"
+                                        variant="default"
+                                        onClick={() => {
+                                            setDeleteStoryNotification(false);
+                                            setEditMode(false);
+                                        }}
+                                    >
+                                        <IconX size={20} color="blue" />
+                                    </ActionIcon>
+                                </>
+                            ) : (
+                                <>
+                                    <ActionIcon
+                                        color="dark"
+                                        radius="xl"
+                                        variant="default"
+                                        onClick={() => setEditMode(true)}
+                                    >
+                                        <IconPencil size={20} color="green" />
+                                    </ActionIcon>
+                                    <ActionIcon
+                                        color="dark"
+                                        radius="xl"
+                                        variant="default"
+                                    >
+                                        <IconShare size={20} color="teal" />
+                                    </ActionIcon>
+                                </>
+                            )}
+                        </Group>
+                        {editStoryNotification && (
+                            <Notification
+                                icon={<IconCheck size={18} />}
+                                color="teal"
+                                title="Story updated!"
+                                onClose={() => setEditStoryNotification(false)}
+                            >
+                                Story has been edited!
+                            </Notification>
+                        )}
+                    </Stack>
+
+                    <Divider
+                        label={<IconPlant2 color="green" />}
+                        labelPosition="center"
+                    />
+                    {!editMode ? (
+                        <Text>{contentAreaValue}</Text>
+                    ) : (
+                        <Textarea
+                            autosize
+                            minRows={10}
+                            value={contentAreaValue}
+                            onChange={(event) =>
+                                setContentAreaValue(event.currentTarget.value)
+                            }
+                        />
+                    )}
+                    <Divider
+                        label={<IconAnchor color="green" />}
+                        labelPosition="center"
+                    />
+                </Stack>
+            </Paper>*/}
+        </>
+    );
+}

@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    /*border: 1px solid black;*/
+    padding: 1rem;
+}
+
+.searchBox {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 40rem;
+}
+
+.secondaryNavbar {
+    border: 1px solid;
+    padding: 1rem;
+}
