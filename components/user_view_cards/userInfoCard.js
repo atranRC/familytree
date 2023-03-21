@@ -11,9 +11,13 @@ import {
     Group,
     createStyles,
     Divider,
+    Loader,
 } from "@mantine/core";
 import { IconExternalLink } from "@tabler/icons";
 import { Carousel } from "@mantine/carousel";
+import { useEffect } from "react";
+import { useQuery } from "react-query";
+import axios from "axios";
 
 export function SmallSearchResultUserCard({ user }) {
     const useStyles = createStyles((theme) => ({
@@ -36,17 +40,15 @@ export function SmallSearchResultUserCard({ user }) {
     return (
         <Paper className={classes.paper}>
             <Group>
-                <Avatar
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=400&q=60"
-                    radius="xl"
-                    size="lg"
-                />
+                <Avatar src={user.image} radius="xl" size="lg" />
                 <Stack spacing={0} justify="flex-start">
                     <Title order={4} fw={500}>
-                        {user.name}
+                        {user.name} {user.fathers_name} {user.last_name}
                     </Title>
                     <Text size="sm" c="dimmed" fw={500} order={6}>
-                        Born: {user.birthday && user.birthday.toString()}
+                        Born:{" "}
+                        {user.birthday &&
+                            user.birthday.toString().split("T")[0]}
                     </Text>
                     <Text size="sm" c="dimmed" fw={500} order={6}>
                         Location: {user.current_residence}
@@ -89,20 +91,18 @@ export function UserInfoCard({
     const handleAddRelative = () => {
         refetch();
     };*/
+
     return (
         <Container bg="#f7f9fc" py="md">
             <Stack spacing="sm">
                 <Paper withBorder py="md">
                     <Stack align="center" justify="center" spacing={0}>
-                        <Avatar
-                            size="xl"
-                            src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                        />
+                        <Avatar size="xl" src={user.image} />
                         <Title fw={500} order={3}>
                             {user.name}
                         </Title>
                         <Text color="dimmed" weight={500}>
-                            Nairobi, Kenya
+                            {user.current_residence}
                         </Text>
                     </Stack>
                 </Paper>
@@ -132,7 +132,10 @@ export function UserInfoCard({
                                 Born
                             </Title>
                             <Text>
-                                <Text fw={500}>1990</Text>
+                                <Text fw={500}>
+                                    {user.birthday &&
+                                        user.birthday.toString().split("T")[0]}
+                                </Text>
                             </Text>
                         </div>
                         <div>
@@ -140,7 +143,7 @@ export function UserInfoCard({
                                 Place of birth
                             </Title>
                             <Text>
-                                <Text fw={500}>Gaborone</Text>
+                                <Text fw={500}>{user.birth_place}</Text>
                             </Text>
                         </div>
                         <div>
@@ -148,27 +151,7 @@ export function UserInfoCard({
                                 Nicknames
                             </Title>
                             <Text>
-                                <Text fw={500}>
-                                    Nickname1, Nickname2, Nickname3
-                                </Text>
-                            </Text>
-                        </div>
-                        <div>
-                            <Title order={5} color="dimmed" weight={500}>
-                                Siblings
-                            </Title>
-                            <Text>
-                                <Text fw={500}>
-                                    Sibling1, Sibling2, Sibling3
-                                </Text>
-                            </Text>
-                        </div>
-                        <div>
-                            <Title order={5} color="dimmed" weight={500}>
-                                Children
-                            </Title>
-                            <Text>
-                                <Text fw={500}>Child1, Child2, Child3</Text>
+                                <Text fw={500}>{user.nicknames}</Text>
                             </Text>
                         </div>
                     </SimpleGrid>
@@ -310,7 +293,7 @@ export function AddRelativeCreateProfileView({
                 loading={isLoading || isFetching}
                 onClick={createHandler}
             >
-                Create {firstName}'s profile
+                Create {firstName}s profile
             </Button>
         </Paper>
     );

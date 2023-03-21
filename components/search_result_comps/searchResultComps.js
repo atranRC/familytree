@@ -8,9 +8,11 @@ import {
     Text,
     ThemeIcon,
     Image,
+    Pagination,
 } from "@mantine/core";
 import { SmallSearchResultUserCard } from "../user_view_cards/userInfoCard";
 import useFamTreePageStore from "../../lib/stores/famtreePageStore";
+import { useEffect, useState } from "react";
 
 export function SomethingWentWrong({ type }) {
     const setNewRelativeUserToView = useFamTreePageStore(
@@ -117,6 +119,7 @@ export function AddFamilyMemberSearchResult({ userList }) {
         //set active step to 2
         setActiveStep(2);
     };
+
     return (
         <Stack spacing="sm">
             <Paper withBorder p="md">

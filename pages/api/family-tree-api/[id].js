@@ -62,7 +62,8 @@ export default async function handler(req, res) {
                                             parent_id: "",
                                             attributes: {
                                                 spouse: "",
-                                                status: "",
+                                                status: req.body.new_member
+                                                    .attributes.status,
                                             },
                                             canPost: false,
                                         };
@@ -148,7 +149,8 @@ export default async function handler(req, res) {
                                                     .selected_tree_member_id,
                                             attributes: {
                                                 spouse: "",
-                                                status: "",
+                                                status: req.body.new_member
+                                                    .attributes.status,
                                             },
                                             canPost: false,
                                         };

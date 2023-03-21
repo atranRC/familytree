@@ -67,6 +67,9 @@ export default async function handler(req, res) {
                         });
                     }
                 }
+                //events
+                //written stories
+                //voice notes
             } catch (error) {
                 console.log(error);
                 res.status(400).json({ success: false });

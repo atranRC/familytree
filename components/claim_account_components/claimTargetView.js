@@ -10,6 +10,8 @@ import {
     createStyles,
     Image,
     TextInput,
+    Group,
+    Paper,
 } from "@mantine/core";
 import axios from "axios";
 import { useState } from "react";
@@ -123,65 +125,45 @@ export function ClaimTargetView({ targetAccountId }) {
                     spacing={10}
                     align={"center"}
                     className={classes.stack}
+                    p="md"
                 >
-                    <Avatar
-                        size="xl"
-                        src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                    />
-                    <Title order={2}>{dataTargetAccount.data.data.name}</Title>
-                    <Title c="dimmed" fw={500} order={6} align="center" mb="sm">
-                        Nairobi, Kenya
+                    <Avatar size="xl" src={dataTargetAccount.data.data.image} />
+                    <Title order={2}>
+                        {dataTargetAccount.data.data.name}{" "}
+                        {dataTargetAccount.data.data.fathers_name}{" "}
+                        {dataTargetAccount.data.data.last_name}
                     </Title>
                     <Title c="dimmed" fw={500} order={6} align="center" mb="sm">
-                        {session.user.email}
+                        {dataTargetAccount.data.data.current_residence}
                     </Title>
-                    <SimpleGrid
-                        cols={3}
-                        breakpoints={[
-                            {
-                                maxWidth: 980,
-                                cols: 3,
-                                spacing: "md",
-                            },
-                            {
-                                maxWidth: 755,
-                                cols: 2,
-                                spacing: "sm",
-                            },
-                            {
-                                maxWidth: 600,
-                                cols: 1,
-                                spacing: "sm",
-                            },
-                        ]}
-                    >
+
+                    <Group spacing="xl">
                         <div>
                             <Title order={5} color="dimmed" weight={500}>
                                 Born
                             </Title>
-                            <Text>
-                                <Text fw={500}>1990</Text>
-                            </Text>
-                        </div>
-                        <div>
-                            <Title order={5} color="dimmed" weight={500}>
-                                Siblings
-                            </Title>
-                            <Text>
+
+                            {dataTargetAccount.data.data.birthday && (
                                 <Text fw={500}>
-                                    samuser2, samuser3, samuser4
+                                    {
+                                        dataTargetAccount.data.data.birthday
+                                            .toString()
+                                            .split("T")[0]
+                                    }
                                 </Text>
-                            </Text>
+                            )}
                         </div>
+
                         <div>
                             <Title order={5} color="dimmed" weight={500}>
                                 Nicknames
                             </Title>
-                            <Text>
-                                <Text fw={500}>nickaname1, nickname2</Text>
+
+                            <Text fw={500}>
+                                {dataTargetAccount.data.data.nicknames}
                             </Text>
                         </div>
-                    </SimpleGrid>
+                    </Group>
 
                     <Title order={5} color="dimmed" weight={500}>
                         Photos

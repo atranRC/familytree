@@ -16,6 +16,7 @@ import {
     MultiSelect,
     Tabs,
     Checkbox,
+    Pagination,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import {
@@ -24,7 +25,7 @@ import {
     IconCalendarEvent,
     IconLocation,
 } from "@tabler/icons";
-import { forwardRef, useContext, useState } from "react";
+import { forwardRef, useContext, useEffect, useState } from "react";
 import { FamtreePageContext } from "../../contexts/contexts";
 import { citiesData } from "../../pages/demo/auth-demo/cities";
 import useFamTreePageStore from "../../lib/stores/famtreePageStore";
@@ -521,6 +522,8 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
     const [newRelativeBirthplace, setNewRelativeBirthplace] = useState("");
     const [newRelativeBirthday, setNewRelativeBirthday] = useState("");
 
+    const [page, setPage] = useState(1);
+
     const SelectItem = forwardRef(
         ({ image, label, description, ...others }, ref) => (
             <div ref={ref} {...others}>
@@ -615,14 +618,15 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
         refetch: refetchWithInfo,
         isError: isErrorWithInfo,
         error: errorWithInfo,
-    } = useQuery(
-        "similar-users-with-info",
-        () => {
-            let uri = "/api/users/search-headless/" + newRelativeFirstName;
+    } = useQuery({
+        qyeryKey: "similar-users-with-info",
+        queryFn: () => {
+            //let uri = "/api/users/search-headless/" + newRelativeFirstName;
+            let uri = `http://localhost:3000/api/users/search/family?searchTerm=${newRelativeFirstName}&p=${page}`;
             return axios.get(uri);
         },
-        { enabled: false }
-    );
+        enabled: false,
+    });
 
     const {
         isLoading: isLoadingWithCreateUser,
@@ -647,7 +651,7 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
                     parent_id: "",
                     attributes: {
                         spouse: "",
-                        status: "",
+                        status: statusRadioValue,
                     },
                     canPost: false,
                 },
@@ -769,15 +773,30 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
             if (isErrorWithInfo) {
                 return <SomethingWentWrong type="error" />;
             }
-            if (dataWithInfo && dataWithInfo.data.data.length === 0) {
+            if (dataWithInfo && dataWithInfo.data.data.users.length === 0) {
                 return <SomethingWentWrong type="empty" />;
             }
-            if (dataWithInfo && dataWithInfo.data.data.length > 0) {
-                console.log(dataWithInfo.data.data);
+            if (dataWithInfo && dataWithInfo.data.data.users.length > 0) {
+                console.log(dataWithInfo.data.data.users);
                 return (
-                    <AddFamilyMemberSearchResult
-                        userList={dataWithInfo.data.data}
-                    />
+                    <div>
+                        {dataWithInfo && (
+                            <Pagination
+                                p="sm"
+                                page={page}
+                                onChange={setPage}
+                                total={
+                                    dataWithInfo.data.data.pagination.pageCount
+                                }
+                                siblings={1}
+                                initialPage={1}
+                                position="center"
+                            />
+                        )}
+                        <AddFamilyMemberSearchResult
+                            userList={dataWithInfo.data.data.users}
+                        />
+                    </div>
                 );
             }
         }
@@ -816,6 +835,12 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
         }
     };
 
+    useEffect(() => {
+        if (newRelativeChosenMethod === "info") {
+            refetchWithInfo();
+        }
+    }, [page]);
+
     return (
         <>
             {selectedTreeMember ? (
@@ -830,6 +855,15 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
                         description="enter email/info"
                     >
                         <Stack spacing="sm">
+                            <Radio.Group
+                                value={statusRadioValue}
+                                onChange={setStatusRadioValue}
+                                name="status"
+                                label="Status of the person"
+                            >
+                                <Radio value="living" label="Living" />
+                                <Radio value="deceased" label="Deceased" />
+                            </Radio.Group>
                             <Paper withBorder p="md">
                                 <Radio.Group
                                     value={radioValue}
@@ -898,9 +932,9 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
                                         fw={500}
                                         c="dimmed"
                                     >
-                                        Give us info on your relative and we'll
-                                        look for them in our database. If
-                                        they're not in our database, we'll
+                                        Give us info on your relative and we
+                                        will look for them in our database. If
+                                        they are not in our database, we will
                                         create a profile for them so you can add
                                         them to your family tree.
                                     </Text>
@@ -1007,18 +1041,7 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
                                         value={newRelativeBirthday}
                                         onChange={setNewRelativeBirthday}
                                     />
-                                    <Radio.Group
-                                        value={statusRadioValue}
-                                        onChange={setStatusRadioValue}
-                                        name="status"
-                                        label="Status of the person"
-                                    >
-                                        <Radio value="living" label="Living" />
-                                        <Radio
-                                            value="deceased"
-                                            label="Deceased"
-                                        />
-                                    </Radio.Group>
+
                                     <Button
                                         mt="sm"
                                         variant="outline"

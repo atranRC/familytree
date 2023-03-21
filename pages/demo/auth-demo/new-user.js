@@ -2,7 +2,7 @@ import { getSession } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { unstable_getServerSession } from "next-auth/next";
 import { authOptions } from "../../api/auth/[...nextauth]";
-import { useState, forwardRef } from "react";
+import { useState, forwardRef, useEffect } from "react";
 import { citiesData, dummyUsers } from "./cities";
 import * as Realm from "realm-web";
 import axios from "axios";
@@ -42,12 +42,14 @@ import {
     Divider,
     Loader,
     ThemeIcon,
+    Pagination,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { Carousel } from "@mantine/carousel";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ClaimTargetView } from "../../../components/claim_account_components/claimTargetView";
+import { useQuery } from "react-query";
 
 function NoAccounts({ updateNewUserHandler }) {
     const router = useRouter();
@@ -75,7 +77,13 @@ function NoAccounts({ updateNewUserHandler }) {
     );
 }
 
-function UnclaimedAccountsList({ unclaimedAccounts, updateNewUserHandler }) {
+function UnclaimedAccountsList({
+    unclaimedAccounts,
+    updateNewUserHandler,
+    page,
+    setPage,
+    dataAccs,
+}) {
     const [opened, setOpened] = useState(false);
     const [accountToView, setAccountToView] = useState();
     const [requestSent, setRequestSent] = useState(false);
@@ -141,7 +149,7 @@ function UnclaimedAccountsList({ unclaimedAccounts, updateNewUserHandler }) {
                                     <div>
                                         <Text size="sm">{acc.username}</Text>
                                         <Text size="xs" opacity={0.65}>
-                                            {acc.name}
+                                            {acc.name} {acc.fathers_name}
                                         </Text>
                                     </div>
                                 </Group>
@@ -166,8 +174,18 @@ function UnclaimedAccountsList({ unclaimedAccounts, updateNewUserHandler }) {
                     <NoAccounts updateNewUserHandler={updateNewUserHandler} />
                 )}
             </ScrollArea>
+            {dataAccs && (
+                <Pagination
+                    page={page}
+                    onChange={setPage}
+                    total={dataAccs.data.data.pagination.pageCount}
+                    siblings={1}
+                    initialPage={1}
+                    position="center"
+                />
+            )}
             <Text fz="sm" c="dimmed" className={classes.goToAccount}>
-                Can't find any match?{" "}
+                Cant find any match?{" "}
                 <Link href={"#"} onClick={updateNewUserHandler}>
                     Go to your Account
                 </Link>
@@ -193,6 +211,7 @@ export function StepperUserInfo() {
     const [updatedUser, setUpdatedUser] = useState();
     const [updatingUserInfo, setUpdatingUserInfo] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [page, setPage] = useState(1);
 
     const useStyles = createStyles((theme) => ({
         title: {
@@ -226,9 +245,36 @@ export function StepperUserInfo() {
         )
     );
 
+    const {
+        isLoading: isLoadingAccs,
+        isFetching: isFetchingAccs,
+        data: dataAccs,
+        refetch: refetchAccs,
+        isError: isErrorAccs,
+        error: errorAccs,
+    } = useQuery({
+        queryKey: "fetch-accs",
+        queryFn: () => {
+            setIsLoading(true);
+            return axios.get(
+                "/api/users/search?searchTerm=" + name.value + "&p=" + page
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            console.log("unclaimed accounts ", d.data.data);
+            setUnclaimedAccounts(d.data.data.users);
+            setIsLoading(false);
+        },
+    });
+    useEffect(() => {
+        refetchAccs();
+    }, [page]);
+
     const handleFetchUsers = async () => {
         setIsLoading(true);
-        const APP_ID = "users-app-pwqpx";
+        refetchAccs();
+        /* const APP_ID = "users-app-pwqpx";
         const app = new Realm.App({ id: APP_ID });
         const credentials = Realm.Credentials.anonymous();
         try {
@@ -239,7 +285,7 @@ export function StepperUserInfo() {
             setIsLoading(false);
         } catch (err) {
             console.log(err);
-        }
+        }*/
         //setUnclaimedAccounts([]);
     };
     const router = useRouter();
@@ -534,6 +580,9 @@ export function StepperUserInfo() {
                             <UnclaimedAccountsList
                                 unclaimedAccounts={unclaimedAccounts}
                                 updateNewUserHandler={updateNewUserHandler}
+                                page={page}
+                                setPage={setPage}
+                                dataAccs={dataAccs}
                             />
                         )}
                     </>

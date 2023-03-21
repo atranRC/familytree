@@ -112,7 +112,6 @@ export function NewRelativeNoResultsFound() {
                     <Text span>Try again</Text> with a different email or info.
                 </Text>
                 <Divider label="Or" labelPosition="center" />
-                <Button></Button>
             </Stack>
         </Paper>
     );

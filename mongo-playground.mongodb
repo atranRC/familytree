@@ -8,7 +8,7 @@ use('famtree');
 //db.users.find({})
 /*db.users.update(
   {},
-  { $set: {"isHistorian": false} },
+  { $set: {"isBlocked": false} },
   {upsert:false,
   multi: true}
 )*/

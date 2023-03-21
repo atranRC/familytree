@@ -23,19 +23,9 @@ const UsersSchema = mongoose.Schema({
     birthday: {
         type: Date,
     },
-    children: {
-        sons: { type: Array },
-        daughters: { type: Array },
-        step_sons: { type: Array },
-        step_daughters: { type: Array },
-    },
     owner: {
         type: String,
         required: [true, "Please provide your name."],
-    },
-
-    current_location: {
-        type: String,
     },
 
     current_residence: {
@@ -53,22 +43,11 @@ const UsersSchema = mongoose.Schema({
     nicknames: {
         type: String,
     },
-    parents: {
-        father: { type: String },
-        mother: { type: String },
-        step_father: { type: String },
-        step_mother: { type: String },
-    },
-    path: {
-        type: String,
-    },
-    relatives: {
-        type: Array,
-    },
-    ancestors: {
-        type: Array,
-    },
     isHistorian: {
+        type: Boolean,
+        default: false,
+    },
+    isBlocked: {
         type: Boolean,
         default: false,
     },
