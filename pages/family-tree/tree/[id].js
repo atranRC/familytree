@@ -577,6 +577,7 @@ function AddMemberStepper({ selectedTreeMemberData }) {
                     <StepThree
                         memberAddMode={memberAddMode}
                         radioValue={radioValue}
+                        selectedTreeMemberData={selectedTreeMemberData}
                         selectedSearchResultCard={selectedSearchResultCard}
                         newRelativeEmail={newRelativeEmail}
                         newRelativeFirstName={newRelativeFirstName}
@@ -1097,6 +1098,7 @@ function StepThree({
     memberAddMode,
     selectedSearchResultCard = null,
     radioValue,
+    selectedTreeMemberData,
     newRelativeEmail = "",
     newRelativeFirstName = "",
     newRelativeFatherName = "",
@@ -1106,11 +1108,461 @@ function StepThree({
     newRelativeBirthplace = "",
 }) {
     if (memberAddMode === "create") {
-        return <div>creating {newRelativeFirstName}</div>;
+        return (
+            <CreateAndAdd
+                newRelativeEmail={newRelativeEmail}
+                newRelativeFirstName={newRelativeFirstName}
+                newRelativeFatherName={newRelativeFatherName}
+                newRelativeNicknames={newRelativeNicknames}
+                newRelativeBirthday={newRelativeBirthday}
+                newRelativeCurrentResidence={newRelativeCurrentResidence}
+                newRelativeBirthplace={newRelativeBirthplace}
+                radioValue={radioValue}
+                selectedTreeMemberData={selectedTreeMemberData}
+            />
+        );
     }
     if (memberAddMode === "existing") {
-        return <div>{JSON.stringify(selectedSearchResultCard)}</div>;
+        return (
+            <AddExistingProfile
+                radioValue={radioValue}
+                selectedSearchResultCard={selectedSearchResultCard}
+                selectedTreeMemberData={selectedTreeMemberData}
+            />
+        );
     }
+}
+
+function CreateAndAdd({
+    radioValue,
+    selectedTreeMemberData,
+    newRelativeEmail = "",
+    newRelativeFirstName = "",
+    newRelativeFatherName = "",
+    newRelativeNicknames = "",
+    newRelativeBirthday = "",
+    newRelativeCurrentResidence = "",
+    newRelativeBirthplace = "",
+}) {
+    const { data: session } = useSession();
+    //get user by email
+    const {
+        isLoading: isLoadingOwner,
+        isFetching: isFetchingOwner,
+        data: dataOwner,
+        refetch: refetchOwner,
+        isError: isErrorOwner,
+        error: errorOwner,
+    } = useQuery({
+        queryKey: "create-user",
+        queryFn: () => {
+            const url = `/api/users/users-mongoose/${session.user.email}`;
+            return axios.get(url);
+        },
+        enabled: session ? true : false,
+        onSuccess: (d) => {
+            //edit selected node
+            console.log("fetching owner");
+        },
+    });
+
+    /////////////////creating new user
+    //json bod
+    //new user info
+    //relation type
+    //treeid
+    //selectedTreeMemberData
+    //attributes
+
+    //get user by email
+    const {
+        isLoading: isLoadingCreateAndAdd,
+        isFetching: isFetchingCreateAndAdd,
+        data: dataCreateAndAdd,
+        refetch: refetchCreateAndAdd,
+        isError: isErrorCreateAndAdd,
+        error: errorCreateAndAdd,
+    } = useQuery({
+        queryKey: "create-and-add",
+        queryFn: () => {
+            const bod = {
+                newUserInfo: {
+                    name: newRelativeFirstName,
+                    email: "",
+                    image: "",
+                    emailVerified: false,
+                    birth_place: newRelativeBirthplace,
+                    birthday: newRelativeBirthday.toString(),
+                    owner: dataOwner.data.data._id.toString(),
+                    current_residence: newRelativeCurrentResidence,
+                    fathers_name: newRelativeFatherName,
+                    last_name: "",
+                    nicknames: newRelativeNicknames,
+                    isHistorian: false,
+                    isBlocked: false,
+                },
+                relationType: radioValue,
+                selectedTreeMemberData: selectedTreeMemberData,
+                attributes: {
+                    spouse: "",
+                    status: "",
+                },
+            };
+            const url = `/api/family-tree-api/tree-members/create-and-add/`;
+            return axios.post(url, bod);
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            //edit selected node
+            console.log(d.data.data);
+        },
+    });
+    /*
+    const {
+        isLoading: isLoadingCreateUser,
+        isFetching: isFetchingCreateUserr,
+        data: dataCreateUser,
+        refetch: refetchCreateUser,
+        isError: isErrorCreateUser,
+        error: errorCreateUser,
+    } = useQuery({
+        queryKey: "create-user",
+        queryFn: () => {
+            const bod = {
+                name: newRelativeFirstName,
+                email: "",
+                image: "",
+                emailVerified: false,
+                birth_place: newRelativeBirthplace,
+                birthday: newRelativeBirthday.toString(),
+                owner: dataOwner.data.data._id.toString(),
+                current_residence: newRelativeCurrentResidence,
+                fathers_name: newRelativeFatherName,
+                last_name: "",
+                nicknames: newRelativeNicknames,
+                isHistorian: false,
+                isBlocked: false,
+            };
+
+            const url = `/api/users/add-unclaimed-account`;
+            return axios.post(url, bod);
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            console.log("user created", d.data.data);
+        },
+    });
+
+    const {
+        isLoading: isLoadingEditNode,
+        isFetching: isFetchingEditNode,
+        data: dataEditNode,
+        refetch: refetchEditNode,
+        isError: isErrorEditNode,
+        error: errorEditNode,
+    } = useQuery({
+        queryKey: "edit-node",
+        queryFn: () => {
+            const bod = {
+                parent_id: dataCreateUser.data.data._id.toString(),
+            };
+            return axios.put(
+                `/api/family-tree-api/tree-members/manage-members/${selectedTreeMemberData._id.toString()}`,
+                bod
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            console.log("editing node");
+        },
+    });
+
+    const {
+        isLoading: isLoadingAddMember,
+        isFetching: isFetchingAddMember,
+        data: dataAddMember,
+        refetch: refetchAddMember,
+        isError: isErrorAddMember,
+        error: errorAddMember,
+    } = useQuery({
+        queryKey: "add-tree-member",
+        queryFn: () => {
+            let bod = {};
+            if (radioValue === "father") {
+                bod = {
+                    treeId: selectedTreeMemberData.treeId,
+                    id: dataCreateUser.data.data._id.toString(),
+                    name: dataCreateUser.data.data.name,
+                    parent_id: "",
+                    attributes: {
+                        spouse: "",
+                        status: "",
+                    },
+                    canPost: false,
+                };
+            } else if (radioValue === "child") {
+                bod = {
+                    treeId: selectedTreeMemberData.treeId,
+                    id: dataCreateUser.data.data._id.toString(),
+                    name: dataCreateUser.data.data.name,
+                    parent_id: selectedTreeMemberData.id.toString(),
+                    attributes: {
+                        spouse: "",
+                        status: "",
+                    },
+                    canPost: false,
+                };
+            }
+            const url = `/api/family-tree-api/tree-members/manage-members/`;
+            return axios.post(url, bod);
+        },
+        enabled: dataCreateUser ? true : false,
+        onSuccess: (d) => {
+            if (radioValue === "father") {
+                //edit selected node
+                console.log("adding father");
+                refetchEditNode();
+            }
+        },
+    });
+*/
+    /////////////////////////////////////
+
+    const handleCreateAndAdd = () => {
+        refetchCreateAndAdd();
+    };
+    if (!dataOwner) {
+        return <Loader />;
+    }
+
+    return (
+        <Stack>
+            <Paper p="sm" withBorder>
+                <Stack align="center" justify="center" spacing={0}>
+                    <h1>
+                        {newRelativeFirstName} {newRelativeFatherName}
+                    </h1>
+                </Stack>
+            </Paper>
+            <Paper p="sm" withBorder>
+                <Group position="center">
+                    <Stack align="center" justify="center" spacing={0}>
+                        <Text fw={500} c="dimmed">
+                            Birthday
+                        </Text>
+                        <Text fz="xl" fw={500}>
+                            {newRelativeBirthday &&
+                                newRelativeBirthday.toString().split("T")[0]}
+                        </Text>
+                    </Stack>
+                    <Stack align="center" justify="center" spacing={0}>
+                        <Text fw={500} c="dimmed">
+                            Place of Birth
+                        </Text>
+                        <Text fz="xl" fw={500}>
+                            {newRelativeBirthplace}
+                        </Text>
+                    </Stack>
+                    <Stack align="center" justify="center" spacing={0}>
+                        <Text fw={500} c="dimmed">
+                            Nicknames
+                        </Text>
+                        <Text fz="xl" fw={500}>
+                            {newRelativeNicknames}
+                        </Text>
+                    </Stack>
+                    <Stack align="center" justify="center" spacing={0}>
+                        <Text fw={500} c="dimmed">
+                            City
+                        </Text>
+                        <Text fz="xl" fw={500}>
+                            {newRelativeCurrentResidence}
+                        </Text>
+                    </Stack>
+                </Group>
+            </Paper>
+
+            <Button onClick={handleCreateAndAdd}>
+                Create Profile and Add Relative
+            </Button>
+        </Stack>
+    );
+}
+
+function AddExistingProfile({
+    radioValue,
+    selectedSearchResultCard,
+    selectedTreeMemberData,
+}) {
+    const images = [
+        "https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=876&q=80",
+        "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
+        "https://images.unsplash.com/photo-1597524678053-5e6fef52d8a3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=676&q=80",
+        "https://images.unsplash.com/photo-1596510914965-9ae08acae566?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=449&q=80",
+    ];
+    const slides = images.map((url) => (
+        <Carousel.Slide key={url}>
+            <Image src={url} fit="cover" />
+        </Carousel.Slide>
+    ));
+    const {
+        isLoading: isLoadingEditNode,
+        isFetching: isFetchingEditNode,
+        data: dataEditNode,
+        refetch: refetchEditNode,
+        isError: isErrorEditNode,
+        error: errorEditNode,
+    } = useQuery({
+        queryKey: "edit-node",
+        queryFn: () => {
+            const bod = {
+                parent_id: selectedSearchResultCard._id.toString(),
+            };
+            console.log("hehehe", selectedTreeMemberData._id.toString());
+            return axios.put(
+                `/api/family-tree-api/tree-members/manage-members/${selectedTreeMemberData._id.toString()}`,
+                bod
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            console.log("added father");
+        },
+    });
+
+    const {
+        isLoading: isLoadingAddMember,
+        isFetching: isFetchingAddMember,
+        data: dataAddMember,
+        refetch: refetchAddMember,
+        isError: isErrorAddMember,
+        error: errorAddMember,
+    } = useQuery({
+        queryKey: "add-tree-member",
+        queryFn: () => {
+            let bod = {};
+            if (radioValue === "father") {
+                bod = {
+                    treeId: selectedTreeMemberData.treeId,
+                    id: selectedSearchResultCard._id.toString(),
+                    name: selectedSearchResultCard.name,
+                    parent_id: "",
+                    attributes: {
+                        spouse: "",
+                        status: "",
+                    },
+                    canPost: false,
+                };
+            } else if (radioValue === "child") {
+                bod = {
+                    treeId: selectedTreeMemberData.treeId,
+                    id: selectedSearchResultCard._id.toString(),
+                    name: selectedSearchResultCard.name,
+                    parent_id: selectedTreeMemberData.id.toString(),
+                    attributes: {
+                        spouse: "",
+                        status: "",
+                    },
+                    canPost: false,
+                };
+            }
+            const url = `/api/family-tree-api/tree-members/manage-members/`;
+            return axios.post(url, bod);
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            if (radioValue === "father") {
+                //edit selected node
+                console.log("adding father");
+                refetchEditNode();
+            }
+        },
+    });
+
+    const handleAddRelative = () => {
+        //if radiovalue = father
+        //add selected card to tree members
+        //edit selected nodes parent id
+        //if radiovalue = child
+        //add selected card to tree members with parent id set to selected node
+        refetchAddMember();
+        //console.log("selected tree member", selectedTreeMemberData);
+    };
+
+    return (
+        <Stack>
+            <Paper p="sm" withBorder>
+                <Stack align="center" justify="center" spacing={0}>
+                    <Avatar
+                        src={selectedSearchResultCard.image}
+                        alt="profile pic"
+                        size="xl"
+                        radius="xl"
+                        color="indigo"
+                    />
+                    <h1>
+                        {selectedSearchResultCard.name}{" "}
+                        {selectedSearchResultCard.fathers_name}
+                    </h1>
+                </Stack>
+            </Paper>
+            <Paper p="sm" withBorder>
+                <Group position="center">
+                    <Stack align="center" justify="center" spacing={0}>
+                        <Text fw={500} c="dimmed">
+                            Birthday
+                        </Text>
+                        <Text fz="xl" fw={500}>
+                            {selectedSearchResultCard.birthday &&
+                                selectedSearchResultCard.birthday
+                                    .toString()
+                                    .split("T")[0]}
+                        </Text>
+                    </Stack>
+                    <Stack align="center" justify="center" spacing={0}>
+                        <Text fw={500} c="dimmed">
+                            Place of Birth
+                        </Text>
+                        <Text fz="xl" fw={500}>
+                            {selectedSearchResultCard.birth_place}
+                        </Text>
+                    </Stack>
+                    <Stack align="center" justify="center" spacing={0}>
+                        <Text fw={500} c="dimmed">
+                            Nicknames
+                        </Text>
+                        <Text fz="xl" fw={500}>
+                            {selectedSearchResultCard.nicknames}
+                        </Text>
+                    </Stack>
+                    <Stack align="center" justify="center" spacing={0}>
+                        <Text fw={500} c="dimmed">
+                            City
+                        </Text>
+                        <Text fz="xl" fw={500}>
+                            {selectedSearchResultCard.current_residence}
+                        </Text>
+                    </Stack>
+                </Group>
+            </Paper>
+            <Paper p="sm" withBorder>
+                <Stack align="center" justify="center">
+                    <Text fz="xl" fw={500}>
+                        Photos
+                    </Text>
+                    <Carousel maw={320} mx="auto" withIndicators>
+                        {slides}
+                    </Carousel>
+                </Stack>
+            </Paper>
+            <Button
+                loading={isLoadingAddMember || isFetchingAddMember}
+                onClick={handleAddRelative}
+            >
+                Add Relative
+            </Button>
+        </Stack>
+    );
 }
 
 function ViewTreeMember({ selectedTreeMemberUserId }) {
