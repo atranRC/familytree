@@ -95,6 +95,7 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
     const [editButtonDisabled, setEditButtonDisabled] = useState(false);
     const [collabButtonDisabled, setCollabButtonDisabled] = useState(false);
     const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(false);
+    const [treeMembersIds, setTreeMembersIds] = useState([]);
 
     const {
         isLoading: isLoadingUser,
@@ -181,11 +182,13 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
         queryFn: () => {
             const pa = asPath.split("/");
             return axios.get(
-                "/api/family-tree-api/tree-members/" +
-                    dataTree.data.data._id.toString()
+                `/api/family-tree-api/tree-members/${dataTree.data.data._id.toString()}?userOwnerId=${dataUser.data.data._id.toString()}&treeOwnerId=${
+                    dataTree.data.data.owner
+                }`
             );
         },
         onSuccess: (d) => {
+            console.log(d.data.data);
             console.log("playerss", d.data.data);
             let mid = [];
             d.data.data.map((member) => {
@@ -218,10 +221,13 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                         }
                     }
                 }
+                setTreeMembersIds([...treeMembersIds, mem.id.toString()]);
 
                 return {
                     _id: mem._id.toString(),
+                    root: mem._id.toString() + "root",
                     treeId: mem.treeId,
+                    customId: mem._id.toString(),
                     id: mem.id,
                     name: person_name,
                     parent_id: mem.parent_id,
@@ -231,7 +237,17 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                     },
                 };
             });
-            setTreeMembersData(JSON.parse(JSON.stringify(mdata)));
+            console.log("here is your problem", mdata);
+            const arrayToTreeData = arrayToTree(
+                JSON.parse(JSON.stringify(mdata)),
+                {
+                    parentProperty: "parent_id",
+                    customID: "id",
+                    rootID: "root",
+                }
+            );
+            setTreeMembersData(arrayToTreeData);
+            //setTreeMembersData(d.data.data);
         },
         onError: () => {
             console.log("iddddds", id);
@@ -382,7 +398,7 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                         <Loader />
                     ) : (
                         <Tree
-                            data={arrayToTree(treeMembersData)}
+                            data={treeMembersData}
                             dimensions={dimensions}
                             translate={translate}
                             collapsible={false}
@@ -402,7 +418,10 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                 size="lg"
                 overflow="inside"
             >
-                <ModalContent selectedTreeMemberData={selectedTreeMemberData} />
+                <ModalContent
+                    selectedTreeMemberData={selectedTreeMemberData}
+                    treeMembersIds={treeMembersIds}
+                />
                 {/*dataUser && (
                     <ModalContent
                         ownerId={dataUser.data.data._id.toString()}
@@ -455,7 +474,7 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
         </AppShellContainer>
     );
 }
-function ModalContent({ selectedTreeMemberData }) {
+function ModalContent({ selectedTreeMemberData, treeMembersIds }) {
     const [activeTab, setActiveTab] = useState("view");
     return (
         <Paper style={{ backgroundColor: "#f8f8f8" }} p="md">
@@ -472,18 +491,21 @@ function ModalContent({ selectedTreeMemberData }) {
             ) : (
                 <AddMemberStepper
                     selectedTreeMemberData={selectedTreeMemberData}
+                    treeMembersIds={treeMembersIds}
                 />
             )}
         </Paper>
     );
 }
 
-function AddMemberStepper({ selectedTreeMemberData }) {
+function AddMemberStepper({ selectedTreeMemberData, treeMembersIds }) {
     const [active, setActive] = useState(0);
     const [mode, setMode] = useState("");
 
     const [radioValue, setRadioValue] = useState("");
     const [radioValueError, setRadioValueError] = useState(false);
+    const [memberLifeStatus, setMemberLifeStatus] = useState("");
+    const [memberLifeStatusError, setMemberLifeStatusError] = useState(false);
     const [newRelativeEmail, setNewRelativeEmail] = useState("");
     const [newRelativeEmailError, setNewRelativeEmailError] = useState("");
     const [newRelativeFirstName, setNewRelativeFirstName] = useState("");
@@ -525,6 +547,10 @@ function AddMemberStepper({ selectedTreeMemberData }) {
                         setRadioValue={setRadioValue}
                         radioValueError={radioValueError}
                         setRadioValueError={setRadioValueError}
+                        memberLifeStatus={memberLifeStatus}
+                        setMemberLifeStatus={setMemberLifeStatus}
+                        memberLifeStatusError={memberLifeStatusError}
+                        setMemberLifeStatusError={setMemberLifeStatusError}
                         newRelativeEmail={newRelativeEmail}
                         setNewRelativeEmail={setNewRelativeEmail}
                         newRelativeEmailError={newRelativeEmailError}
@@ -567,6 +593,7 @@ function AddMemberStepper({ selectedTreeMemberData }) {
                         setSelectedSearchResultCard={
                             setSelectedSearchResultCard
                         }
+                        treeMembersIds={treeMembersIds}
                     />
                 </Stepper.Step>
                 <Stepper.Step
@@ -577,6 +604,7 @@ function AddMemberStepper({ selectedTreeMemberData }) {
                     <StepThree
                         memberAddMode={memberAddMode}
                         radioValue={radioValue}
+                        memberLifeStatus={memberLifeStatus}
                         selectedTreeMemberData={selectedTreeMemberData}
                         selectedSearchResultCard={selectedSearchResultCard}
                         newRelativeEmail={newRelativeEmail}
@@ -605,6 +633,10 @@ function AddMemberStepper({ selectedTreeMemberData }) {
 function StepOne({
     selectedTreeMemberData,
     radioValue,
+    memberLifeStatus,
+    setMemberLifeStatus,
+    memberLifeStatusError,
+    setMemberLifeStatusError,
     setRadioValue,
     radioValueError,
     setRadioValueError,
@@ -653,7 +685,14 @@ function StepOne({
         if (newRelativeEmail === "") {
             setNewRelativeEmailError(true);
         }
-        if (newRelativeEmail !== "" && radioValue !== "") {
+        if (memberLifeStatus === "") {
+            setMemberLifeStatusError(true);
+        }
+        if (
+            newRelativeEmail !== "" &&
+            radioValue !== "" &&
+            memberLifeStatus !== ""
+        ) {
             setMode("email");
             setActive(1);
         }
@@ -666,7 +705,14 @@ function StepOne({
         if (newRelativeFirstName === "") {
             setNewRelativeFirstNameError(true);
         }
-        if (newRelativeFirstName !== "" && radioValue !== "") {
+        if (memberLifeStatus === "") {
+            setMemberLifeStatusError(true);
+        }
+        if (
+            newRelativeFirstName !== "" &&
+            radioValue !== "" &&
+            memberLifeStatus !== ""
+        ) {
             //setActiveStep(1);
             setMode("info");
             setActive(1);
@@ -690,6 +736,22 @@ function StepOne({
                     <Radio value="father" label="Father" />
                     <Radio value="mother" label="Mother" />
                     <Radio value="child" label="Child" />
+                </Radio.Group>
+            </Paper>
+            <Paper withBorder p="md">
+                <Radio.Group
+                    value={memberLifeStatus}
+                    onChange={setMemberLifeStatus}
+                    name="memberLifeStatusType"
+                    label="Member Status"
+                    description={`Is this family member alive or deceased?`}
+                    withAsterisk
+                    pos="center"
+                    error={memberLifeStatusError && "invalid input"}
+                    onFocus={() => setMemberLifeStatusError(false)}
+                >
+                    <Radio value="living" label="Living" />
+                    <Radio value="deceased" label="Deceased" />
                 </Radio.Group>
             </Paper>
             <Paper withBorder p="md">
@@ -828,6 +890,7 @@ function StepTwo({
     setMemberAddMode,
     setActive,
     setSelectedSearchResultCard,
+    treeMembersIds,
 }) {
     return (
         <div>
@@ -844,6 +907,7 @@ function StepTwo({
                     setActive={setActive}
                     setSelectedSearchResultCard={setSelectedSearchResultCard}
                     setMemberAddMode={setMemberAddMode}
+                    treeMembersIds={treeMembersIds}
                 />
             )}
         </div>
@@ -855,6 +919,7 @@ function InfoSearchResult({
     setActive,
     setSelectedSearchResultCard,
     setMemberAddMode,
+    treeMembersIds,
 }) {
     const useStyles = createStyles((theme) => ({
         paper: {
@@ -890,9 +955,12 @@ function InfoSearchResult({
     });
 
     const handleClick = (user) => {
-        setSelectedSearchResultCard(user);
-        setMemberAddMode("existing");
-        setActive(2);
+        console.log("treee membersss", treeMembersIds);
+        if (treeMembersIds.indexOf(user._id.toString()) === -1) {
+            setSelectedSearchResultCard(user);
+            setMemberAddMode("existing");
+            setActive(2);
+        }
     };
 
     const handleCreate = () => {
@@ -909,7 +977,26 @@ function InfoSearchResult({
     }
 
     if (isError) {
-        return <div>error</div>;
+        return (
+            <div>
+                {`error searching for ${newRelativeFirstName}`}
+                <Text>
+                    Cant find the person looking for?{" "}
+                    <Text
+                        span
+                        style={{
+                            color: "blue",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                        }}
+                        onClick={handleCreate}
+                    >
+                        Create
+                    </Text>{" "}
+                    a profile for them.{" "}
+                </Text>
+            </div>
+        );
     }
 
     return (
@@ -1099,6 +1186,7 @@ function StepThree({
     selectedSearchResultCard = null,
     radioValue,
     selectedTreeMemberData,
+    memberLifeStatus,
     newRelativeEmail = "",
     newRelativeFirstName = "",
     newRelativeFatherName = "",
@@ -1110,6 +1198,7 @@ function StepThree({
     if (memberAddMode === "create") {
         return (
             <CreateAndAdd
+                memberLifeStatus={memberLifeStatus}
                 newRelativeEmail={newRelativeEmail}
                 newRelativeFirstName={newRelativeFirstName}
                 newRelativeFatherName={newRelativeFatherName}
@@ -1126,6 +1215,7 @@ function StepThree({
         return (
             <AddExistingProfile
                 radioValue={radioValue}
+                memberLifeStatus={memberLifeStatus}
                 selectedSearchResultCard={selectedSearchResultCard}
                 selectedTreeMemberData={selectedTreeMemberData}
             />
@@ -1136,6 +1226,7 @@ function StepThree({
 function CreateAndAdd({
     radioValue,
     selectedTreeMemberData,
+    memberLifeStatus,
     newRelativeEmail = "",
     newRelativeFirstName = "",
     newRelativeFatherName = "",
@@ -1205,7 +1296,7 @@ function CreateAndAdd({
                 selectedTreeMemberData: selectedTreeMemberData,
                 attributes: {
                     spouse: "",
-                    status: "",
+                    status: memberLifeStatus,
                 },
             };
             const url = `/api/family-tree-api/tree-members/create-and-add/`;
@@ -1393,6 +1484,7 @@ function AddExistingProfile({
     radioValue,
     selectedSearchResultCard,
     selectedTreeMemberData,
+    memberLifeStatus,
 }) {
     const images = [
         "https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=876&q=80",
@@ -1449,7 +1541,7 @@ function AddExistingProfile({
                     parent_id: "",
                     attributes: {
                         spouse: "",
-                        status: "",
+                        status: memberLifeStatus,
                     },
                     canPost: false,
                 };
@@ -1461,7 +1553,7 @@ function AddExistingProfile({
                     parent_id: selectedTreeMemberData.id.toString(),
                     attributes: {
                         spouse: "",
-                        status: "",
+                        status: memberLifeStatus,
                     },
                     canPost: false,
                 };
@@ -1486,6 +1578,7 @@ function AddExistingProfile({
         //if radiovalue = child
         //add selected card to tree members with parent id set to selected node
         refetchAddMember();
+        //console.log("yiiiiiiiii", memberLifeStatus);
         //console.log("selected tree member", selectedTreeMemberData);
     };
 
