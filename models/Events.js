@@ -22,8 +22,16 @@ const EventsSchema = mongoose.Schema(
             required: [true, "please provide description"],
         },
         location: {
-            type: String,
-            required: [true, "please provide location"],
+            value: {
+                type: String,
+                required: [true, "please provide name"],
+            },
+            lon: {
+                type: mongoose.Types.Decimal128,
+            },
+            lat: {
+                type: mongoose.Types.Decimal128,
+            },
         },
         eventDate: {
             type: Date,

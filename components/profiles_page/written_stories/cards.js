@@ -15,6 +15,7 @@ import {
     Divider,
     ActionIcon,
     Image,
+    Autocomplete,
 } from "@mantine/core";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -43,6 +44,11 @@ export function AddStoryCard({
     const [storyContent, setStoryContent] = useState("");
     const [storyContentError, setStoryContentError] = useState(false);
     const [addStoryNotification, setAddStoryNotification] = useState(false);
+    const [locationError, setLocationError] = useState(false);
+
+    const [locationInputValue, setLocationInputValue] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState({});
+    const [fetchedLocations, setFetchedLocations] = useState([]);
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "post-story",
@@ -53,6 +59,15 @@ export function AddStoryCard({
                 authorName: sessionUser.name,
                 title: storyTitle,
                 content: storyContent,
+                location: {
+                    value: locationInputValue,
+                    lon: selectedLocation.lon
+                        ? selectedLocation.lon
+                        : "39.476826",
+                    lat: selectedLocation.lat
+                        ? selectedLocation.lat
+                        : "13.496664",
+                },
             });
         },
         enabled: false,
@@ -64,6 +79,44 @@ export function AddStoryCard({
             refetchStories();
         },
     });
+
+    const {
+        isLoading: isLoadingLocations,
+        isFetching: isFetchingLocations,
+        data: dataLocations,
+        refetch: refetchLocations,
+        isError: isErrorLocations,
+        error: errorLocations,
+    } = useQuery({
+        queryKey: "fetch-locations",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations(cit);
+        },
+    });
+
+    const handleLocationSelect = (l) => {
+        console.log(l);
+        setSelectedLocation(l);
+    };
+
+    useEffect(() => {
+        if (locationInputValue !== "") {
+            refetchLocations();
+        }
+    }, [locationInputValue]);
 
     const handleAddStory = () => {
         if (storyTitle === "" || storyContent === "") {
@@ -96,6 +149,19 @@ export function AddStoryCard({
                     }}
                     placeholder="enter title"
                 />
+
+                <Autocomplete
+                    label="Where did this story happen"
+                    value={locationInputValue}
+                    onChange={setLocationInputValue}
+                    data={fetchedLocations}
+                    onItemSubmit={handleLocationSelect}
+                    error={locationError}
+                    onFocus={() => {
+                        setLocationError(false);
+                    }}
+                />
+
                 <Textarea
                     label="Tell us your story..."
                     autosize
@@ -250,6 +316,11 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
     const [deleteStoryNotification, setDeleteStoryNotification] =
         useState(false);
     const [storyDeleted, setStoryDeleted] = useState(false);
+    const [locationValue, setLocationValue] = useState("");
+
+    const [locationInputValue, setLocationInputValue] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState({});
+    const [fetchedLocations, setFetchedLocations] = useState([]);
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "edit-story",
@@ -257,6 +328,15 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
             return axios.put("/api/written-stories/" + story._id, {
                 title: titleValue,
                 content: contentAreaValue,
+                location: {
+                    value: locationInputValue,
+                    lon: selectedLocation.lon
+                        ? selectedLocation.lon
+                        : "39.476826",
+                    lat: selectedLocation.lat
+                        ? selectedLocation.lat
+                        : "13.496664",
+                },
             });
         },
         enabled: false,
@@ -286,6 +366,33 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
         },
     });
 
+    const {
+        isLoading: isLoadingLocations,
+        isFetching: isFetchingLocations,
+        data: dataLocations,
+        refetch: refetchLocations,
+        isError: isErrorLocations,
+        error: errorLocations,
+    } = useQuery({
+        queryKey: "fetch-locations",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations(cit);
+        },
+    });
+
     const handleSaveEdit = () => {
         refetch();
     };
@@ -294,13 +401,26 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
         refetchDeleteStory();
     };
 
+    const handleLocationSelect = (l) => {
+        console.log(l);
+        setSelectedLocation(l);
+    };
+
     useEffect(() => {
         setStoryDeleted(false);
         setContentAreaValue(story.content);
         setTitleValue(story.title);
+        setLocationValue(story.location.value);
         setDeleteStoryNotification(false);
         setEditMode(false);
     }, [story]);
+
+    useEffect(() => {
+        if (locationInputValue !== "") {
+            refetchLocations();
+        }
+    }, [locationInputValue]);
+
     if (storyDeleted) {
         return (
             <Paper withBorder p="md" bg="#f7f9fc">
@@ -327,13 +447,22 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
             <Stack justify="center">
                 <Stack spacing={1} justify="center" align="center">
                     {editMode ? (
-                        <TextInput
-                            value={titleValue}
-                            onChange={(event) =>
-                                setTitleValue(event.currentTarget.value)
-                            }
-                            size="xl"
-                        />
+                        <Stack>
+                            <TextInput
+                                value={titleValue}
+                                onChange={(event) =>
+                                    setTitleValue(event.currentTarget.value)
+                                }
+                                size="xl"
+                            />
+                            <Autocomplete
+                                label="Location"
+                                value={locationInputValue}
+                                onChange={setLocationInputValue}
+                                data={fetchedLocations}
+                                onItemSubmit={handleLocationSelect}
+                            />
+                        </Stack>
                     ) : (
                         <Title
                             className="storyTitle"
@@ -347,6 +476,11 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
                         <Title order={6} color="dimmed" fw={450}>
                             {story.authorName}
                         </Title>
+                        <Divider orientation="vertical" />
+                        <Title order={6} color="dimmed" fw={450}>
+                            {story.location.value}
+                        </Title>
+
                         <Divider orientation="vertical" />
                         <Title order={6} color="dimmed" fw={450}>
                             {story.createdAt.split("T")[0]}

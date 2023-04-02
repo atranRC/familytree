@@ -17,6 +17,7 @@ import {
     Image,
     Select,
     Avatar,
+    Autocomplete,
 } from "@mantine/core";
 import axios from "axios";
 import { forwardRef, useEffect, useState } from "react";
@@ -79,6 +80,10 @@ export function AddEventCard({
     const [eventDate, setEventDate] = useState("");
     const [eventDateError, setEventDateError] = useState(false);
 
+    const [locationInputValue, setLocationInputValue] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState({});
+    const [fetchedLocations, setFetchedLocations] = useState([]);
+
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "post-event",
         queryFn: () => {
@@ -88,7 +93,15 @@ export function AddEventCard({
                 authorName: sessionUser.name,
                 type: eventType,
                 description: eventDescription,
-                location: location,
+                location: {
+                    value: locationInputValue,
+                    lon: selectedLocation.lon
+                        ? selectedLocation.lon
+                        : "39.476826",
+                    lat: selectedLocation.lat
+                        ? selectedLocation.lat
+                        : "13.496664",
+                },
                 eventDate: eventDate,
                 factSource: null,
             });
@@ -103,16 +116,54 @@ export function AddEventCard({
         },
     });
 
+    const {
+        isLoading: isLoadingLocations,
+        isFetching: isFetchingLocations,
+        data: dataLocations,
+        refetch: refetchLocations,
+        isError: isErrorLocations,
+        error: errorLocations,
+    } = useQuery({
+        queryKey: "fetch-locations",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations(cit);
+        },
+    });
+
+    const handleLocationSelect = (l) => {
+        console.log(l);
+        setSelectedLocation(l);
+    };
+
+    useEffect(() => {
+        if (locationInputValue !== "") {
+            refetchLocations();
+        }
+    }, [locationInputValue]);
+
     const handleAddEvent = () => {
         if (
             eventType === "" ||
             eventDescription === "" ||
-            location === "" ||
+            locationInputValue === "" ||
             eventDate === ""
         ) {
             eventType === "" && setEventTypeError(true);
             eventDescription === "" && setEventDescError(true);
-            location === "" && setLocationError(true);
+            locationInputValue === "" && setLocationError(true);
             eventDate === "" && setEventDateError(true);
         } else {
             /*console.log(
@@ -166,32 +217,18 @@ export function AddEventCard({
                     placeholder="Tell us about the event..."
                 />
 
-                <Select
+                <Autocomplete
                     label="Location"
-                    placeholder="Pick one"
-                    icon={<IconLocation size={19} />}
-                    itemComponent={SelectItem}
-                    description="Location of the event"
-                    data={citiesData}
-                    searchable
-                    maxDropdownHeight={300}
-                    nothingFound="Nothing found"
-                    filter={(value, item) =>
-                        item.label
-                            .toLowerCase()
-                            .includes(value.toLowerCase().trim()) ||
-                        item.description
-                            .toLowerCase()
-                            .includes(value.toLowerCase().trim())
-                    }
-                    value={location}
-                    onChange={setLocation}
-                    error={locationError && "location can't be empty"}
+                    value={locationInputValue}
+                    onChange={setLocationInputValue}
+                    data={fetchedLocations}
+                    onItemSubmit={handleLocationSelect}
+                    error={locationError}
                     onFocus={() => {
-                        setAddEventNotification(false);
                         setLocationError(false);
                     }}
                 />
+
                 <DatePicker
                     placeholder="Pick date of the event"
                     label="Date"
@@ -261,9 +298,9 @@ export function MiniEventCard({
         },
     }));
     const { classes } = useStyles();
-    const get_auto_title2 = (eventType, profileName, location, date) => {
+    /*const get_auto_title2 = (eventType, profileName, location, date) => {
         return get_auto_title(eventType, profileName, location, date);
-    };
+    };*/
     return (
         <Paper
             className={classes.card}
@@ -280,8 +317,8 @@ export function MiniEventCard({
                     {get_auto_title(
                         event.type,
                         profileName,
-                        event.location,
-                        event.eventDate
+                        event.location.value,
+                        event.eventDate.toString().split("T")[0]
                     )}
                 </Text>
                 <Group>
@@ -390,13 +427,25 @@ export function EventCard({
         useState(false);
     const [eventDeleted, setEventDeleted] = useState(false);
 
+    const [locationInputValue, setLocationInputValue] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState({});
+    const [fetchedLocations, setFetchedLocations] = useState([]);
+
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "edit-event",
         queryFn: () => {
             return axios.put("/api/events/" + event._id, {
                 type: eventTypeValue,
                 description: eventDescriptionValue,
-                location: locationValue,
+                location: {
+                    value: locationInputValue,
+                    lon: selectedLocation.lon
+                        ? selectedLocation.lon
+                        : "39.476826",
+                    lat: selectedLocation.lat
+                        ? selectedLocation.lat
+                        : "13.496664",
+                },
                 eventDate: eventDateValue,
             });
         },
@@ -427,6 +476,33 @@ export function EventCard({
         },
     });
 
+    const {
+        isLoading: isLoadingLocations,
+        isFetching: isFetchingLocations,
+        data: dataLocations,
+        refetch: refetchLocations,
+        isError: isErrorLocations,
+        error: errorLocations,
+    } = useQuery({
+        queryKey: "fetch-locations",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations(cit);
+        },
+    });
+
     const handleSaveEdit = () => {
         refetch();
     };
@@ -435,15 +511,27 @@ export function EventCard({
         refetchDeleteEvent();
     };
 
+    const handleLocationSelect = (l) => {
+        console.log(l);
+        setSelectedLocation(l);
+    };
+
     useEffect(() => {
         setEventDeleted(false);
         setEventDescriptionValue(event.description);
         setEventTypeValue(event.type);
-        setLocationValue(event.location);
+        setLocationValue(event.location.value);
         setEventDateValue(event.eventDate);
         setDeleteEventNotification(false);
         setEditMode(false);
     }, [event]);
+
+    useEffect(() => {
+        if (locationInputValue !== "") {
+            refetchLocations();
+        }
+    }, [locationInputValue]);
+
     if (eventDeleted) {
         return (
             <Paper withBorder p="md" bg="#f7f9fc">
@@ -496,7 +584,7 @@ export function EventCard({
                                 eventTypeValue,
                                 profileUser.name,
                                 locationValue,
-                                eventDateValue
+                                eventDateValue.toString().split("T")[0]
                             )}
                         </Title>
                         {deleteEventNotification && (
@@ -654,7 +742,7 @@ export function EventCard({
                 <Paper withBorder p="md">
                     {editMode ? (
                         <Stack>
-                            <Select
+                            {/*<Select
                                 label="Location"
                                 placeholder="Pick one"
                                 icon={<IconLocation size={19} />}
@@ -674,6 +762,13 @@ export function EventCard({
                                 }
                                 value={locationValue}
                                 onChange={setLocationValue}
+                            />*/}
+                            <Autocomplete
+                                label="Location"
+                                value={locationInputValue}
+                                onChange={setLocationInputValue}
+                                data={fetchedLocations}
+                                onItemSubmit={handleLocationSelect}
                             />
                             <DatePicker
                                 placeholder="Pick date of the event"

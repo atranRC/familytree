@@ -5,7 +5,7 @@ import Articledrafts from "../../../../../models/Articledrafts";
 import Users from "../../../../../models/Users";
 import { authOptions } from "../../../../api/auth/[...nextauth]";
 import { Editor } from "@tinymce/tinymce-react";
-import { forwardRef, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import AppShellContainer from "../../../../../components/appShell";
 import { ProfileTitleSection } from "../../../../../components/titleSections";
 import {
@@ -22,6 +22,7 @@ import {
     TextInput,
     Title,
     Text,
+    Autocomplete,
 } from "@mantine/core";
 import SecondaryNavbar from "../../../../../components/profiles_page/SecondaryNavbar";
 import { useQuery } from "react-query";
@@ -48,23 +49,6 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         }
     };
 
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
-            <div ref={ref} {...others}>
-                <Group noWrap>
-                    <Avatar src={image} />
-
-                    <div>
-                        <Text size="sm">{label}</Text>
-                        <Text size="xs" opacity={0.65}>
-                            {description}
-                        </Text>
-                    </div>
-                </Group>
-            </div>
-        )
-    );
-
     const [savedAlert, setSavedAlert] = useState(false);
     const [publishClicked, setPublishClicked] = useState(false);
     const [title, setTitle] = useState(
@@ -74,11 +58,14 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         articledraftJson ? articledraftJson.description : ""
     );
     const [location, setLocation] = useState(
-        articledraftJson ? articledraftJson.location : ""
+        articledraftJson ? articledraftJson.location : null
     );
     const [date, setDate] = useState(
         articledraftJson ? articledraftJson.date : ""
     );
+    const [locationInputValue, setLocationInputValue] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState({});
+    const [fetchedLocations, setFetchedLocations] = useState([]);
 
     const {
         isLoading: isLoadingSave,
@@ -94,7 +81,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                 title: title,
                 description: description,
                 content: editorRef.current.getContent(),
-                location: location,
+                location: selectedLocation,
                 date: date.toString(),
                 isPublished: true,
             };
@@ -136,7 +123,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                 title: title,
                 description: description,
                 content: editorRef.current.getContent(),
-                location: location,
+                location: selectedLocation,
                 date: date,
                 isPublished: true,
             };
@@ -155,6 +142,38 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         },
     });
 
+    const {
+        isLoading: isLoadingLocations,
+        isFetching: isFetchingLocations,
+        data: dataLocations,
+        refetch: refetchLocations,
+        isError: isErrorLocations,
+        error: errorLocations,
+    } = useQuery({
+        queryKey: "fetch-locations",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations(cit);
+        },
+    });
+
+    const handleLocationSelect = (l) => {
+        console.log(l);
+        setSelectedLocation(l);
+    };
+
     const handleDraftSave = () => {
         refetchSave();
     };
@@ -164,6 +183,12 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         setPublishClicked(true);
         refetchSave();
     };
+
+    useEffect(() => {
+        if (locationInputValue !== "") {
+            refetchLocations();
+        }
+    }, [locationInputValue]);
 
     if (!articledraftJson) {
         return <div>DRAFT DOESN'T EXIST</div>;
@@ -209,26 +234,12 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                                 }
                             />
 
-                            <Select
+                            <Autocomplete
                                 label="Location"
-                                placeholder="Pick one"
-                                icon={<IconLocation size={19} />}
-                                itemComponent={SelectItem}
-                                description="Location of the event"
-                                data={citiesData}
-                                searchable
-                                maxDropdownHeight={300}
-                                nothingFound="Nothing found"
-                                filter={(value, item) =>
-                                    item.label
-                                        .toLowerCase()
-                                        .includes(value.toLowerCase().trim()) ||
-                                    item.description
-                                        .toLowerCase()
-                                        .includes(value.toLowerCase().trim())
-                                }
-                                value={location}
-                                onChange={setLocation}
+                                value={locationInputValue}
+                                onChange={setLocationInputValue}
+                                data={fetchedLocations}
+                                onItemSubmit={handleLocationSelect}
                             />
                             <DatePicker
                                 placeholder="Pick date of the event"

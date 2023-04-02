@@ -733,8 +733,10 @@ function StepOne({
                     error={radioValueError && "invalid input"}
                     onFocus={() => setRadioValueError(false)}
                 >
-                    <Radio value="father" label="Father" />
-                    <Radio value="mother" label="Mother" />
+                    {selectedTreeMemberData.parent_id === "" && (
+                        <Radio value="father" label="Father" />
+                    )}
+
                     <Radio value="child" label="Child" />
                 </Radio.Group>
             </Paper>
@@ -900,6 +902,7 @@ function StepTwo({
                     setMemberAddMode={setMemberAddMode}
                     setActive={setActive}
                     setSelectedSearchResultCard={setSelectedSearchResultCard}
+                    treeMembersIds={treeMembersIds}
                 />
             ) : (
                 <InfoSearchResult
@@ -1096,6 +1099,7 @@ function EmailSearchResult({
     setActive,
     setSelectedSearchResultCard,
     setMemberAddMode,
+    treeMembersIds,
 }) {
     const useStyles = createStyles((theme) => ({
         paper: {
@@ -1128,9 +1132,11 @@ function EmailSearchResult({
     });
 
     const handleClick = () => {
-        setSelectedSearchResultCard(data.data.data);
-        setMemberAddMode("existing");
-        setActive(2);
+        if (treeMembersIds.indexOf(user._id.toString()) === -1) {
+            setSelectedSearchResultCard(data.data.data);
+            setMemberAddMode("existing");
+            setActive(2);
+        }
     };
 
     if (isLoading || isFetching) {
@@ -1235,6 +1241,7 @@ function CreateAndAdd({
     newRelativeCurrentResidence = "",
     newRelativeBirthplace = "",
 }) {
+    const [addButtonDisabled, setAddButtonDisabled] = useState(false);
     const { data: session } = useSession();
     //get user by email
     const {
@@ -1304,8 +1311,8 @@ function CreateAndAdd({
         },
         enabled: false,
         onSuccess: (d) => {
-            //edit selected node
-            console.log(d.data.data);
+            setAddButtonDisabled(true);
+            window.location.reload();
         },
     });
     /*
@@ -1473,7 +1480,11 @@ function CreateAndAdd({
                 </Group>
             </Paper>
 
-            <Button onClick={handleCreateAndAdd}>
+            <Button
+                disabled={addButtonDisabled}
+                loading={isLoadingCreateAndAdd || isFetchingCreateAndAdd}
+                onClick={handleCreateAndAdd}
+            >
                 Create Profile and Add Relative
             </Button>
         </Stack>
@@ -1497,6 +1508,9 @@ function AddExistingProfile({
             <Image src={url} fit="cover" />
         </Carousel.Slide>
     ));
+
+    const [addButtonDisabled, setAddButtonDisabled] = useState(false);
+
     const {
         isLoading: isLoadingEditNode,
         isFetching: isFetchingEditNode,
@@ -1563,11 +1577,13 @@ function AddExistingProfile({
         },
         enabled: false,
         onSuccess: (d) => {
+            setAddButtonDisabled(true);
             if (radioValue === "father") {
                 //edit selected node
                 console.log("adding father");
                 refetchEditNode();
             }
+            window.location.reload();
         },
     });
 
@@ -1649,6 +1665,7 @@ function AddExistingProfile({
                 </Stack>
             </Paper>
             <Button
+                disabled={addButtonDisabled}
                 loading={isLoadingAddMember || isFetchingAddMember}
                 onClick={handleAddRelative}
             >
@@ -1671,6 +1688,8 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
         </Carousel.Slide>
     ));
 
+    const router = useRouter();
+
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "fetch-stories",
         queryFn: () => {
@@ -1683,6 +1702,9 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
             console.log("events of ", d.data.data);
         },
     });
+    const handleGoToProfile = () => {
+        router.push(`/profiles/${selectedTreeMemberUserId}/events`);
+    };
     if (isLoading || isFetching || !data) {
         return <Loader />;
     }
@@ -1741,6 +1763,7 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
                     </Carousel>
                 </Stack>
             </Paper>
+            <Button onClick={handleGoToProfile}>Go to profile</Button>
         </Stack>
     );
 }

@@ -1,16 +1,58 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
+import { Autocomplete, Button } from "@mantine/core";
+import axios from "axios";
+import { useQuery } from "react-query";
 
 export default function App() {
-    const editorRef = useRef(null);
+    /*const editorRef = useRef(null);
     const log = () => {
         if (editorRef.current) {
             console.log(editorRef.current.getContent());
         }
+    };*/
+    const [value, setValue] = useState("");
+    const [fetchedCities, setFetchedCities] = useState([]);
+
+    const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
+        queryKey: "fetch-stories",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedCities(cit);
+        },
+    });
+
+    const handleItemSelect = (i) => {
+        console.log(i);
     };
+
+    useEffect(() => {
+        if (value !== "") {
+            refetch();
+        }
+    }, [value]);
+
     return (
         <>
-            <Editor
+            <Autocomplete
+                value={value}
+                onChange={setValue}
+                data={fetchedCities}
+                onItemSubmit={handleItemSelect}
+            />
+            {/*<Editor
                 tinymceScriptSrc="/tinymce/tinymce.min.js"
                 onInit={(evt, editor) => (editorRef.current = editor)}
                 initialValue="<p>This is the initial content of the editor.</p>"
@@ -47,7 +89,7 @@ export default function App() {
                         "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                 }}
             />
-            <button onClick={log}>Log editor content</button>
+            <button onClick={log}>Log editor content</button>*/}
         </>
     );
 }

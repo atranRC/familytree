@@ -11,7 +11,10 @@ export default async function handler(req, res) {
             console.log(req.query.gt, req.query.lt);
             try {
                 const articles = await Articles.find(
-                    { date: { $gte: req.query.gt, $lte: req.query.lt } },
+                    {
+                        date: { $gte: req.query.gt, $lte: req.query.lt },
+                        isPublished: true,
+                    },
                     "title date"
                 ); /* find all the data in our database */
                 res.status(200).json({ success: true, data: articles });

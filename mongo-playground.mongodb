@@ -4,14 +4,22 @@
 // Use Ctrl+Space inside a snippet or a string literal to trigger completions.
 
 // Select the database to use.
-use('famtree');
+use("famtree");
 //db.users.find({})
-/*db.users.update(
+/*db.articles.update(
   {},
-  { $set: {"isBlocked": false} },
+  { $set: {"location": {
+    name: '',
+    lon: 38.7612525,
+    lat: 9.0107934
+  }} },
   {upsert:false,
   multi: true}
 )*/
+
+//delete all documents
+db.writtenstories.deleteMany({});
+
 // The drop() command destroys all data from a collection.
 // Make sure you run it against the correct database and collection.
 //db.sales.drop();

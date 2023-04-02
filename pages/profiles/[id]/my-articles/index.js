@@ -18,6 +18,7 @@ import {
     Textarea,
     Select,
     Avatar,
+    Autocomplete,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { IconCalendarEvent, IconLocation, IconTrash } from "@tabler/icons";
@@ -53,23 +54,6 @@ export default function MyArticlesPage({ sessionUserJson }) {
     }));
     const { classes } = useStyles();
 
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
-            <div ref={ref} {...others}>
-                <Group noWrap>
-                    <Avatar src={image} />
-
-                    <div>
-                        <Text size="sm">{label}</Text>
-                        <Text size="xs" opacity={0.65}>
-                            {description}
-                        </Text>
-                    </div>
-                </Group>
-            </div>
-        )
-    );
-
     const [page, setPage] = useState(1);
     const [pageCount, setPageCount] = useState(0);
     const [articleToTakeDown, setArticleToTakeDown] = useState("");
@@ -79,6 +63,10 @@ export default function MyArticlesPage({ sessionUserJson }) {
     const [description, setDescription] = useState("");
     const [location, setLocation] = useState("");
     const [date, setDate] = useState("");
+
+    const [locationInputValue, setLocationInputValue] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState({});
+    const [fetchedLocations, setFetchedLocations] = useState([]);
 
     //fetch drafts by sessionUserJson._id
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
@@ -134,7 +122,15 @@ export default function MyArticlesPage({ sessionUserJson }) {
                 title: title,
                 description: description,
                 content: "Start here...",
-                location: null,
+                location: {
+                    value: locationInputValue,
+                    lon: selectedLocation.lon
+                        ? selectedLocation.lon
+                        : "39.476826",
+                    lat: selectedLocation.lat
+                        ? selectedLocation.lat
+                        : "13.496664",
+                },
                 date: date,
             };
             return axios.post("/api/article-drafts/", bod);
@@ -146,6 +142,33 @@ export default function MyArticlesPage({ sessionUserJson }) {
                 "/profiles/63cba5e271eb83f0f65d7d03/my-articles/drafts/" +
                     d.data.data._id
             );
+        },
+    });
+
+    const {
+        isLoading: isLoadingLocations,
+        isFetching: isFetchingLocations,
+        data: dataLocations,
+        refetch: refetchLocations,
+        isError: isErrorLocations,
+        error: errorLocations,
+    } = useQuery({
+        queryKey: "fetch-locations",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations(cit);
         },
     });
 
@@ -206,6 +229,11 @@ export default function MyArticlesPage({ sessionUserJson }) {
         //console.log("start new", title, description, location, date);
     };
 
+    const handleLocationSelect = (l) => {
+        console.log(l);
+        setSelectedLocation(l);
+    };
+
     useEffect(() => {
         if (data) {
             setPageCount(data.data.data.pagination.pageCount);
@@ -215,6 +243,12 @@ export default function MyArticlesPage({ sessionUserJson }) {
     useEffect(() => {
         refetch();
     }, [page]);
+
+    useEffect(() => {
+        if (locationInputValue !== "") {
+            refetchLocations();
+        }
+    }, [locationInputValue]);
 
     if (id !== sessionUserJson._id) {
         return <div>RESTRICTED PAGE</div>;
@@ -311,27 +345,12 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                     setDescription(event.currentTarget.value)
                                 }
                             />
-
-                            <Select
+                            <Autocomplete
                                 label="Location"
-                                placeholder="Pick one"
-                                icon={<IconLocation size={19} />}
-                                itemComponent={SelectItem}
-                                description="Location of the event"
-                                data={citiesData}
-                                searchable
-                                maxDropdownHeight={300}
-                                nothingFound="Nothing found"
-                                filter={(value, item) =>
-                                    item.label
-                                        .toLowerCase()
-                                        .includes(value.toLowerCase().trim()) ||
-                                    item.description
-                                        .toLowerCase()
-                                        .includes(value.toLowerCase().trim())
-                                }
-                                value={location}
-                                onChange={setLocation}
+                                value={locationInputValue}
+                                onChange={setLocationInputValue}
+                                data={fetchedLocations}
+                                onItemSubmit={handleLocationSelect}
                             />
                             <DatePicker
                                 placeholder="Pick date of the event"

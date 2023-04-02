@@ -25,7 +25,15 @@ const ArticledraftsSchema = mongoose.Schema(
             required: [true, "please provide description"],
         },
         location: {
-            type: String,
+            value: {
+                type: String,
+            },
+            lon: {
+                type: mongoose.Types.Decimal128,
+            },
+            lat: {
+                type: mongoose.Types.Decimal128,
+            },
         },
         date: {
             type: Date,

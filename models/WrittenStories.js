@@ -21,6 +21,18 @@ const WrittenStoriesSchema = mongoose.Schema(
             type: String,
             required: [true, "please provide collab name"],
         },
+        location: {
+            value: {
+                type: String,
+                required: [true, "please provide name"],
+            },
+            lon: {
+                type: mongoose.Types.Decimal128,
+            },
+            lat: {
+                type: mongoose.Types.Decimal128,
+            },
+        },
     },
     { timestamps: true }
 );
