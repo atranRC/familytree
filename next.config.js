@@ -6,6 +6,7 @@ const nextConfig = {
 const withTM = require("next-transpile-modules")([
     "vis-timeline",
     "react-visjs-timeline",
+    "react-leaflet-cluster",
 ]);
 
 module.exports = withTM({
