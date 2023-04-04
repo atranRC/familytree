@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Icon } from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
-export default function Map({ markers }) {
+export default function Map({ markers, setSelectedMarkerId, setModalOpen }) {
     const customIcon = new Icon({
         iconUrl: "https://cdn-icons-png.flaticon.com/512/7976/7976202.png",
         iconSize: [38, 38],
@@ -29,6 +29,19 @@ export default function Map({ markers }) {
                                 >
                                     <Popup>
                                         <p>{marker.popup}</p>
+                                        <p
+                                            style={{
+                                                color: "blue",
+                                                textDecoration: "underline",
+                                                cursor: "pointer",
+                                            }}
+                                            onClick={() => {
+                                                setSelectedMarkerId(marker.id);
+                                                setModalOpen(true);
+                                            }}
+                                        >
+                                            view more
+                                        </p>
                                     </Popup>
                                 </Marker>
                             );
@@ -36,17 +49,6 @@ export default function Map({ markers }) {
                     </MarkerClusterGroup>
                 </MapContainer>
             </div>
-            <Modal
-                opened={opened}
-                onClose={() => {
-                    setOpened(false);
-                }}
-                title="helo"
-                size="lg"
-                overflow="inside"
-            >
-                hello
-            </Modal>
         </div>
     );
 }

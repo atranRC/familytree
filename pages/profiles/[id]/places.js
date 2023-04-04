@@ -5,20 +5,195 @@ import { useQuery } from "react-query";
 import { useEffect, useState } from "react";
 import AppShellContainer from "../../../components/appShell";
 import { ProfileTitleSection } from "../../../components/titleSections";
-import { Box, LoadingOverlay, Radio, Title } from "@mantine/core";
+import {
+    Loader,
+    LoadingOverlay,
+    Modal,
+    Paper,
+    Radio,
+    Stack,
+    Title,
+    Text,
+    Group,
+    Divider,
+} from "@mantine/core";
 import SecondaryNavbar from "../../../components/profiles_page/SecondaryNavbar";
+import { get_auto_title, get_event_label } from "../../../lib/static_lists";
+import { IconAnchor, IconPlant2 } from "@tabler/icons";
 
 const Map = dynamic(() => import("../../../components/places_page/Map"), {
     ssr: false,
 });
+
+function ModalEventViewer({ selectedMarkerId, profileUser }) {
+    const [event, setEvent] = useState(null);
+    const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
+        queryKey: "get-event",
+        queryFn: () => {
+            return axios.get(`/api/events/${selectedMarkerId}`);
+        },
+        onSuccess: (d) => {
+            //console.log("fetched event", d.data.data);
+            setEvent(d.data.data);
+        },
+    });
+
+    if (isLoading || isFetching) {
+        return <Loader />;
+    }
+
+    if (isError) {
+        return <p>error fetching event</p>;
+    }
+    if (event) {
+        return (
+            <Stack>
+                <Paper withBorder p="md">
+                    <Stack>
+                        <Title
+                            className="storyTitle"
+                            align="center"
+                            color="darkgreen"
+                        >
+                            {get_event_label(event.type)}
+                        </Title>
+
+                        <Title
+                            className="autoTitle"
+                            align="center"
+                            color="gray"
+                            order={3}
+                        >
+                            {get_auto_title(
+                                event.type,
+                                profileUser.name,
+                                event.location.value,
+                                event.eventDate.toString().split("T")[0]
+                            )}
+                        </Title>
+                    </Stack>
+                </Paper>
+                <Paper withBorder p="md">
+                    <Stack>
+                        <Text>{event.description}</Text>
+                        <Text c="dimmed" fs="italic" td="underline">
+                            {event.authorName}
+                        </Text>
+                    </Stack>
+                </Paper>
+                <Paper withBorder p="md">
+                    <Stack spacing="xs">
+                        <Text>
+                            This event happened in:{" "}
+                            <Text span c="darkgreen" fw={700}>
+                                {event.location.value}
+                            </Text>
+                        </Text>
+                        <Text c="dimmed" fs="italic">
+                            {event.eventDate.toString().split("T")[0]}
+                        </Text>
+                    </Stack>
+                </Paper>
+            </Stack>
+        );
+    }
+}
+
+function ModalWrittenStoriesViewer({ selectedMarkerId, profileUser }) {
+    const [story, setStory] = useState(null);
+    const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
+        queryKey: "get-written-story",
+        queryFn: () => {
+            return axios.get(`/api/written-stories/${selectedMarkerId}`);
+        },
+        onSuccess: (d) => {
+            // console.log("fetched story", d.data.data);
+            setStory(d.data.data);
+        },
+    });
+
+    if (isLoading || isFetching) {
+        return <Loader />;
+    }
+
+    if (isError) {
+        return <p>error fetching story</p>;
+    }
+
+    if (story) {
+        return (
+            <Paper withBorder p="md" mih="100vh">
+                <Stack justify="center">
+                    <Stack spacing={1} justify="center" align="center">
+                        <Title
+                            className="storyTitle"
+                            align="center"
+                            color="darkgreen"
+                        >
+                            {story.title}
+                        </Title>
+
+                        <Group>
+                            <Title order={6} color="dimmed" fw={450}>
+                                {story.authorName}
+                            </Title>
+                            <Divider orientation="vertical" />
+                            <Title order={6} color="dimmed" fw={450}>
+                                {story.location.value}
+                            </Title>
+
+                            <Divider orientation="vertical" />
+                            <Title order={6} color="dimmed" fw={450}>
+                                {story.createdAt.split("T")[0]}
+                            </Title>
+                        </Group>
+
+                        <Divider
+                            label={<IconPlant2 color="green" />}
+                            labelPosition="center"
+                        />
+                        <Text>{story.content}</Text>
+                        <Divider
+                            label={<IconAnchor color="green" />}
+                            labelPosition="center"
+                        />
+                    </Stack>
+                </Stack>
+            </Paper>
+        );
+    }
+}
+
+function ModalContent({ markerType, selectedMarkerId, profileUser }) {
+    if (markerType === "events") {
+        return (
+            <ModalEventViewer
+                selectedMarkerId={selectedMarkerId}
+                profileUser={profileUser}
+            />
+        );
+    }
+
+    if (markerType === "writtenstories") {
+        return (
+            <ModalWrittenStoriesViewer
+                selectedMarkerId={selectedMarkerId}
+                profileUser={profileUser}
+            />
+        );
+    }
+}
 
 export default function PlacesPage({ asPath }) {
     const { data: session, status } = useSession();
     const [sessionUser, setSessionUser] = useState(null);
     const [sessionProfileRelation, setSessionProfileRelation] = useState(null);
     const [mapVisible, setMapVisible] = useState(false);
-    const [markerType, setMarkerType] = useState("events");
     const [markers, setMarkers] = useState([]);
+
+    const [markerType, setMarkerType] = useState("events");
+    const [selectedMarkerId, setSelectedMarkerId] = useState("");
+    const [modalOpen, setModalOpen] = useState(false);
 
     const {
         isLoading: isLoadingSessionUser,
@@ -178,8 +353,7 @@ export default function PlacesPage({ asPath }) {
                         value={markerType}
                         onChange={setMarkerType}
                         name="type"
-                        label="Select Type"
-                        size="lg"
+                        size="md"
                     >
                         <Radio value="events" label="Events" />
                         <Radio value="writtenstories" label="Written Stories" />
@@ -191,10 +365,29 @@ export default function PlacesPage({ asPath }) {
                                 visible={mapVisible}
                                 overlayBlur={2}
                             />
-                            <Map markers={markers} />
+                            <Map
+                                markers={markers}
+                                setSelectedMarkerId={setSelectedMarkerId}
+                                setModalOpen={setModalOpen}
+                            />
                         </div>
                     )}
                 </div>
+                <Modal
+                    opened={modalOpen}
+                    onClose={() => {
+                        setModalOpen(false);
+                    }}
+                    title=""
+                    size="lg"
+                    overflow="inside"
+                >
+                    <ModalContent
+                        markerType={markerType}
+                        selectedMarkerId={selectedMarkerId}
+                        profileUser={dataProfileUser.data.data}
+                    />
+                </Modal>
             </AppShellContainer>
         );
     }
