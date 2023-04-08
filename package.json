@@ -26,6 +26,7 @@
         "@tinymce/tinymce-react": "^4.3.0",
         "array-to-tree": "^3.3.2",
         "axios": "^1.2.1",
+        "cloudinary": "^1.35.0",
         "dayjs": "^1.11.7",
         "embla-carousel-react": "^7.0.5",
         "eslint": "8.30.0",

@@ -18,7 +18,7 @@ use("famtree");
 )*/
 
 //delete all documents
-db.writtenstories.deleteMany({});
+db.articlestaticmedias.deleteMany({});
 
 // The drop() command destroys all data from a collection.
 // Make sure you run it against the correct database and collection.

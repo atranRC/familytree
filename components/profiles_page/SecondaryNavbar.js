@@ -1,4 +1,5 @@
-import { Tabs } from "@mantine/core";
+import { Menu, Tabs, Text } from "@mantine/core";
+import { IconArrowAutofitDown, IconCaretDown } from "@tabler/icons";
 import { useRouter } from "next/router";
 
 export default function SecondaryNavbar({
@@ -12,10 +13,11 @@ export default function SecondaryNavbar({
             value={activePage}
             onTabChange={(value) => {
                 let url = `/profiles/${id}/${value}`;
-                if (value === "drafts") {
+                if (value === "drafts" || value === "media") {
                     url = `/profiles/${id}/my-articles/${value}`;
                 }
-                router.push(url);
+
+                value !== "#" && router.push(url);
             }}
         >
             <Tabs.List
@@ -36,10 +38,26 @@ export default function SecondaryNavbar({
                     <Tabs.Tab value="privacy">Privacy Settings</Tabs.Tab>
                 )}
                 {sessionProfileRelation === "self" && (
-                    <Tabs.Tab value="my-articles">My Articles</Tabs.Tab>
-                )}
-                {sessionProfileRelation === "self" && (
-                    <Tabs.Tab value="drafts">Drafts</Tabs.Tab>
+                    <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                            <Tabs.Tab value="#" icon={<IconCaretDown />}>
+                                Articles
+                            </Tabs.Tab>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                            <Menu.Item>
+                                <Tabs.Tab value="my-articles">
+                                    Published
+                                </Tabs.Tab>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <Tabs.Tab value="drafts">Drafts</Tabs.Tab>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <Tabs.Tab value="media">Media</Tabs.Tab>
+                            </Menu.Item>
+                        </Menu.Dropdown>
+                    </Menu>
                 )}
             </Tabs.List>
         </Tabs>

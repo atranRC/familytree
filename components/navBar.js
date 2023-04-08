@@ -14,6 +14,7 @@ import {
     Text,
     ActionIcon,
     Title,
+    Loader,
 } from "@mantine/core";
 import {
     IconSettings,
@@ -25,6 +26,9 @@ import {
     IconBell,
 } from "@tabler/icons";
 import { useDisclosure } from "@mantine/hooks";
+import { useQuery } from "react-query";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 const HEADER_HEIGHT = 60;
 
@@ -149,29 +153,69 @@ const useStyles = createStyles((theme) => ({
     },
 }));
 
+export function AvatarMenuContent({ sessionUserEmail }) {
+    const router = useRouter();
+    const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
+        queryKey: "get-user",
+        queryFn: () => {
+            return axios.get("/api/users/users-mongoose/" + sessionUserEmail);
+        },
+        onSuccess: (d) => {
+            console.log("fetched avatar session user", d.data.data);
+            //setSessionUser(d.data.data);
+        },
+    });
+
+    if (isLoading || isFetching) {
+        return <Loader size="sm" />;
+    }
+
+    if (data) {
+        return (
+            <Menu.Item
+                icon={<IconSettings size={14} />}
+                onClick={() =>
+                    router.push(
+                        `/profiles/${data.data.data._id.toString()}/events`
+                    )
+                }
+            >
+                My Profile
+            </Menu.Item>
+        );
+    }
+}
+
 export const AvatarWithMenu = ({
     picUrl = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=250&q=80",
 }) => {
-    return (
-        <Menu shadow="md" width={200}>
-            <Menu.Target>
-                <Avatar radius="xl" size="md" color="blue" src={picUrl} />
-            </Menu.Target>
+    const { data: session, status } = useSession();
+    const [opened, setOpened] = useState(false);
 
-            <Menu.Dropdown>
-                <Menu.Label>Application</Menu.Label>
-                <Menu.Item icon={<IconSettings size={14} />}>
-                    Settings
-                </Menu.Item>
-                <Menu.Item icon={<IconMessageCircle size={14} />}>
-                    Messages
-                </Menu.Item>
-                <Menu.Item icon={<IconPhoto size={14} />}>Gallery</Menu.Item>
+    if (session) {
+        return (
+            <Menu shadow="md" width={200} opened={opened} onChange={setOpened}>
+                <Menu.Target>
+                    <Avatar
+                        radius="xl"
+                        size="md"
+                        color="blue"
+                        src={session.user.image}
+                    />
+                </Menu.Target>
 
+                {opened && (
+                    <Menu.Dropdown>
+                        <Menu.Label>Application</Menu.Label>
+                        <AvatarMenuContent
+                            sessionUserEmail={session.user.email}
+                        />
+                    </Menu.Dropdown>
+                )}
                 <Menu.Divider />
-            </Menu.Dropdown>
-        </Menu>
-    );
+            </Menu>
+        );
+    }
 };
 
 export const ResponsiveNav = ({ links = linksMock.links, activeLink }) => {

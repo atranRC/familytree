@@ -170,6 +170,7 @@ export default function EventsPage({
                                                         data.data.data.events.map(
                                                             (e) => (
                                                                 <Timeline.Item
+                                                                    key={e._id.toString()}
                                                                     bullet={
                                                                         <IconGitBranch
                                                                             size={
