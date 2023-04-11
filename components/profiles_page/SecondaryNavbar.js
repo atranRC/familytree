@@ -28,6 +28,7 @@ export default function SecondaryNavbar({
             >
                 <Tabs.Tab value="events">Events</Tabs.Tab>
                 <Tabs.Tab value="written-stories">Written Stories</Tabs.Tab>
+                <Tabs.Tab value="audio-stories">Audio Stories</Tabs.Tab>
                 <Tabs.Tab value="places">Places</Tabs.Tab>
                 {(sessionProfileRelation === "owner" ||
                     sessionProfileRelation === "self") && (

@@ -304,6 +304,58 @@ export default function PlacesPage({ asPath }) {
         },
     });
 
+    const {
+        isLoading: isLoadingAudioStoriesMarkers,
+        isFetching: isFetchingAudioStoriesMarkers,
+        data: dataAudioStoriesMarkers,
+        refetch: refetchAudioStoriesMarkers,
+        isError: isErrorAudioStoriesMarkers,
+        error: errorAudioStoriesMarkers,
+    } = useQuery({
+        queryKey: "get-audiostories-markers",
+        queryFn: () => {
+            const pathUserId = asPath.split("/").at(-2);
+            return axios.get(
+                `/api/audio-stories/audio-stories-map-markers/${pathUserId}`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            //console.log("fetched audio stories markers", d.data.data);
+            const m = d.data.data.map((story) => {
+                return {
+                    id: story._id,
+                    geoloc: [
+                        story.location.lat.$numberDecimal,
+                        story.location.lon.$numberDecimal,
+                    ],
+                    //popup: story.title,
+                    popup: (
+                        <div>
+                            {story.title}{" "}
+                            <div>
+                                <audio controls>
+                                    <source
+                                        src={story.audioUrl}
+                                        type="audio/ogg"
+                                    />
+                                    <source
+                                        src={story.audioUrl}
+                                        type="audio/mpeg"
+                                    />
+                                    Your browser does not support the audio
+                                    element.
+                                </audio>
+                            </div>
+                        </div>
+                    ),
+                };
+            });
+            setMarkers(m);
+            setMapVisible(false);
+        },
+    });
+
     useEffect(() => {
         if (sessionUser) {
             refetchProfileUser();
@@ -316,6 +368,8 @@ export default function PlacesPage({ asPath }) {
             refetchEventsMarkers();
         } else if (markerType === "writtenstories") {
             refetchWrittenStoriesMarkers();
+        } else if (markerType === "audiostories") {
+            refetchAudioStoriesMarkers();
         }
     }, [markerType]);
 
@@ -357,6 +411,7 @@ export default function PlacesPage({ asPath }) {
                     >
                         <Radio value="events" label="Events" />
                         <Radio value="writtenstories" label="Written Stories" />
+                        <Radio value="audiostories" label="Audio Stories" />
                     </Radio.Group>
 
                     {markers && (

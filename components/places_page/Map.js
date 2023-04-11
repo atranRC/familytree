@@ -10,11 +10,12 @@ export default function Map({ markers, setSelectedMarkerId, setModalOpen }) {
         iconUrl: "https://cdn-icons-png.flaticon.com/512/7976/7976202.png",
         iconSize: [38, 38],
     });
+    const center = markers[0].geoloc;
     const [opened, setOpened] = useState(false);
     return (
         <div>
             <div style={{ height: "300px", width: "100%" }}>
-                <MapContainer center={[48.8566, 2.3522]} zoom={13}>
+                <MapContainer center={center} zoom={5}>
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

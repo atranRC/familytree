@@ -3946,6 +3946,14 @@ raw-body@^2.2.0:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
+react-audio-voice-recorder@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/react-audio-voice-recorder/-/react-audio-voice-recorder-1.0.5.tgz#8c527dbb5f29a8261db5f22bcba1db492864c8a4"
+  integrity sha512-JO4XKZnrgJ29pO6E4/jgbOqfXM7bsqi3tYy9xTmkaID8HHdZ991cWyrmLiUNcNC6kAXoZ+jn+Q5gC9yrFV/4YA==
+  dependencies:
+    react "^18.2.0"
+    react-dom "^18.2.0"
+
 react-d3-tree@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/react-d3-tree/-/react-d3-tree-3.5.0.tgz#e19f2d19bb130f3a0cd29659887ef3378820f7ed"
@@ -3961,7 +3969,7 @@ react-d3-tree@^3.5.0:
     dequal "^2.0.2"
     uuid "^8.3.1"
 
-react-dom@18.2.0:
+react-dom@18.2.0, react-dom@^18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.2.0.tgz#22aaf38708db2674ed9ada224ca4aa708d821e3d"
   integrity sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==
@@ -4033,7 +4041,7 @@ react-visjs-timeline@^1.6.0:
   dependencies:
     lodash "^4.17.4"
 
-react@18.2.0:
+react@18.2.0, react@^18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
