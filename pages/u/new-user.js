@@ -1,9 +1,8 @@
 import { getSession } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { unstable_getServerSession } from "next-auth/next";
-import { authOptions } from "../../api/auth/[...nextauth]";
+import { authOptions } from "../api/auth/[...nextauth]";
 import { useState, forwardRef, useEffect } from "react";
-import { citiesData, dummyUsers } from "./cities";
 import * as Realm from "realm-web";
 import axios from "axios";
 
@@ -43,12 +42,13 @@ import {
     Loader,
     ThemeIcon,
     Pagination,
+    Autocomplete,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { Carousel } from "@mantine/carousel";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ClaimTargetView } from "../../../components/claim_account_components/claimTargetView";
+import { ClaimTargetView } from "../../components/claim_account_components/claimTargetView";
 import { useQuery } from "react-query";
 
 function NoAccounts({ updateNewUserHandler }) {
@@ -134,26 +134,30 @@ function UnclaimedAccountsList({
                         style={{ padding: "10px" }}
                     >
                         {unclaimedAccounts.map((acc) => {
-                            return (
-                                <Group
-                                    noWrap
-                                    onClick={() => {
-                                        setAccountToView(acc);
-                                        setOpened(true);
-                                    }}
-                                    className={classes.accountCard}
-                                    key={acc._id.toString()}
-                                >
-                                    <Avatar src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
+                            if (acc.owner) {
+                                return (
+                                    <Group
+                                        noWrap
+                                        onClick={() => {
+                                            setAccountToView(acc);
+                                            setOpened(true);
+                                        }}
+                                        className={classes.accountCard}
+                                        key={acc._id.toString()}
+                                    >
+                                        <Avatar src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
 
-                                    <div>
-                                        <Text size="sm">{acc.username}</Text>
-                                        <Text size="xs" opacity={0.65}>
-                                            {acc.name} {acc.fathers_name}
-                                        </Text>
-                                    </div>
-                                </Group>
-                            );
+                                        <div>
+                                            <Text size="sm">
+                                                {acc.username}
+                                            </Text>
+                                            <Text size="xs" opacity={0.65}>
+                                                {acc.name} {acc.fathers_name}
+                                            </Text>
+                                        </div>
+                                    </Group>
+                                );
+                            }
                         })}
                         {accountToView && (
                             <Modal
@@ -213,6 +217,14 @@ export function StepperUserInfo() {
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(1);
 
+    const [locationInputValue, setLocationInputValue] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState({});
+    const [fetchedLocations, setFetchedLocations] = useState([]);
+
+    const [locationInputValue2, setLocationInputValue2] = useState("");
+    const [selectedLocation2, setSelectedLocation2] = useState({});
+    const [fetchedLocations2, setFetchedLocations2] = useState([]);
+
     const useStyles = createStyles((theme) => ({
         title: {
             color: theme.colorScheme === "dark" ? theme.white : theme.black,
@@ -228,22 +240,59 @@ export function StepperUserInfo() {
     }));
     const { classes } = useStyles();
 
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
-            <div ref={ref} {...others}>
-                <Group noWrap>
-                    <Avatar src={image} />
+    const {
+        isLoading: isLoadingLocations,
+        isFetching: isFetchingLocations,
+        data: dataLocations,
+        refetch: refetchLocations,
+        isError: isErrorLocations,
+        error: errorLocations,
+    } = useQuery({
+        queryKey: "fetch_locations_new_user",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations(cit);
+        },
+    });
 
-                    <div>
-                        <Text size="sm">{label}</Text>
-                        <Text size="xs" opacity={0.65}>
-                            {description}
-                        </Text>
-                    </div>
-                </Group>
-            </div>
-        )
-    );
+    const {
+        isLoading: isLoadingLocation2,
+        isFetching: isFetchingLocations2,
+        data: dataLocations2,
+        refetch: refetchLocations2,
+        isError: isErrorLocations2,
+        error: errorLocations2,
+    } = useQuery({
+        queryKey: "fetch_locations_new_user_2",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue2}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations2(cit);
+        },
+    });
 
     const {
         isLoading: isLoadingAccs,
@@ -267,8 +316,33 @@ export function StepperUserInfo() {
             setIsLoading(false);
         },
     });
+
+    const handleLocationSelect = (l) => {
+        console.log(l);
+        setSelectedLocation(l);
+    };
+
+    const handleLocationSelect2 = (l) => {
+        console.log(l);
+        setSelectedLocation2(l);
+    };
+
     useEffect(() => {
-        refetchAccs();
+        if (locationInputValue !== "") {
+            refetchLocations();
+        }
+    }, [locationInputValue]);
+
+    useEffect(() => {
+        if (locationInputValue2 !== "") {
+            refetchLocations2();
+        }
+    }, [locationInputValue2]);
+
+    useEffect(() => {
+        if (name.value) {
+            refetchAccs();
+        }
     }, [page]);
 
     const handleFetchUsers = async () => {
@@ -294,10 +368,26 @@ export function StepperUserInfo() {
         axios
             .put("/api/users/add-new-user-info/" + session.user.email, {
                 name: name.value,
-                birth_place: birthPlace,
+                birth_place: {
+                    value: locationInputValue2,
+                    lon: selectedLocation2.lon
+                        ? selectedLocation2.lon
+                        : "39.476826",
+                    lat: selectedLocation2.lat
+                        ? selectedLocation2.lat
+                        : "13.496664",
+                },
                 birthday: birthday,
                 owner: "self",
-                current_residence: currentResidence,
+                current_residence: {
+                    value: locationInputValue,
+                    lon: selectedLocation.lon
+                        ? selectedLocation.lon
+                        : "39.476826",
+                    lat: selectedLocation.lat
+                        ? selectedLocation.lat
+                        : "13.496664",
+                },
                 fathers_name: fathersName.value,
                 last_name: grandFathersName,
                 nicknames: nicknames,
@@ -328,10 +418,10 @@ export function StepperUserInfo() {
                 console.log("");
             }
         } else if (active === 1) {
-            if (currentResidence === "") {
+            if (locationInputValue === "") {
                 setCurrentResidenceError(true);
             }
-            if (birthPlace === "") {
+            if (locationInputValue2 === "") {
                 setBirthPlaceError(true);
             }
             if (birthday === "") {
@@ -339,8 +429,8 @@ export function StepperUserInfo() {
             }
             if (
                 birthday !== "" &&
-                birthPlace !== "" &&
-                currentResidence !== ""
+                locationInputValue2 !== "" &&
+                locationInputValue !== ""
             ) {
                 /*console.log(
                     name,
@@ -497,49 +587,29 @@ export function StepperUserInfo() {
                     labelPosition="center"
                 />
 
-                <Select
+                <Autocomplete
                     label="Location"
-                    placeholder="Pick one"
-                    itemComponent={SelectItem}
                     description="City you currently live in"
-                    data={citiesData}
-                    searchable
-                    maxDropdownHeight={300}
-                    nothingFound="Nothing found"
-                    filter={(value, item) =>
-                        item.label
-                            .toLowerCase()
-                            .includes(value.toLowerCase().trim()) ||
-                        item.description
-                            .toLowerCase()
-                            .includes(value.toLowerCase().trim())
-                    }
-                    value={currentResidence}
-                    onChange={setCurrentResidence}
-                    error={currentResidenceError && "invalid city"}
-                    onFocus={() => setCurrentResidenceError(false)}
+                    value={locationInputValue}
+                    onChange={setLocationInputValue}
+                    data={fetchedLocations}
+                    onItemSubmit={handleLocationSelect}
+                    error={currentResidenceError}
+                    onFocus={() => {
+                        setCurrentResidenceError(false);
+                    }}
                 />
-                <Select
+                <Autocomplete
                     label="Place of birth"
-                    placeholder="Pick one"
-                    itemComponent={SelectItem}
-                    description="City you were born in"
-                    data={citiesData}
-                    searchable
-                    maxDropdownHeight={300}
-                    nothingFound="Nothing found"
-                    filter={(value, item) =>
-                        item.label
-                            .toLowerCase()
-                            .includes(value.toLowerCase().trim()) ||
-                        item.description
-                            .toLowerCase()
-                            .includes(value.toLowerCase().trim())
-                    }
-                    value={birthPlace}
-                    onChange={setBirthPlace}
-                    error={birthPlaceError && "invalid input"}
-                    onFocus={() => setBirthPlaceError(false)}
+                    description="Place you were born in"
+                    value={locationInputValue2}
+                    onChange={setLocationInputValue2}
+                    data={fetchedLocations2}
+                    onItemSubmit={handleLocationSelect2}
+                    error={birthPlaceError}
+                    onFocus={() => {
+                        setBirthPlaceError(false);
+                    }}
                 />
                 <DatePicker
                     placeholder="Pick date"

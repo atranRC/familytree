@@ -1633,7 +1633,7 @@ function AddExistingProfile({
                             Place of Birth
                         </Text>
                         <Text fz="xl" fw={500}>
-                            {selectedSearchResultCard.birth_place}
+                            {selectedSearchResultCard.birth_place.value}
                         </Text>
                     </Stack>
                     <Stack align="center" justify="center" spacing={0}>
@@ -1649,7 +1649,7 @@ function AddExistingProfile({
                             City
                         </Text>
                         <Text fz="xl" fw={500}>
-                            {selectedSearchResultCard.current_residence}
+                            {selectedSearchResultCard.current_residence.value}
                         </Text>
                     </Stack>
                 </Group>
@@ -1726,7 +1726,7 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
                         {data.data.data.nicknames}
                     </Text>
                     <Text fz="xl" fw={500}>
-                        {data.data.data.current_residence}
+                        {data.data.data.current_residence.value}
                     </Text>
                 </Stack>
             </Paper>
@@ -1748,7 +1748,7 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
                             Place of Birth
                         </Text>
                         <Text fw={700} fz="xl">
-                            {data.data.data.birth_place}
+                            {data.data.data.birth_place.value}
                         </Text>
                     </Stack>
                 </Group>

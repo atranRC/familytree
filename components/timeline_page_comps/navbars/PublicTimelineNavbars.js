@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import styles from "./PublicTimelineNavbars.module.css";
+import { useSession } from "next-auth/react";
 
 export function PrimaryNavBar({ setQuerySearchTerm = null }) {
     const router = useRouter();
@@ -44,7 +45,7 @@ export function PrimaryNavBar({ setQuerySearchTerm = null }) {
                         }
                     />
                 </div>
-                <Link href="/family-tree/tree">Family Tree</Link>
+                <Link href="/family-tree/tree/my-trees">Family Tree</Link>
             </div>
         </Paper>
     );

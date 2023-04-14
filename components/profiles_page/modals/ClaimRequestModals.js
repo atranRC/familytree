@@ -100,11 +100,42 @@ export function ClaimRequestModalContent({ claimRequest }) {
             window.location.reload();
         },
     });
+
+    const {
+        isLoading: isLoadingApproveEventsStories,
+        isFetching: isFetchingApproveEventsStories,
+        data: dataApproveEventsStories,
+        refetch: refetchApproveEventsStories,
+        isError: isErrorApproveEventsStories,
+        error: errorApproveEventsStories,
+    } = useQuery({
+        queryKey: "approve_req_events_requests",
+        queryFn: () => {
+            const bod = {
+                unclaimedUserId: claimRequest.targetId,
+                claimerUserId: claimRequest.userId,
+            };
+            return axios.put(
+                "/api/claim-requests-api/update-approved-req/update-stories-events",
+                bod
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            /*Router.reload(
+                `/profiles/${claimRequest.targetId}/claim-requests`
+            );*/
+            setApproveButtonDisabled(true);
+            window.location.reload();
+        },
+    });
+
     const handleDecline = () => {
         refetchDecline();
     };
     const handleApprove = () => {
         refetchApprove();
+        refetchApproveEventsStories();
     };
     const getBadgeColor = () => {
         let color = "yellow";

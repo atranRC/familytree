@@ -19,6 +19,7 @@ import {
     IconAlertOctagon,
     IconAnchor,
     IconCheck,
+    IconMicrophone,
     IconPencil,
     IconPlant2,
     IconShare,
@@ -361,7 +362,7 @@ export function MiniAddAudioStoryCard({
             }}
         >
             <Group>
-                <IconPencil size={20} color="green" />
+                <IconMicrophone size={20} color="green" />
                 <Title order={5} fw={500} c="blue">
                     Record a story
                 </Title>

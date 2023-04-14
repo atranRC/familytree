@@ -18,7 +18,15 @@ const UsersSchema = mongoose.Schema({
         type: Boolean,
     },
     birth_place: {
-        type: String,
+        value: {
+            type: String,
+        },
+        lon: {
+            type: mongoose.Types.Decimal128,
+        },
+        lat: {
+            type: mongoose.Types.Decimal128,
+        },
     },
     birthday: {
         type: Date,
@@ -29,7 +37,15 @@ const UsersSchema = mongoose.Schema({
     },
 
     current_residence: {
-        type: String,
+        value: {
+            type: String,
+        },
+        lon: {
+            type: mongoose.Types.Decimal128,
+        },
+        lat: {
+            type: mongoose.Types.Decimal128,
+        },
     },
 
     fathers_name: {
