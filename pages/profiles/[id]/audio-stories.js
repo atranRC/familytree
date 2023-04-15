@@ -157,154 +157,113 @@ export default function AudioStoriesPage({ asPath }) {
         );
     }
 
-    if (
+    /*if (
         sessionProfileRelation === "self" ||
         sessionProfileRelation === "owner"
-    ) {
-        return (
-            <AppShellContainer>
-                <ProfileTitleSection picUrl={""}>
-                    <Title order={2} fw={600}>
-                        hello
-                    </Title>
-                    <Title order={5} fw={500}>
-                        Places
-                    </Title>
-                </ProfileTitleSection>
-                <SecondaryNavbar
-                    activePage={"audio-stories"}
-                    id={asPath.split("/").at(-2)}
-                    sessionProfileRelation={sessionProfileRelation}
-                />
-                <MediaQuery smallerThan="sm" styles={{ padding: "0px" }}>
-                    <Container pt="md">
-                        <div className={classes.cont}>
-                            <MediaQuery
-                                smallerThan="sm"
-                                styles={{
-                                    paddingRight: "0px",
-                                    paddingLeft: "0px",
-                                    width: "100%",
-                                }}
-                            >
-                                <div className={classes.allStories}>
-                                    <Stack justify="center" align="stretch">
-                                        {sessionProfileRelation !== "none" && (
-                                            <MiniAddAudioStoryCard
-                                                setViewMode={setViewMode}
-                                                viewMode={viewMode}
-                                                setDrawerOpened={
-                                                    setDrawerOpened
-                                                }
-                                            />
-                                        )}
-                                        {isLoading || isFetching ? (
-                                            <>
-                                                <MiniAudioStoryCardSkeleton />
-                                                <MiniAudioStoryCardSkeleton />
-                                                <MiniAudioStoryCardSkeleton />
-                                            </>
-                                        ) : (
-                                            <Stack>
-                                                <ScrollArea
-                                                    style={{ height: "530px" }}
-                                                >
-                                                    <Stack spacing="xs">
-                                                        {data &&
-                                                            data.data.data.stories.map(
-                                                                (s) => (
-                                                                    <MiniAudioStoryCard
-                                                                        key={s._id.toString()}
-                                                                        story={
-                                                                            s
-                                                                        }
-                                                                        setDrawerOpened={
-                                                                            setDrawerOpened
-                                                                        }
-                                                                        selectedStory={
-                                                                            selectedStory
-                                                                        }
-                                                                        setSelectedStory={
-                                                                            setSelectedStory
-                                                                        }
-                                                                        setViewMode={
-                                                                            setViewMode
-                                                                        }
-                                                                        viewMode={
-                                                                            viewMode
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            s.title
-                                                                        }
-                                                                    </MiniAudioStoryCard>
-                                                                )
-                                                            )}
-                                                    </Stack>
-                                                </ScrollArea>
-                                            </Stack>
-                                        )}
-                                        {data && (
-                                            <Pagination
-                                                page={page}
-                                                onChange={setPage}
-                                                total={
-                                                    data.data.data.pagination
-                                                        .pageCount
-                                                }
-                                                siblings={1}
-                                                initialPage={1}
-                                                position="center"
-                                            />
-                                        )}
-                                    </Stack>
-                                </div>
-                            </MediaQuery>
-
-                            <MediaQuery
-                                smallerThan="sm"
-                                styles={{
-                                    padding: "0px",
-                                    width: "100%",
-                                    display: "none",
-                                }}
-                            >
-                                <div className={classes.storyView}>
-                                    {viewMode === "add" ? (
-                                        <AddAudioStoryCard
-                                            profileUser={profileUser}
-                                            sessionUser={sessionUser}
-                                            refetchStories={refetch}
-                                            sessionProfileRelation={
-                                                sessionProfileRelation
-                                            }
-                                        />
-                                    ) : (
-                                        <AudioStoryCard
-                                            story={selectedStory}
-                                            refetchStories={refetch}
-                                            sessionProfileRelation={
-                                                sessionProfileRelation
-                                            }
+    ) {*/
+    return (
+        <AppShellContainer>
+            <ProfileTitleSection picUrl={""}>
+                <Title order={2} fw={600}>
+                    {sessionProfileRelation}
+                </Title>
+                <Title order={5} fw={500}>
+                    Places
+                </Title>
+            </ProfileTitleSection>
+            <SecondaryNavbar
+                activePage={"audio-stories"}
+                id={asPath.split("/").at(-2)}
+                sessionProfileRelation={sessionProfileRelation}
+            />
+            <MediaQuery smallerThan="sm" styles={{ padding: "0px" }}>
+                <Container pt="md">
+                    <div className={classes.cont}>
+                        <MediaQuery
+                            smallerThan="sm"
+                            styles={{
+                                paddingRight: "0px",
+                                paddingLeft: "0px",
+                                width: "100%",
+                            }}
+                        >
+                            <div className={classes.allStories}>
+                                <Stack justify="center" align="stretch">
+                                    {sessionProfileRelation !== "none" && (
+                                        <MiniAddAudioStoryCard
+                                            setViewMode={setViewMode}
+                                            viewMode={viewMode}
+                                            setDrawerOpened={setDrawerOpened}
                                         />
                                     )}
-                                </div>
-                            </MediaQuery>
-                        </div>
-                    </Container>
-                </MediaQuery>
-                <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-                    <Drawer
-                        overlayOpacity={0.55}
-                        overlayBlur={3}
-                        opened={drawerOpened}
-                        onClose={() => setDrawerOpened(false)}
-                        position="bottom"
-                        size="100vh"
-                        lockScroll={false}
-                    >
-                        <ScrollArea style={{ height: 550 }}>
-                            <div className={classes.storyViewDrawer}>
+                                    {isLoading || isFetching ? (
+                                        <>
+                                            <MiniAudioStoryCardSkeleton />
+                                            <MiniAudioStoryCardSkeleton />
+                                            <MiniAudioStoryCardSkeleton />
+                                        </>
+                                    ) : (
+                                        <Stack>
+                                            <ScrollArea
+                                                style={{ height: "530px" }}
+                                            >
+                                                <Stack spacing="xs">
+                                                    {data &&
+                                                        data.data.data.stories.map(
+                                                            (s) => (
+                                                                <MiniAudioStoryCard
+                                                                    key={s._id.toString()}
+                                                                    story={s}
+                                                                    setDrawerOpened={
+                                                                        setDrawerOpened
+                                                                    }
+                                                                    selectedStory={
+                                                                        selectedStory
+                                                                    }
+                                                                    setSelectedStory={
+                                                                        setSelectedStory
+                                                                    }
+                                                                    setViewMode={
+                                                                        setViewMode
+                                                                    }
+                                                                    viewMode={
+                                                                        viewMode
+                                                                    }
+                                                                >
+                                                                    {s.title}
+                                                                </MiniAudioStoryCard>
+                                                            )
+                                                        )}
+                                                </Stack>
+                                            </ScrollArea>
+                                        </Stack>
+                                    )}
+                                    {data && (
+                                        <Pagination
+                                            page={page}
+                                            onChange={setPage}
+                                            total={
+                                                data.data.data.pagination
+                                                    .pageCount
+                                            }
+                                            siblings={1}
+                                            initialPage={1}
+                                            position="center"
+                                        />
+                                    )}
+                                </Stack>
+                            </div>
+                        </MediaQuery>
+
+                        <MediaQuery
+                            smallerThan="sm"
+                            styles={{
+                                padding: "0px",
+                                width: "100%",
+                                display: "none",
+                            }}
+                        >
+                            <div className={classes.storyView}>
                                 {viewMode === "add" ? (
                                     <AddAudioStoryCard
                                         profileUser={profileUser}
@@ -324,12 +283,47 @@ export default function AudioStoriesPage({ asPath }) {
                                     />
                                 )}
                             </div>
-                        </ScrollArea>
-                    </Drawer>
-                </MediaQuery>
-            </AppShellContainer>
-        );
-    }
+                        </MediaQuery>
+                    </div>
+                </Container>
+            </MediaQuery>
+            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                <Drawer
+                    overlayOpacity={0.55}
+                    overlayBlur={3}
+                    opened={drawerOpened}
+                    onClose={() => setDrawerOpened(false)}
+                    position="bottom"
+                    size="100vh"
+                    lockScroll={false}
+                >
+                    <ScrollArea style={{ height: 550 }}>
+                        <div className={classes.storyViewDrawer}>
+                            {viewMode === "add" ? (
+                                <AddAudioStoryCard
+                                    profileUser={profileUser}
+                                    sessionUser={sessionUser}
+                                    refetchStories={refetch}
+                                    sessionProfileRelation={
+                                        sessionProfileRelation
+                                    }
+                                />
+                            ) : (
+                                <AudioStoryCard
+                                    story={selectedStory}
+                                    refetchStories={refetch}
+                                    sessionProfileRelation={
+                                        sessionProfileRelation
+                                    }
+                                />
+                            )}
+                        </div>
+                    </ScrollArea>
+                </Drawer>
+            </MediaQuery>
+        </AppShellContainer>
+    );
+    //}
 }
 
 AudioStoriesPage.getInitialProps = (ctx) => {

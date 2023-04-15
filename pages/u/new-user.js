@@ -145,7 +145,7 @@ function UnclaimedAccountsList({
                                         className={classes.accountCard}
                                         key={acc._id.toString()}
                                     >
-                                        <Avatar src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
+                                        <Avatar src={acc.image} />
 
                                         <div>
                                             <Text size="sm">

@@ -94,7 +94,7 @@ export default function ClaimRequestsPage({
                     {profileData.name}
                 </Title>
                 <Title order={5} fw={400} color="dimmed">
-                    {profileData.current_residence}
+                    {profileData.current_residence.value}
                 </Title>
             </ProfileTitleSection>
             <SecondaryNavbar

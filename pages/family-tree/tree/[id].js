@@ -21,6 +21,7 @@ import {
     Select,
     ScrollArea,
     Pagination,
+    Autocomplete,
 } from "@mantine/core";
 import {
     IconAbc,
@@ -515,8 +516,16 @@ function AddMemberStepper({ selectedTreeMemberData, treeMembersIds }) {
     const [newRelativeNicknames, setNewRelativeNicknames] = useState("");
     const [newRelativeBirthday, setNewRelativeBirthday] = useState("");
     const [newRelativeCurrentResidence, setNewRelativeCurrentResidence] =
-        useState("");
-    const [newRelativeBirthplace, setNewRelativeBirthplace] = useState("");
+        useState({
+            value: "",
+            lon: 0.0,
+            lat: 0.0,
+        });
+    const [newRelativeBirthplace, setNewRelativeBirthplace] = useState({
+        value: "",
+        lon: 0.0,
+        lat: 0.0,
+    });
 
     const [memberAddMode, setMemberAddMode] = useState("");
     const [selectedSearchResultCard, setSelectedSearchResultCard] = useState(
@@ -678,6 +687,87 @@ function StepOne({
         )
     );
 
+    const [locationInputValue, setLocationInputValue] = useState("");
+    const [fetchedLocations, setFetchedLocations] = useState([]);
+    const [locationInputValue2, setLocationInputValue2] = useState("");
+    const [fetchedLocations2, setFetchedLocations2] = useState([]);
+
+    const {
+        isLoading: isLoadingLocations,
+        isFetching: isFetchingLocations,
+        data: dataLocations,
+        refetch: refetchLocations,
+        isError: isErrorLocations,
+        error: errorLocations,
+    } = useQuery({
+        queryKey: "fetch_locations_add_relative",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations(cit);
+        },
+    });
+
+    const {
+        isLoading: isLoadingLocation2,
+        isFetching: isFetchingLocations2,
+        data: dataLocations2,
+        refetch: refetchLocations2,
+        isError: isErrorLocations2,
+        error: errorLocations2,
+    } = useQuery({
+        queryKey: "fetch_locations_add_relative_2",
+        queryFn: () => {
+            return axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${locationInputValue2}&format=json`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            const cit = d.data.map((d) => {
+                return {
+                    value: d.display_name,
+                    lat: d.lat,
+                    lon: d.lon,
+                };
+            });
+            setFetchedLocations2(cit);
+        },
+    });
+
+    const handleLocationSelect = (l) => {
+        console.log(l);
+        setNewRelativeCurrentResidence(l);
+    };
+
+    const handleLocationSelect2 = (l) => {
+        console.log(l);
+        setNewRelativeBirthplace(l);
+    };
+
+    useEffect(() => {
+        if (locationInputValue !== "") {
+            refetchLocations();
+        }
+    }, [locationInputValue]);
+
+    useEffect(() => {
+        if (locationInputValue2 !== "") {
+            refetchLocations2();
+        }
+    }, [locationInputValue2]);
+
     const handleFindByEmail = () => {
         if (radioValue === "") {
             setRadioValueError(true);
@@ -823,48 +913,24 @@ function StepOne({
                             setNewRelativeNicknames(e.target.value)
                         }
                     />
-                    <Select
+
+                    <Autocomplete
                         label="Location"
-                        placeholder="Pick one"
-                        icon={<IconLocation size={19} />}
-                        itemComponent={SelectItem}
                         description="City they currently live in"
-                        data={citiesData}
-                        searchable
-                        maxDropdownHeight={300}
-                        nothingFound="Nothing found"
-                        filter={(value, item) =>
-                            item.label
-                                .toLowerCase()
-                                .includes(value.toLowerCase().trim()) ||
-                            item.description
-                                .toLowerCase()
-                                .includes(value.toLowerCase().trim())
-                        }
-                        value={newRelativeCurrentResidence}
-                        onChange={setNewRelativeCurrentResidence}
+                        value={locationInputValue}
+                        onChange={setLocationInputValue}
+                        data={fetchedLocations}
+                        onItemSubmit={handleLocationSelect}
                     />
-                    <Select
+                    <Autocomplete
                         label="Place of birth"
-                        placeholder="Pick one"
-                        icon={<IconLocation size={19} />}
-                        itemComponent={SelectItem}
                         description="City they were born in"
-                        data={citiesData}
-                        searchable
-                        maxDropdownHeight={300}
-                        nothingFound="Nothing found"
-                        filter={(value, item) =>
-                            item.label
-                                .toLowerCase()
-                                .includes(value.toLowerCase().trim()) ||
-                            item.description
-                                .toLowerCase()
-                                .includes(value.toLowerCase().trim())
-                        }
-                        value={newRelativeBirthplace}
-                        onChange={setNewRelativeBirthplace}
+                        value={locationInputValue2}
+                        onChange={setLocationInputValue2}
+                        data={fetchedLocations2}
+                        onItemSubmit={handleLocationSelect2}
                     />
+
                     <DatePicker
                         placeholder="Pick date"
                         label="Birthday"
@@ -1064,7 +1130,11 @@ function InfoSearchResult({
                                                         order={6}
                                                     >
                                                         Location:{" "}
-                                                        {user.current_residence}
+                                                        {
+                                                            user
+                                                                .current_residence
+                                                                .value
+                                                        }
                                                     </Text>
                                                 </Stack>
                                             </Group>
@@ -1131,7 +1201,7 @@ function EmailSearchResult({
         },
     });
 
-    const handleClick = () => {
+    const handleClick = (user) => {
         if (treeMembersIds.indexOf(user._id.toString()) === -1) {
             setSelectedSearchResultCard(data.data.data);
             setMemberAddMode("existing");
@@ -1155,7 +1225,10 @@ function EmailSearchResult({
                         We found the following people in our database:
                     </Title>
                     <Divider />
-                    <Paper className={classes.paper} onClick={handleClick}>
+                    <Paper
+                        className={classes.paper}
+                        onClick={() => handleClick(data.data.data)}
+                    >
                         <Group>
                             <Avatar
                                 src={data.data.data.image}
@@ -1176,7 +1249,8 @@ function EmailSearchResult({
                                             .split("T")[0]}
                                 </Text>
                                 <Text size="sm" c="dimmed" fw={500} order={6}>
-                                    Location: {data.data.data.current_residence}
+                                    Location:{" "}
+                                    {data.data.data.current_residence.value}
                                 </Text>
                             </Stack>
                         </Group>
@@ -1198,8 +1272,16 @@ function StepThree({
     newRelativeFatherName = "",
     newRelativeNicknames = "",
     newRelativeBirthday = "",
-    newRelativeCurrentResidence = "",
-    newRelativeBirthplace = "",
+    newRelativeCurrentResidence = {
+        value: "",
+        lon: 0.0,
+        lat: 0.0,
+    },
+    newRelativeBirthplace = {
+        value: "",
+        lon: 0.0,
+        lat: 0.0,
+    },
 }) {
     if (memberAddMode === "create") {
         return (
@@ -1238,8 +1320,16 @@ function CreateAndAdd({
     newRelativeFatherName = "",
     newRelativeNicknames = "",
     newRelativeBirthday = "",
-    newRelativeCurrentResidence = "",
-    newRelativeBirthplace = "",
+    newRelativeCurrentResidence = {
+        value: "",
+        lon: 0.0,
+        lat: 0.0,
+    },
+    newRelativeBirthplace = {
+        value: "",
+        lon: 0.0,
+        lat: 0.0,
+    },
 }) {
     const [addButtonDisabled, setAddButtonDisabled] = useState(false);
     const { data: session } = useSession();
@@ -1458,7 +1548,7 @@ function CreateAndAdd({
                             Place of Birth
                         </Text>
                         <Text fz="xl" fw={500}>
-                            {newRelativeBirthplace}
+                            {newRelativeBirthplace.value}
                         </Text>
                     </Stack>
                     <Stack align="center" justify="center" spacing={0}>
@@ -1474,7 +1564,7 @@ function CreateAndAdd({
                             City
                         </Text>
                         <Text fz="xl" fw={500}>
-                            {newRelativeCurrentResidence}
+                            {newRelativeCurrentResidence.value}
                         </Text>
                     </Stack>
                 </Group>

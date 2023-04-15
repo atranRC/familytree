@@ -134,7 +134,7 @@ export function ClaimTargetView({ targetAccountId }) {
                         {dataTargetAccount.data.data.last_name}
                     </Title>
                     <Title c="dimmed" fw={500} order={6} align="center" mb="sm">
-                        {dataTargetAccount.data.data.current_residence}
+                        {dataTargetAccount.data.data.current_residence.value}
                     </Title>
 
                     <Group spacing="xl">

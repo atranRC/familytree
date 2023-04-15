@@ -48,7 +48,9 @@ export default function UnclaimedProfilesPage({
                 </Link>
             </td>
             <td>
-                {p.current_residence ? p.current_residence : "unknown location"}
+                {p.current_residence
+                    ? p.current_residence.value
+                    : "unknown location"}
             </td>
         </tr>
     ));

@@ -187,6 +187,7 @@ function ModalContent({ markerType, selectedMarkerId, profileUser }) {
 export default function PlacesPage({ asPath }) {
     const { data: session, status } = useSession();
     const [sessionUser, setSessionUser] = useState(null);
+    const [profileUser, setProfileUser] = useState(null);
     const [sessionProfileRelation, setSessionProfileRelation] = useState(null);
     const [mapVisible, setMapVisible] = useState(false);
     const [markers, setMarkers] = useState([]);
@@ -203,7 +204,7 @@ export default function PlacesPage({ asPath }) {
         isError: isErrorSessionUser,
         error: errorSessionUser,
     } = useQuery({
-        queryKey: "get-user",
+        queryKey: "get_session_user_places_page",
         queryFn: () => {
             return axios.get("/api/users/users-mongoose/" + session.user.email);
         },
@@ -222,19 +223,23 @@ export default function PlacesPage({ asPath }) {
         isError: isErrorProfileUser,
         error: errorProfileUser,
     } = useQuery({
-        queryKey: "get-user",
+        queryKey: "get_profile_user_places_page",
         queryFn: () => {
             return axios.get("/api/users/" + asPath.split("/").at(-2));
         },
         enabled: false,
         onSuccess: (d) => {
             const pathUserId = asPath.split("/").at(-2);
-            //console.log(pathUserId, sessionUser);
+
+            setProfileUser(d.data.data);
             if (sessionUser) {
+                console.log("testing", pathUserId, sessionUser._id);
                 if (sessionUser._id.toString() === pathUserId) {
                     setSessionProfileRelation("self");
                 } else if (d.data.data.owner === sessionUser._id.toString()) {
                     setSessionProfileRelation("owner");
+                } else {
+                    setSessionProfileRelation("none");
                 }
             }
         },
@@ -377,75 +382,76 @@ export default function PlacesPage({ asPath }) {
         return <a href="/api/auth/signin">Sign in</a>;
     }
     if (status === "loading" || !sessionProfileRelation) {
-        console.log(status);
-        return <p>loading...</p>;
-    }
-    if (
-        sessionProfileRelation === "self" ||
-        sessionProfileRelation === "owner"
-    ) {
+        //console.log(status);
         return (
             <AppShellContainer>
-                <ProfileTitleSection picUrl={""}>
-                    <Title order={2} fw={600}>
-                        hello
-                    </Title>
-                    <Title order={5} fw={500}>
-                        Places
-                    </Title>
-                </ProfileTitleSection>
-                <SecondaryNavbar
-                    activePage={"places"}
-                    id={asPath.split("/").at(-2)}
-                    sessionProfileRelation={sessionProfileRelation}
-                />
-                <div>
-                    <p>
-                        Signed in as {session.user.email} {sessionUser.name}
-                    </p>
-                    <Radio.Group
-                        value={markerType}
-                        onChange={setMarkerType}
-                        name="type"
-                        size="md"
-                    >
-                        <Radio value="events" label="Events" />
-                        <Radio value="writtenstories" label="Written Stories" />
-                        <Radio value="audiostories" label="Audio Stories" />
-                    </Radio.Group>
-
-                    {markers && (
-                        <div style={{ width: "100%", position: "relative" }}>
-                            <LoadingOverlay
-                                visible={mapVisible}
-                                overlayBlur={2}
-                            />
-                            <Map
-                                markers={markers}
-                                setSelectedMarkerId={setSelectedMarkerId}
-                                setModalOpen={setModalOpen}
-                            />
-                        </div>
-                    )}
-                </div>
-                <Modal
-                    opened={modalOpen}
-                    onClose={() => {
-                        setModalOpen(false);
-                    }}
-                    title=""
-                    size="lg"
-                    overflow="inside"
-                >
-                    <ModalContent
-                        markerType={markerType}
-                        selectedMarkerId={selectedMarkerId}
-                        profileUser={dataProfileUser.data.data}
-                    />
-                </Modal>
+                <p>loading...</p>
             </AppShellContainer>
         );
     }
+    /*if (
+        sessionProfileRelation === "self" ||
+        sessionProfileRelation === "owner"
+    ) {*/
+    return (
+        <AppShellContainer>
+            <ProfileTitleSection picUrl={""}>
+                <Title order={2} fw={600}>
+                    {sessionProfileRelation}
+                </Title>
+                <Title order={5} fw={500}>
+                    Places
+                </Title>
+            </ProfileTitleSection>
+            <SecondaryNavbar
+                activePage={"places"}
+                id={asPath.split("/").at(-2)}
+                sessionProfileRelation={sessionProfileRelation}
+            />
+            <div>
+                <p>
+                    Signed in as {session.user.email} {sessionUser.name}
+                </p>
+                <Radio.Group
+                    value={markerType}
+                    onChange={setMarkerType}
+                    name="type"
+                    size="md"
+                >
+                    <Radio value="events" label="Events" />
+                    <Radio value="writtenstories" label="Written Stories" />
+                    <Radio value="audiostories" label="Audio Stories" />
+                </Radio.Group>
+
+                {markers && (
+                    <div style={{ width: "100%", position: "relative" }}>
+                        <LoadingOverlay visible={mapVisible} overlayBlur={2} />
+                        <Map
+                            markers={markers}
+                            setSelectedMarkerId={setSelectedMarkerId}
+                            setModalOpen={setModalOpen}
+                        />
+                    </div>
+                )}
+            </div>
+            <Modal
+                opened={modalOpen}
+                onClose={() => {
+                    setModalOpen(false);
+                }}
+                title=""
+                size="lg"
+                overflow="inside"
+            >
+                <ModalContent
+                    markerType={markerType}
+                    selectedMarkerId={selectedMarkerId}
+                    profileUser={dataProfileUser.data.data}
+                />
+            </Modal>
+        </AppShellContainer>
+    );
+    //}
 }
 
 PlacesPage.getInitialProps = (ctx) => {
