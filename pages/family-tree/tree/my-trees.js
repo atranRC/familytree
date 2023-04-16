@@ -134,7 +134,7 @@ export default function MyTreesPage({ ownerData, treesData }) {
                     My Trees
                 </Title>
                 <Title order={5} fw={400} color="dimmed">
-                    Family Trees you've created
+                    Family Trees you&apos;ve created
                 </Title>
                 <Link href={`/profiles/${ownerData._id.toString()}/events`}>
                     My profile

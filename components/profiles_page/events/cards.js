@@ -53,22 +53,6 @@ export function AddEventCard({
     const get_auto_title2 = (eventType, profileName, location, date) => {
         return get_auto_title(eventType, profileName, location, date);
     };
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
-            <div ref={ref} {...others}>
-                <Group noWrap>
-                    <Avatar src={image} />
-
-                    <div>
-                        <Text size="sm">{label}</Text>
-                        <Text size="xs" opacity={0.65}>
-                            {description}
-                        </Text>
-                    </div>
-                </Group>
-            </div>
-        )
-    );
 
     const [eventType, setEventType] = useState("");
     const [eventTypeError, setEventTypeError] = useState(false);
@@ -195,7 +179,7 @@ export function AddEventCard({
                     value={eventType}
                     onChange={setEventType}
                     data={events_list}
-                    error={eventTypeError && "event can't be empty"}
+                    error={eventTypeError && "event can&apos;t be empty"}
                     onFocus={() => {
                         setAddEventNotification(false);
                         setEventTypeError(false);
@@ -209,7 +193,7 @@ export function AddEventCard({
                     onChange={(event) =>
                         setEventDescription(event.currentTarget.value)
                     }
-                    error={eventDescError && "description can't be empty"}
+                    error={eventDescError && "description can&apos;t be empty"}
                     onFocus={() => {
                         setAddEventNotification(false);
                         setEventDescError(false);
@@ -235,7 +219,7 @@ export function AddEventCard({
                     icon={<IconCalendarEvent size={19} />}
                     value={eventDate}
                     onChange={setEventDate}
-                    error={eventDateError && "date can't be empty"}
+                    error={eventDateError && "date can&apos;t be empty"}
                     onFocus={() => {
                         setAddEventNotification(false);
                         setEventDateError(false);
@@ -248,7 +232,7 @@ export function AddEventCard({
                         title="Event Added!"
                         onClose={() => setAddEventNotification(false)}
                     >
-                        Event has been added to {profileUser.name}'s wall!
+                        Event has been added to {profileUser.name}&apos;s wall!
                     </Notification>
                 )}
                 <Button
@@ -393,22 +377,6 @@ export function EventCard({
     profileUser,
     sessionProfileRelation,
 }) {
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
-            <div ref={ref} {...others}>
-                <Group noWrap>
-                    <Avatar src={image} />
-
-                    <div>
-                        <Text size="sm">{label}</Text>
-                        <Text size="xs" opacity={0.65}>
-                            {description}
-                        </Text>
-                    </div>
-                </Group>
-            </div>
-        )
-    );
     /*authorName: sessionUser.name,
                 type,
                 description,
@@ -742,27 +710,6 @@ export function EventCard({
                 <Paper withBorder p="md">
                     {editMode ? (
                         <Stack>
-                            {/*<Select
-                                label="Location"
-                                placeholder="Pick one"
-                                icon={<IconLocation size={19} />}
-                                itemComponent={SelectItem}
-                                description="Location of the event"
-                                data={citiesData}
-                                searchable
-                                maxDropdownHeight={300}
-                                nothingFound="Nothing found"
-                                filter={(value, item) =>
-                                    item.label
-                                        .toLowerCase()
-                                        .includes(value.toLowerCase().trim()) ||
-                                    item.description
-                                        .toLowerCase()
-                                        .includes(value.toLowerCase().trim())
-                                }
-                                value={locationValue}
-                                onChange={setLocationValue}
-                            />*/}
                             <Autocomplete
                                 label="Location"
                                 value={locationInputValue}

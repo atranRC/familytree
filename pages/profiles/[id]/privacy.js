@@ -221,7 +221,7 @@ export default function ProfilePrivacyPage({
                     Privacy Settings
                 </Title>
                 <Title order={5} fw={400} color="dimmed">
-                    Choose who can post to this profile's wall
+                    Choose who can post to this profile&apos;s wall
                 </Title>
             </TreePageTitleSection>
             <SecondaryNavbar

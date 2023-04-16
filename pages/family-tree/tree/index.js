@@ -223,7 +223,7 @@ export default function FamilTreePage({
                                         />
                                     }
                                 >
-                                    Trees I'm In
+                                    Trees I&apos;m In
                                 </Tabs.Tab>
                                 <Tabs.Tab
                                     value="unclaimed"
@@ -279,7 +279,7 @@ export default function FamilTreePage({
                             </Tabs.Panel>
 
                             <Tabs.Panel value="treesimin">
-                                Trees i'm in
+                                Trees i&apos;m in
                                 <Paper withBorder p="md" bg="#f7f9fc">
                                     <Table
                                         striped
@@ -399,7 +399,7 @@ export async function getServerSideProps(context) {
     const user = await Users.findOne({ email: session.user.email });
     const trees = await FamilyTrees.find({ owner: user._id.toString() });
 
-    //trees i'm in
+    //trees i&apos;m in
     const treesImIn = await TreeMembers.find({ id: user._id.toString() });
     const treesImInIds = treesImIn.map((t) => {
         return ObjectId(t.treeId);

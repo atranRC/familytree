@@ -87,7 +87,12 @@ export default function TimelineSearchPage({ query }) {
                         </Stack>
                         {searchResultItems.length > 0 ? (
                             searchResultItems.map((item) => {
-                                return <PreviewCard article={item} />;
+                                return (
+                                    <PreviewCard
+                                        key={item._id.toString()}
+                                        article={item}
+                                    />
+                                );
                             })
                         ) : (
                             <>

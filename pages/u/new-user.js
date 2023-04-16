@@ -60,7 +60,7 @@ function NoAccounts({ updateNewUserHandler }) {
             </ThemeIcon>
 
             <Title c="dimmed" fw={500} order={6} align="center" mb="sm">
-                We couldn't find profiles in your name.
+                We couldn&apos;t find profiles in your name.
             </Title>
             <Button
                 fullWidth

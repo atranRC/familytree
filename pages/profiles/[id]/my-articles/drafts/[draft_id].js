@@ -35,7 +35,6 @@ import {
     IconFile,
     IconLocation,
 } from "@tabler/icons";
-import { citiesData } from "../../../../demo/auth-demo/cities";
 import { DatePicker } from "@mantine/dates";
 
 export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
@@ -191,7 +190,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
     }, [locationInputValue]);
 
     if (!articledraftJson) {
-        return <div>DRAFT DOESN'T EXIST</div>;
+        return <div>DRAFT DOESN&apos;T EXIST</div>;
     }
 
     if (sessionUserJson._id !== articledraftJson.authorId) {

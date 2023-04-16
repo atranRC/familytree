@@ -51,7 +51,7 @@ export function SmallSearchResultUserCard({ user }) {
                             user.birthday.toString().split("T")[0]}
                     </Text>
                     <Text size="sm" c="dimmed" fw={500} order={6}>
-                        Location: {user.current_residence}
+                        Location: {user.current_residence.value}
                     </Text>
                 </Stack>
             </Group>

@@ -34,7 +34,6 @@ import { ProfileTitleSection } from "../../../../components/titleSections";
 import dbConnect from "../../../../lib/dbConnect";
 import Users from "../../../../models/Users";
 import { authOptions } from "../../../api/auth/[...nextauth]";
-import { citiesData } from "../../../demo/auth-demo/cities";
 
 export default function MyArticlesPage({ sessionUserJson }) {
     const router = useRouter();

@@ -114,8 +114,11 @@ export function AddFamMemberInputs({ refetchWithEmail, refetchWithInfo }) {
         shallow
     );
 
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
+    const SelectItem = forwardRef(function search2(
+        { image, label, description, ...others },
+        ref
+    ) {
+        return (
             <div ref={ref} {...others}>
                 <Group noWrap>
                     <Avatar src={image} />
@@ -128,8 +131,8 @@ export function AddFamMemberInputs({ refetchWithEmail, refetchWithInfo }) {
                     </div>
                 </Group>
             </div>
-        )
-    );
+        );
+    });
 
     const handleFindByInfo = () => {
         //handle email error
@@ -190,8 +193,8 @@ export function AddFamMemberInputs({ refetchWithEmail, refetchWithInfo }) {
             <Paper withBorder p="md">
                 <Stack spacing={1}>
                     <Text align="center" size="sm" fw={500} c="dimmed">
-                        If your relative is already in our database, we'll find
-                        them by their email.
+                        If your relative is already in our database, we&apos;ll
+                        find them by their email.
                     </Text>
                     <TextInput
                         label="Email"
@@ -216,10 +219,10 @@ export function AddFamMemberInputs({ refetchWithEmail, refetchWithInfo }) {
             <Paper withBorder p="md">
                 <Stack spacing={1}>
                     <Text align="center" size="sm" fw={500} c="dimmed">
-                        Give us info on your relative and we'll look for them in
-                        our database. If they're not in our database, we'll
-                        create a profile for them so you can add them to your
-                        family tree.
+                        Give us info on your relative and we&apos;ll look for
+                        them in our database. If they&apos;re not in our
+                        database, we&apos;ll create a profile for them so you
+                        can add them to your family tree.
                     </Text>
                     <TextInput
                         label="Name"
@@ -524,8 +527,11 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
 
     const [page, setPage] = useState(1);
 
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
+    const SelectItem = forwardRef(function search1(
+        { image, label, description, ...others },
+        ref
+    ) {
+        return (
             <div ref={ref} {...others}>
                 <Group noWrap>
                     <Avatar src={image} />
@@ -538,8 +544,8 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
                     </div>
                 </Group>
             </div>
-        )
-    );
+        );
+    });
 
     const handleFindByInfo = () => {
         //handle email error
@@ -894,7 +900,7 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
                                         c="dimmed"
                                     >
                                         If your relative is already in our
-                                        database, we'll find them by their
+                                        database, we&apos;ll find them by their
                                         email.
                                     </Text>
                                     <TextInput
@@ -1098,8 +1104,11 @@ export function ModalAddCollaborator({ treeId }) {
     const [newRelativeBirthplace, setNewRelativeBirthplace] = useState("");
     const [newRelativeBirthday, setNewRelativeBirthday] = useState("");
 
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
+    const SelectItem = forwardRef(function search3(
+        { image, label, description, ...others },
+        ref
+    ) {
+        return (
             <div ref={ref} {...others}>
                 <Group noWrap>
                     <Avatar src={image} />
@@ -1112,8 +1121,8 @@ export function ModalAddCollaborator({ treeId }) {
                     </div>
                 </Group>
             </div>
-        )
-    );
+        );
+    });
 
     const handleFindByInfo = () => {
         //handle email error
@@ -1373,15 +1382,27 @@ export function ModalAddCollaborator({ treeId }) {
         }
     };
     const get_step_three_view = () => {
-        if (newCollabToView) {
-            return (
-                <AddCollabProfileView
+        /*<AddCollabProfileView
                     firstName={newRelativeFirstName}
                     fathersName={newRelativeFatherName}
                     nicknames={newRelativeNicknames}
                     location={newRelativeCurrentResidence}
                     birthPlace={newRelativeBirthplace}
                     birthday={newRelativeBirthday}
+                    addCollabHandler={addCollabHandler}
+                    isLoading={isLoadingAddCollab}
+                    isFetching={isFetchingAddCollab}
+                    isError={isErrorAddCollab}
+                />*/
+        if (newCollabToView) {
+            return (
+                <AddCollabProfileView
+                    firstName={newCollabToView.name}
+                    fathersName={newCollabToView.fathers_name}
+                    nicknames={newCollabToView.nicknames}
+                    location={newCollabToView.current_residence.value}
+                    birthPlace={newCollabToView.birth_place.value}
+                    birthday={newCollabToView.birthday.toString().split("T")[0]}
                     addCollabHandler={addCollabHandler}
                     isLoading={isLoadingAddCollab}
                     isFetching={isFetchingAddCollab}
@@ -1548,9 +1569,7 @@ export function ModalAddCollaborator({ treeId }) {
                                                     fw={500}
                                                     c="dimmed"
                                                 >
-                                                    If your relative is already
-                                                    in our database, we'll find
-                                                    them by their email.
+                                                    Add via email
                                                 </Text>
                                                 <TextInput
                                                     label="Email"
@@ -1586,7 +1605,7 @@ export function ModalAddCollaborator({ treeId }) {
                                             label="Or"
                                             labelPosition="center"
                                         />
-                                        <Paper withBorder p="md">
+                                        {/*<Paper withBorder p="md">
                                             <Stack spacing={1}>
                                                 <Text
                                                     align="center"
@@ -1594,13 +1613,7 @@ export function ModalAddCollaborator({ treeId }) {
                                                     fw={500}
                                                     c="dimmed"
                                                 >
-                                                    Give us info on your
-                                                    relative and we'll look for
-                                                    them in our database. If
-                                                    they're not in our database,
-                                                    we'll create a profile for
-                                                    them so you can add them to
-                                                    your family tree.
+                                                    Look for collaborators
                                                 </Text>
                                                 <TextInput
                                                     label="Name"
@@ -1647,7 +1660,7 @@ export function ModalAddCollaborator({ treeId }) {
                                                     Find Relative
                                                 </Button>
                                             </Stack>
-                                        </Paper>
+                                        </Paper>*/}
                                     </Stack>
                                 </Stepper.Step>
                                 <Stepper.Step

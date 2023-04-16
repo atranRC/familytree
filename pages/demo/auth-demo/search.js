@@ -322,10 +322,11 @@ export default function Search({ allUsersData, ownerData }) {
                                                                 align="center"
                                                             >
                                                                 Type a
-                                                                relative's name
-                                                                and matching
-                                                                results will
-                                                                appear here.
+                                                                relative&apos;s
+                                                                name and
+                                                                matching results
+                                                                will appear
+                                                                here.
                                                             </Title>
                                                             <Text
                                                                 c="dimmed"
@@ -335,7 +336,8 @@ export default function Search({ allUsersData, ownerData }) {
                                                                 mb="sm"
                                                             >
                                                                 Click on the
-                                                                relative you're
+                                                                relative
+                                                                you&apos;re
                                                                 looking for to
                                                                 view their
                                                                 information and

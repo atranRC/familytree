@@ -47,7 +47,7 @@ export default function Familytree({ ownerData, treeData }) {
         <FamtreePageContext.Provider value={ownerData}>
             <AppShellContainer>
                 <TitleSection>
-                    <Title>{ownerData.name}'s Family Tree</Title>
+                    <Title>{ownerData.name}&apos;s Family Tree</Title>
                     <Button onClick={() => console.log(drawerOpened)}>
                         drawer
                     </Button>

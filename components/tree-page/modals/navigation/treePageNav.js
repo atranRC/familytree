@@ -11,7 +11,7 @@ export default function TreesNav({ activePage }) {
             <Tabs.List position="center">
                 <Tabs.Tab value="my-trees">My Trees</Tabs.Tab>
                 <Tabs.Tab value="my-collabs">My Collaborations</Tabs.Tab>
-                <Tabs.Tab value="trees-im-in">Trees I'm In</Tabs.Tab>
+                <Tabs.Tab value="trees-im-in">Trees I&apos;m In</Tabs.Tab>
                 <Tabs.Tab value="unclaimed">Unclaimed Profiles</Tabs.Tab>
             </Tabs.List>
         </Tabs>

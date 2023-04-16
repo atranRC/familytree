@@ -69,10 +69,10 @@ export default function TreesImInPage({ ownerData, treesImInData2 }) {
         <AppShellContainer>
             <TreePageTitleSection picUrl="https://img.freepik.com/free-vector/job-interview-process-hiring-new-employees-hr-specialist-cartoon-character-talking-new-candidatee-recruitment-employment-headhunting_335657-2680.jpg">
                 <Title order={2} fw={600}>
-                    Trees I'm In
+                    Trees I&apos;m In
                 </Title>
                 <Title order={5} fw={400} color="dimmed">
-                    Family Trees you've been added to
+                    Family Trees you&apos;ve been added to
                 </Title>
             </TreePageTitleSection>
             <MediaQuery smallerThan="sm" styles={{ padding: "0px" }}>

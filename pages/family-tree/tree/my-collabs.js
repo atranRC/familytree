@@ -71,7 +71,7 @@ export default function MyCollabsPage({ ownerData, myCollabsTrees2 }) {
                     My Collaborations
                 </Title>
                 <Title order={5} fw={400} color="dimmed">
-                    Trees you've been invited to collaborate on
+                    Trees you&apos;ve been invited to collaborate on
                 </Title>
             </TreePageTitleSection>
             <MediaQuery smallerThan="sm" styles={{ padding: "0px" }}>

@@ -61,7 +61,7 @@ export function SomethingWentWrong({ type }) {
                 )}
 
                 <Title order={6} fw={500} c="dimmed" align="center">
-                    We couldn't find the person you were looking for.{" "}
+                    We couldn&apos;t find the person you were looking for.{" "}
                     <Text
                         span
                         style={{
@@ -152,7 +152,7 @@ export function AddFamilyMemberSearchResult({ userList }) {
             </Paper>
             <Paper withBorder p="md">
                 <Title order={6} fw={500} c="dimmed">
-                    Not the person you're looking for?{" "}
+                    Not the person you&apos;re looking for?{" "}
                     <Text
                         span
                         style={{

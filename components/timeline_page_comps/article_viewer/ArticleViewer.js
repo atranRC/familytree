@@ -241,7 +241,7 @@ export function ArticleViewer({ articleId }) {
                                         <Divider orientation="vertical" />
                                         {flaggedArticleObj ? (
                                             <Text fs="italic" fz="sm">
-                                                you've flagged this article{" "}
+                                                you&apos;ve flagged this article{" "}
                                                 {" - "}
                                                 <Text
                                                     span

@@ -335,6 +335,10 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
         }
     }, [dataUser, dataTree, collabsIdArray]);
 
+    if (!session) {
+        return <div>sign in</div>;
+    }
+
     return (
         <AppShellContainer>
             <TitleSection>
@@ -670,23 +674,6 @@ function StepOne({
     setActive,
     setMode,
 }) {
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
-            <div ref={ref} {...others}>
-                <Group noWrap>
-                    <Avatar src={image} />
-
-                    <div>
-                        <Text size="sm">{label}</Text>
-                        <Text size="xs" opacity={0.65}>
-                            {description}
-                        </Text>
-                    </div>
-                </Group>
-            </div>
-        )
-    );
-
     const [locationInputValue, setLocationInputValue] = useState("");
     const [fetchedLocations, setFetchedLocations] = useState([]);
     const [locationInputValue2, setLocationInputValue2] = useState("");
@@ -824,7 +811,7 @@ function StepOne({
                     onFocus={() => setRadioValueError(false)}
                 >
                     {selectedTreeMemberData.parent_id === "" && (
-                        <Radio value="father" label="Father" />
+                        <Radio value="father" label="Parent" />
                     )}
 
                     <Radio value="child" label="Child" />

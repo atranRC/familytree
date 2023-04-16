@@ -14,11 +14,11 @@ export default function NoAccounts({ searchTerm }) {
             </ThemeIcon>
 
             <Title c="dimmed" fw={500} order={4} align="center" mb="sm">
-                We couldn't find results that match {searchTerm}.
+                We couldn&apos;t find results that match {searchTerm}.
             </Title>
             <Title c="dimmed" fw={500} order={6} align="center" mb="sm">
-                You can create an unclaimed account for {searchTerm} in the
-                'All' tab.
+                You can create an unclaimed account for {searchTerm} in the All
+                tab.
             </Title>
         </Stack>
     );

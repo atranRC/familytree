@@ -57,8 +57,11 @@ export function CreateUnclaimedAccount({ ownerData }) {
                 value.length > 20 ? "Name must have at least 2 letters" : null,*/
         },
     });
-    const SelectItem = forwardRef(
-        ({ image, label, description, ...others }, ref) => (
+    const SelectItem = forwardRef(function search4(
+        { image, label, description, ...others },
+        ref
+    ) {
+        return (
             <div ref={ref} {...others}>
                 <Group noWrap>
                     <Avatar src={image} />
@@ -71,8 +74,8 @@ export function CreateUnclaimedAccount({ ownerData }) {
                     </div>
                 </Group>
             </div>
-        )
-    );
+        );
+    });
     const handleError = (errors) => {
         if (errors.name) {
             console.log(errors.name);

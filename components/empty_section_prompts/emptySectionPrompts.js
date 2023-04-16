@@ -25,10 +25,11 @@ export function TreeIsEmptyPrompt() {
                         <Image
                             p={10}
                             src="https://img.freepik.com/free-vector/tree-with-branches-roots-falling-leaves-white-background-illustration_1284-27223.jpg"
+                            alt="img"
                         />
                     </ThemeIcon>
                     <Title c="skyblue" fw={500} order={3} align="center">
-                        You don't have a family tree yet.
+                        You don&apos;t have a family tree yet.
                     </Title>
                     <Title c="dimmed" fw={500} order={5} align="center" mb="sm">
                         Start by adding your{" "}
@@ -58,6 +59,7 @@ export function SelectTreeMemberToViewOrAddPrompt() {
                         <Image
                             p={10}
                             src="https://img.freepik.com/free-vector/international-migration-abstract-concept-vector-illustration-international-migrants-border-control-movement-people-leaving-country-application-form-travel-with-bag-abstract-metaphor_335657-3972.jpg"
+                            alt="img2"
                         />
                     </ThemeIcon>
                     <Title c="skyblue" fw={500} order={4} align="center">
@@ -80,6 +82,7 @@ export function AddTreeMemberHerePrompt() {
                     <Image
                         p={10}
                         src="https://img.freepik.com/free-vector/international-migration-abstract-concept-vector-illustration-international-migrants-border-control-movement-people-leaving-country-application-form-travel-with-bag-abstract-metaphor_335657-3972.jpg"
+                        alt="img3"
                     />
                 </ThemeIcon>
                 <Title c="skyblue" fw={500} order={3} align="center">
@@ -103,10 +106,11 @@ export function NewRelativeNoResultsFound() {
                     <Image
                         p={10}
                         src="https://img.freepik.com/free-vector/flat-man-with-symptoms-depression-disorder-overhead_88138-784.jpg"
+                        alt="img5"
                     />
                 </ThemeIcon>
                 <Title c="lightred" fw={500} order={3} align="center">
-                    We couldn't find the person you were looking for.
+                    We couldn&apos;t find the person you were looking for.
                 </Title>
                 <Text c="dimmed" fw={500} order={5} align="center" mb="sm">
                     <Text span>Try again</Text> with a different email or info.

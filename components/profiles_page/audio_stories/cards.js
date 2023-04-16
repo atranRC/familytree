@@ -206,7 +206,7 @@ export function AddAudioStoryCard({
                     label="What's the story about?"
                     value={storyTitle}
                     onChange={(e) => setStoryTitle(e.target.value)}
-                    error={storyTitleError && "title can't be empty"}
+                    error={storyTitleError && "title can&apos;t be empty"}
                     onFocus={() => {
                         setAddStoryNotification(false);
                         setStoryTitleError(false);
@@ -243,7 +243,8 @@ export function AddAudioStoryCard({
                         title="Story posted!"
                         onClose={() => setAddStoryNotification(false)}
                     >
-                        Your story has been added to {profileUser.name}'s wall!
+                        Your story has been added to {profileUser.name}&apos;s
+                        wall!
                     </Notification>
                 )}
                 <Button
