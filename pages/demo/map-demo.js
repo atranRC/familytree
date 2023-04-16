@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useQuery } from "react-query";
 import { useState } from "react";
+import Link from "next/link";
 
 const Map = dynamic(() => import("../../components/places_page/Map"), {
     ssr: false,
@@ -45,5 +46,5 @@ export default function MapDemo() {
             </div>
         );
     }
-    return <a href="/api/auth/signin">Sign in</a>;
+    return <Link href="/api/auth/signin">Sign in</Link>;
 }

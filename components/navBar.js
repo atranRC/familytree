@@ -24,6 +24,7 @@ import {
     IconArrowsLeftRight,
     IconTrash,
     IconBell,
+    IconLogout,
 } from "@tabler/icons";
 import { useDisclosure } from "@mantine/hooks";
 import { useQuery } from "react-query";
@@ -172,16 +173,24 @@ export function AvatarMenuContent({ sessionUserEmail }) {
 
     if (data) {
         return (
-            <Menu.Item
-                icon={<IconSettings size={14} />}
-                onClick={() =>
-                    router.push(
-                        `/profiles/${data.data.data._id.toString()}/events`
-                    )
-                }
-            >
-                My Profile
-            </Menu.Item>
+            <div>
+                <Menu.Item
+                    icon={<IconSettings size={14} />}
+                    onClick={() =>
+                        router.push(
+                            `/profiles/${data.data.data._id.toString()}/events`
+                        )
+                    }
+                >
+                    My Profile
+                </Menu.Item>
+                <Menu.Item
+                    icon={<IconLogout size={14} />}
+                    onClick={() => signOut()}
+                >
+                    Logout
+                </Menu.Item>
+            </div>
         );
     }
 }

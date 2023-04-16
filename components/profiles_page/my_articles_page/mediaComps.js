@@ -135,6 +135,7 @@ export function MediaThumbnailGrid({
                         {fetchedMedia.media.map((m) => {
                             return (
                                 <div
+                                    key={m._id.toString()}
                                     style={{
                                         cursor: "pointer",
                                     }}

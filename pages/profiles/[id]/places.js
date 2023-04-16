@@ -379,7 +379,7 @@ export default function PlacesPage({ asPath }) {
     }, [markerType]);
 
     if (status === "unauthenticated") {
-        return <a href="/api/auth/signin">Sign in</a>;
+        return <Link href="/api/auth/signin">Sign in</Link>;
     }
     if (status === "loading" || !sessionProfileRelation) {
         //console.log(status);

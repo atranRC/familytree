@@ -11,6 +11,7 @@ import {
     MediaUploader,
     MediaViewer,
 } from "../../../../components/profiles_page/my_articles_page/mediaComps";
+import Link from "next/link";
 
 /*const Map = dynamic(() => import("../../../components/profiles_page/my_articles_page/mediaComps"), {
     ssr: false,
@@ -84,7 +85,7 @@ export default function MyArticlesMediaPage({ asPath }) {
     }, [sessionUser]);
 
     if (status === "unauthenticated") {
-        return <a href="/api/auth/signin">Sign in</a>;
+        return <Link href="/api/auth/signin">Sign in</Link>;
     }
 
     if (status === "loading" || !sessionProfileRelation) {
