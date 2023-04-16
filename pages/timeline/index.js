@@ -16,7 +16,6 @@ import { IconCalendarDue } from "@tabler/icons";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
-import { DateComp } from "../../components/dateComp";
 import {
     PrimaryNavBar,
     SecondaryNavbar,
