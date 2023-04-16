@@ -31,7 +31,7 @@ import { useEffect, useState } from "react";
 import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import { useQuery } from "react-query";
 
-export function AddAudioStoryCard({
+export default function AddAudioStoryCard({
     profileUser,
     sessionUser,
     refetchStories,
