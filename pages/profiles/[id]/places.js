@@ -20,6 +20,7 @@ import {
 import SecondaryNavbar from "../../../components/profiles_page/SecondaryNavbar";
 import { get_auto_title, get_event_label } from "../../../lib/static_lists";
 import { IconAnchor, IconPlant2 } from "@tabler/icons";
+import Link from "next/link";
 
 const Map = dynamic(() => import("../../../components/places_page/Map"), {
     ssr: false,

@@ -22,6 +22,7 @@ import {
     MiniAudioStoryCard,
     MiniAudioStoryCardSkeleton,
 } from "../../../components/profiles_page/audio_stories/cards";
+import Link from "next/link";
 
 export default function AudioStoriesPage({ asPath }) {
     const useStyles = createStyles((theme) => ({
@@ -146,7 +147,7 @@ export default function AudioStoriesPage({ asPath }) {
     }, [page, profileUser]);
 
     if (status === "unauthenticated") {
-        return <a href="/api/auth/signin">Sign in</a>;
+        return <Link href="/api/auth/signin">Sign in</Link>;
     }
     if (status === "loading" || !sessionProfileRelation) {
         console.log(status);
