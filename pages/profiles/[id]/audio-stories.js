@@ -16,8 +16,6 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import {
-    AddAudioStoryCard,
-    AudioStoryCard,
     MiniAddAudioStoryCard,
     MiniAudioStoryCard,
     MiniAudioStoryCardSkeleton,
@@ -26,11 +24,34 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 
 /*const AddAudioStoryCard = dynamic(
-    () => import("../../../components/profiles_page/audio_stories/cards"),
+    () =>
+        import(
+            "../../../components/profiles_page/audio_stories/AddAudioStoryCard"
+        ),
     {
         ssr: false,
     }
 );*/
+
+const AddAudioStoryCard = dynamic(
+    () =>
+        import(
+            "../../../components/profiles_page/audio_stories/AddAudioStoryCard"
+        ),
+    {
+        ssr: false,
+    }
+);
+
+const AudioStoryCard = dynamic(
+    () =>
+        import(
+            "../../../components/profiles_page/audio_stories/AudioStoryCard"
+        ),
+    {
+        ssr: false,
+    }
+);
 
 export default function AudioStoriesPage({ asPath }) {
     const useStyles = createStyles((theme) => ({

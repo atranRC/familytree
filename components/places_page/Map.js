@@ -10,7 +10,7 @@ export default function Map({ markers, setSelectedMarkerId, setModalOpen }) {
         iconUrl: "https://cdn-icons-png.flaticon.com/512/7976/7976202.png",
         iconSize: [38, 38],
     });
-    const center = markers[0].geoloc;
+    const center = markers[0] ? markers[0].geoloc : [38.7321749, 14.1220982];
     const [opened, setOpened] = useState(false);
     return (
         <div>
