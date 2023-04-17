@@ -165,10 +165,6 @@ export default function AudioStoriesPage({ asPath }) {
         );
     }
 
-    if (typeof window === "undefined") {
-        return <div>not window</div>;
-    }
-
     /*if (
         sessionProfileRelation === "self" ||
         sessionProfileRelation === "owner"
