@@ -28,8 +28,9 @@ import {
 } from "@tabler/icons";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
+//import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import { useQuery } from "react-query";
+import { ReactMic } from "react-mic";
 
 export default function AddAudioStoryCard({
     profileUser,
@@ -37,8 +38,8 @@ export default function AddAudioStoryCard({
     refetchStories,
     sessionProfileRelation,
 }) {
-    const recorderControls = useAudioRecorder();
-    const [audioBlob, setAudioBlob] = useState();
+    //const recorderControls = useAudioRecorder();
+    //const [audioBlob, setAudioBlob] = useState();
     const [audioBase64, setAudioBase64] = useState();
 
     const [storyTitle, setStoryTitle] = useState("");
@@ -51,6 +52,16 @@ export default function AddAudioStoryCard({
     const [locationInputValue, setLocationInputValue] = useState("");
     const [selectedLocation, setSelectedLocation] = useState({});
     const [fetchedLocations, setFetchedLocations] = useState([]);
+
+    const [record, setRecord] = useState(false);
+
+    const startRecording = () => {
+        setRecord(true);
+    };
+
+    const stopRecording = () => {
+        setRecord(false);
+    };
 
     const blobToBase64 = (url) => {
         return new Promise(async (resolve, _) => {
@@ -73,12 +84,12 @@ export default function AddAudioStoryCard({
     };
 
     const addAudioElement = async (blob) => {
-        const url = URL.createObjectURL(blob);
+        //const url = URL.createObjectURL(blob);
         //const audio = document.createElement("audio");
         //audio.src = url;
         //audio.controls = true;
         //setAudioBlob(blob);
-        const b64Blob = await blobToBase64(url);
+        const b64Blob = await blobToBase64(blob.blobURL);
         console.log(b64Blob);
         setAudioBase64(b64Blob);
         //document.body.appendChild(audio);
@@ -220,10 +231,19 @@ export default function AddAudioStoryCard({
                     placeholder="enter description"
                 />
                 <Divider />
-                <AudioRecorder
-                    onRecordingComplete={(blob) => addAudioElement(blob)}
-                    recorderControls={recorderControls}
+                <ReactMic
+                    record={record}
+                    onStop={addAudioElement}
+                    strokeColor="#000000"
+                    backgroundColor="#FF4081"
                 />
+                <button onClick={startRecording} type="button">
+                    Start
+                </button>
+                <button onClick={stopRecording} type="button">
+                    Stop
+                </button>
+
                 <Divider />
                 <Autocomplete
                     label="Where did this story happen"
