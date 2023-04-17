@@ -41,7 +41,7 @@ import {
     get_auto_title,
     get_event_label,
 } from "../../../lib/static_lists";
-import { citiesData } from "../../../pages/demo/auth-demo/cities";
+//import { citiesData } from "../../../pages/demo/auth-demo/cities";
 import { DatePicker } from "@mantine/dates";
 
 export function AddEventCard({

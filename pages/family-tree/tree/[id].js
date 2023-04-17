@@ -55,7 +55,7 @@ import { useSession } from "next-auth/react";
 import { UserInfoCard } from "../../../components/user_view_cards/userInfoCard";
 import { EditTree } from "../../../components/tree-page/modals/treePageModals";
 import { Carousel } from "@mantine/carousel";
-import { citiesData } from "../../demo/auth-demo/cities";
+//import { citiesData } from "../../demo/auth-demo/cities";
 import { DatePicker } from "@mantine/dates";
 
 const Tree = dynamic(() => import("react-d3-tree"), { ssr: false });

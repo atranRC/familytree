@@ -17,7 +17,7 @@ import {
     IconUser,
     IconWriting,
 } from "@tabler/icons";
-import { citiesData } from "../pages/demo/auth-demo/cities";
+//import { citiesData } from "../pages/demo/auth-demo/cities";
 import { forwardRef, useState } from "react";
 import { showNotification } from "@mantine/notifications";
 import { DatePicker } from "@mantine/dates";
@@ -151,7 +151,7 @@ export function CreateUnclaimedAccount({ ownerData }) {
                         label="Relative's info"
                         description="Dates and Location"
                     >
-                        <Select
+                        {/* <Select
                             label="Place of birth"
                             placeholder="Pick one"
                             itemComponent={SelectItem}
@@ -188,7 +188,7 @@ export function CreateUnclaimedAccount({ ownerData }) {
                                     .includes(value.toLowerCase().trim())
                             }
                             onChange={setCurrentResidence}
-                        />
+                        />*/}
                         <DatePicker
                             placeholder="Pick date"
                             label="Birthday"
