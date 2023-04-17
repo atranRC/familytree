@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 //import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import { useQuery } from "react-query";
 //import { ReactMic } from "react-mic";
+import { useReactMediaRecorder } from "react-media-recorder-2";
 
 export default function AddAudioStoryCard({
     profileUser,
@@ -38,13 +39,13 @@ export default function AddAudioStoryCard({
 
     const [record, setRecord] = useState(false);
 
-    const startRecording = () => {
+    /*const startRecording = () => {
         setRecord(true);
     };
 
     const stopRecording = () => {
         setRecord(false);
-    };
+    };*/
 
     const blobToBase64 = (url) => {
         return new Promise(async (resolve, _) => {
@@ -66,17 +67,23 @@ export default function AddAudioStoryCard({
         });
     };
 
-    const addAudioElement = async (blob) => {
+    const addAudioElement = async (blobUrl, blob) => {
         //const url = URL.createObjectURL(blob);
         //const audio = document.createElement("audio");
         //audio.src = url;
         //audio.controls = true;
         //setAudioBlob(blob);
-        const b64Blob = await blobToBase64(blob.blobURL);
+        const b64Blob = await blobToBase64(blobUrl);
         console.log(b64Blob);
         setAudioBase64(b64Blob);
         //document.body.appendChild(audio);
     };
+
+    const { status, startRecording, stopRecording, mediaBlobUrl } =
+        useReactMediaRecorder({
+            video: false,
+            onStop: (blobUrl, blob) => addAudioElement(blobUrl, blob),
+        });
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "post-audio-story",
@@ -214,6 +221,13 @@ export default function AddAudioStoryCard({
                     placeholder="enter description"
                 />
                 <Divider />
+
+                <div>
+                    <p>{status}</p>
+                    <button onClick={startRecording}>Start Recording</button>
+                    <button onClick={stopRecording}>Stop Recording</button>
+                    <audio src={mediaBlobUrl} controls autoPlay loop />
+                </div>
 
                 {/*<ReactMic
                     record={record}
