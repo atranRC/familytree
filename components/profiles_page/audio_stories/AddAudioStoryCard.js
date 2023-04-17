@@ -13,7 +13,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 //import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import { useQuery } from "react-query";
-import { ReactMic } from "react-mic";
+//import { ReactMic } from "react-mic";
 
 export default function AddAudioStoryCard({
     profileUser,
@@ -215,7 +215,7 @@ export default function AddAudioStoryCard({
                 />
                 <Divider />
 
-                <ReactMic
+                {/*<ReactMic
                     record={record}
                     onStop={addAudioElement}
                     strokeColor="#000000"
@@ -226,7 +226,7 @@ export default function AddAudioStoryCard({
                 </button>
                 <button onClick={stopRecording} type="button">
                     Stop
-                </button>
+                </button>*/}
 
                 <Divider />
                 <Autocomplete
