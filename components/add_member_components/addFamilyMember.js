@@ -4,7 +4,6 @@ import {
     Container,
     Divider,
     Group,
-    Input,
     Paper,
     Radio,
     Select,
@@ -27,7 +26,7 @@ import {
 } from "@tabler/icons";
 import { forwardRef, useContext, useEffect, useState } from "react";
 import { FamtreePageContext } from "../../contexts/contexts";
-import { citiesData } from "../../pages/demo/auth-demo/cities";
+//import { citiesData } from "../../pages/demo/auth-demo/cities";
 import useFamTreePageStore from "../../lib/stores/famtreePageStore";
 import shallow from "zustand/shallow";
 import { useQuery } from "react-query";
@@ -257,7 +256,7 @@ export function AddFamMemberInputs({ refetchWithEmail, refetchWithInfo }) {
                             setNewRelativeNicknames(e.target.value)
                         }
                     />
-                    <Select
+                    {/* <Select
                         label="Location"
                         placeholder="Pick one"
                         icon={<IconLocation size={19} />}
@@ -298,7 +297,7 @@ export function AddFamMemberInputs({ refetchWithEmail, refetchWithInfo }) {
                         }
                         value={newRelativeBirthplace}
                         onChange={setNewRelativeBirthplace}
-                    />
+                    />*/}
                     <DatePicker
                         placeholder="Pick date"
                         label="Birthday"
@@ -988,7 +987,7 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
                                             )
                                         }
                                     />
-                                    <Select
+                                    {/*<Select
                                         label="Location"
                                         placeholder="Pick one"
                                         icon={<IconLocation size={19} />}
@@ -1039,7 +1038,7 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
                                         }
                                         value={newRelativeBirthplace}
                                         onChange={setNewRelativeBirthplace}
-                                    />
+                                    />*/}
                                     <DatePicker
                                         placeholder="Pick date"
                                         label="Birthday"
