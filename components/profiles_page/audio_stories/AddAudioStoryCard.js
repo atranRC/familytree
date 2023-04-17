@@ -7,8 +7,9 @@ import {
     TextInput,
     Title,
     Notification,
+    ActionIcon,
 } from "@mantine/core";
-import { IconCheck } from "@tabler/icons";
+import { IconCheck, IconMicrophone, IconPlayerStop } from "@tabler/icons";
 import axios from "axios";
 import { useEffect, useState } from "react";
 //import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
@@ -222,12 +223,35 @@ export default function AddAudioStoryCard({
                 />
                 <Divider />
 
-                <div>
+                <Stack align="center">
                     <p>{status}</p>
-                    <button onClick={startRecording}>Start Recording</button>
-                    <button onClick={stopRecording}>Stop Recording</button>
-                    <audio src={mediaBlobUrl} controls autoPlay loop />
-                </div>
+                    {(status === "idle" || status === "stopped") && (
+                        <ActionIcon
+                            color="teal"
+                            size="xl"
+                            radius="xl"
+                            variant="light"
+                            onClick={startRecording}
+                        >
+                            <IconMicrophone size="2.125rem" />
+                        </ActionIcon>
+                    )}
+                    {status === "recording" && (
+                        <ActionIcon
+                            color="red"
+                            size="xl"
+                            radius="xl"
+                            variant="light"
+                            onClick={stopRecording}
+                        >
+                            <IconPlayerStop size="2.125rem" />
+                        </ActionIcon>
+                    )}
+
+                    {mediaBlobUrl && (
+                        <audio src={mediaBlobUrl} controls autoPlay />
+                    )}
+                </Stack>
 
                 {/*<ReactMic
                     record={record}

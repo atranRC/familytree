@@ -198,7 +198,7 @@ export default function AudioStoriesPage({ asPath }) {
                     {sessionProfileRelation}
                 </Title>
                 <Title order={5} fw={500}>
-                    Places
+                    Audio Stories
                 </Title>
             </ProfileTitleSection>
             <SecondaryNavbar

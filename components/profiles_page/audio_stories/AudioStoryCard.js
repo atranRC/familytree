@@ -38,6 +38,7 @@ export default function AudioStoryCard({
 }) {
     const [descriptionAreaValue, setDescriptionAreaValue] = useState("");
     const [titleValue, setTitleValue] = useState("");
+    const [audioValue, setAudioValue] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [editStoryNotification, setEditStoryNotification] = useState(false);
     const [deleteStoryNotification, setDeleteStoryNotification] =
@@ -50,6 +51,25 @@ export default function AudioStoryCard({
         useState(false);
     const [selectedLocation, setSelectedLocation] = useState({});
     const [fetchedLocations, setFetchedLocations] = useState([]);
+
+    const {
+        isLoading: isLoadingAudioStory,
+        isFetching: isFetchingAudioStory,
+        data: dataAudioStory,
+        refetch: refetchAudioStory,
+        isError: isErrorAudioStory,
+        error: errorAudioStory,
+    } = useQuery({
+        queryKey: "fetch_audio_story",
+        queryFn: () => {
+            return axios.get("/api/audio-stories/" + story._id);
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            setAudioValue(d.data.data.audioUrl);
+            console.log("fetched new audio url", d.data.data.audioUrl);
+        },
+    });
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "edit_audio_story",
@@ -144,6 +164,8 @@ export default function AudioStoryCard({
     };
 
     useEffect(() => {
+        setAudioValue(null);
+        refetchAudioStory();
         setStoryDeleted(false);
         setDescriptionAreaValue(story.description);
         setTitleValue(story.title);
@@ -351,11 +373,13 @@ export default function AudioStoryCard({
                 />
                 {!editMode ? (
                     <Stack>
-                        <audio controls>
-                            <source src={story.audioUrl} type="audio/webm" />
-                            <source src={story.audioUrl} type="audio/ogg" />
-                            Your browser does not support the audio element.
-                        </audio>
+                        {audioValue && (
+                            <audio controls>
+                                <source src={audioValue} type="audio/webm" />
+                                <source src={audioValue} type="audio/ogg" />
+                                Your browser does not support the audio element.
+                            </audio>
+                        )}
                         <Text>{descriptionAreaValue}</Text>
                     </Stack>
                 ) : (
