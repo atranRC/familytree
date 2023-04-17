@@ -44,7 +44,7 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { Router, useRouter } from "next/router";
 import arrayToTree from "array-to-tree";
-import { useCenteredTree } from "./helpers";
+import { useCenteredTree } from "../../../lib/helpers";
 import dynamic from "next/dynamic";
 import {
     ModalAddCollaborator,
