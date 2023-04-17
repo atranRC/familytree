@@ -32,7 +32,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { ReactMic } from "react-mic";
 
-export default function AddAudioStoryCard({
+export function AddAudioStoryCard({
     profileUser,
     sessionUser,
     refetchStories,
