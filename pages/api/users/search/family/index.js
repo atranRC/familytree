@@ -43,6 +43,12 @@ export default async function handler(req, res) {
                 if (!users) {
                     return res.status(400).json({ success: false });
                 }
+                if (users.length < 1) {
+                    return res.status(200).json({
+                        success: true,
+                        data: { pagination: { count: 0, pageCount: 0 }, users },
+                    });
+                }
                 const count = users[0].totalCount;
                 const pageCount = Math.floor(count / USERS_PER_PAGE) + 1;
                 res.status(200).json({
