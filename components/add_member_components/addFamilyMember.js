@@ -627,7 +627,7 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
         qyeryKey: "similar-users-with-info",
         queryFn: () => {
             //let uri = "/api/users/search-headless/" + newRelativeFirstName;
-            let uri = `http://localhost:3000/api/users/search/family?searchTerm=${newRelativeFirstName}&p=${page}`;
+            let uri = `/api/users/search/family?searchTerm=${newRelativeFirstName}&p=${page}`;
             return axios.get(uri);
         },
         enabled: false,

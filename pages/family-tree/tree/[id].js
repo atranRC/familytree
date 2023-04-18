@@ -1770,9 +1770,7 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "fetch-stories",
         queryFn: () => {
-            return axios.get(
-                "http://localhost:3000/api/users/" + selectedTreeMemberUserId
-            );
+            return axios.get("/api/users/" + selectedTreeMemberUserId);
         },
 
         onSuccess: (d) => {
