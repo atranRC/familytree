@@ -25,6 +25,7 @@ import {
     IconTrash,
     IconBell,
     IconLogout,
+    IconUser,
 } from "@tabler/icons";
 import { useDisclosure } from "@mantine/hooks";
 import { useQuery } from "react-query";
@@ -36,21 +37,16 @@ const HEADER_HEIGHT = 60;
 const linksMock = {
     links: [
         {
-            link: "/demo/auth-demo",
+            link: "/timeline",
             label: "Public Timeline",
         },
-
         {
             link: "/family-tree/tree/my-trees",
             label: "Trees",
         },
         {
-            link: "/demo/auth-demo/places",
+            link: "#",
             label: "Places",
-        },
-        {
-            link: "/demo/auth-demo/search",
-            label: "My Relatives",
         },
     ],
 };
@@ -175,7 +171,7 @@ export function AvatarMenuContent({ sessionUserEmail }) {
         return (
             <div>
                 <Menu.Item
-                    icon={<IconSettings size={14} />}
+                    icon={<IconUser size={14} />}
                     onClick={() =>
                         router.push(
                             `/profiles/${data.data.data._id.toString()}/events`

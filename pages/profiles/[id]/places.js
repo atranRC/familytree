@@ -398,7 +398,7 @@ export default function PlacesPage({ asPath }) {
         <AppShellContainer>
             <ProfileTitleSection picUrl={""}>
                 <Title order={2} fw={600}>
-                    {sessionProfileRelation}
+                    {profileUser.name}
                 </Title>
                 <Title order={5} fw={500}>
                     Places
