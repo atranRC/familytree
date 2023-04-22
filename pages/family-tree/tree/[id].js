@@ -196,10 +196,36 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                 mid.push(member.id);
             });
             setTreeMembersIdArray(mid);
-
+            let idArray = [];
             const mdata = d.data.data.map((mem) => {
-                let person_name = mem.name;
-                let spouse_name = mem.attributes.spouse;
+                let person_name = `${mem.name} (${
+                    mem.sex === "male" ? "M" : "F"
+                })`;
+                let spouse_name = mem.spouse;
+                let mothers_name = mem.mothers_name;
+                let fathers_name = mem.fathers_name;
+
+                let att = {
+                    status: mem.attributes.status,
+                    spouse: spouse_name,
+                };
+
+                if (mem.mothers_name !== "") {
+                    att = {
+                        status: mem.attributes.status,
+                        spouse: spouse_name,
+                        mother: mothers_name,
+                    };
+                }
+
+                if (mem.fathers_name !== "") {
+                    att = {
+                        status: mem.attributes.status,
+                        spouse: spouse_name,
+                        father: fathers_name,
+                    };
+                }
+
                 if (
                     dataUser.data.data._id.toString() !==
                     dataTree.data.data.owner
@@ -222,7 +248,9 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                         }
                     }
                 }
-                setTreeMembersIds([...treeMembersIds, mem.id.toString()]);
+                console.log("one by", mem.id.toString());
+                idArray.push(mem.id.toString());
+                //setTreeMembersIds([...treeMembersIds, mem.id.toString()]);
 
                 return {
                     _id: mem._id.toString(),
@@ -232,12 +260,10 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                     id: mem.id,
                     name: person_name,
                     parent_id: mem.parent_id,
-                    attributes: {
-                        spouse: spouse_name,
-                        status: mem.attributes.status,
-                    },
+                    attributes: att,
                 };
             });
+            setTreeMembersIds(idArray);
             console.log("here is your problem", mdata);
             const arrayToTreeData = arrayToTree(
                 JSON.parse(JSON.stringify(mdata)),
@@ -395,7 +421,8 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                 <div
                     style={{
                         height: "70vh",
-                        border: "1px solid skyblue",
+                        border: "1px solid lightblue",
+                        background: "white",
                     }}
                     ref={containerRef}
                 >
@@ -408,7 +435,12 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
                             translate={translate}
                             collapsible={false}
                             onNodeClick={handleNodeClick}
+                            separation={{ nonSiblings: 3, siblings: 2 }}
+                            depthFactor={200}
                             orientation="vertical"
+                            rootNodeClassName="node__root"
+                            branchNodeClassName="node__branch"
+                            leafNodeClassName="node__leaf"
                         />
                     )}
                 </div>
@@ -486,7 +518,7 @@ function ModalContent({ selectedTreeMemberData, treeMembersIds }) {
             <Tabs value={activeTab} onTabChange={setActiveTab}>
                 <Tabs.List>
                     <Tabs.Tab value="view">View Member</Tabs.Tab>
-                    <Tabs.Tab value="add">Add Member</Tabs.Tab>
+                    <Tabs.Tab value="add">Add Relative</Tabs.Tab>
                 </Tabs.List>
             </Tabs>
             {activeTab === "view" ? (
@@ -517,6 +549,9 @@ function AddMemberStepper({ selectedTreeMemberData, treeMembersIds }) {
     const [newRelativeFirstNameError, setNewRelativeFirstNameError] =
         useState("");
     const [newRelativeFatherName, setNewRelativeFatherName] = useState("");
+    const [newRelativeMotherName, setNewRelativeMotherName] = useState("");
+    const [newRelativeSpouse, setNewRelativeSpouse] = useState("none");
+    const [newRelativeSex, setNewRelativeSex] = useState("");
     const [newRelativeNicknames, setNewRelativeNicknames] = useState("");
     const [newRelativeBirthday, setNewRelativeBirthday] = useState("");
     const [newRelativeCurrentResidence, setNewRelativeCurrentResidence] =
@@ -578,6 +613,12 @@ function AddMemberStepper({ selectedTreeMemberData, treeMembersIds }) {
                         setNewRelativeFatherName={setNewRelativeFatherName}
                         newRelativeNicknames={newRelativeNicknames}
                         setNewRelativeNicknames={setNewRelativeNicknames}
+                        newRelativeMotherName={newRelativeMotherName}
+                        setNewRelativeMotherName={setNewRelativeMotherName}
+                        newRelativeSpouse={newRelativeSpouse}
+                        setNewRelativeSpouse={setNewRelativeSpouse}
+                        newRelativeSex={newRelativeSex}
+                        setNewRelativeSex={setNewRelativeSex}
                         newRelativeBirthday={newRelativeBirthday}
                         setNewRelativeBirthday={setNewRelativeBirthday}
                         newRelativeCurrentResidence={
@@ -629,16 +670,13 @@ function AddMemberStepper({ selectedTreeMemberData, treeMembersIds }) {
                             newRelativeCurrentResidence
                         }
                         newRelativeBirthplace={newRelativeBirthplace}
+                        newRelativeSex={newRelativeSex}
                     />
                 </Stepper.Step>
                 <Stepper.Completed>
                     Completed, click back button to get to previous step
                 </Stepper.Completed>
             </Stepper>
-            <Button variant="default" onClick={prevStep}>
-                Back
-            </Button>
-            <Button onClick={nextStep}>Next step</Button>
         </>
     );
 }
@@ -665,6 +703,12 @@ function StepOne({
     setNewRelativeFatherName,
     newRelativeNicknames,
     setNewRelativeNicknames,
+    newRelativeMotherName,
+    setNewRelativeMotherName,
+    newRelativeSpouse,
+    setNewRelativeSpouse,
+    newRelativeSex,
+    setNewRelativeSex,
     newRelativeBirthday,
     setNewRelativeBirthday,
     newRelativeCurrentResidence,
@@ -678,6 +722,45 @@ function StepOne({
     const [fetchedLocations, setFetchedLocations] = useState([]);
     const [locationInputValue2, setLocationInputValue2] = useState("");
     const [fetchedLocations2, setFetchedLocations2] = useState([]);
+
+    const [memberSexError, setMemberSexError] = useState(false);
+
+    const [parentSex, setParentSex] = useState(null);
+
+    const [treeMemberMotherName, setTreeMemberMotherName] = useState("");
+    const [treeMemberMotherLastName, setTreeMemberMotherLastName] =
+        useState("");
+    const [treeMemberFatherName, setTreeMemberFatherName] = useState("");
+    const [treeMemberFatherLastName, setTreeMemberFatherLastName] =
+        useState("");
+    const [treeMemberSpouse, setTreeMemberSpouse] = useState("");
+
+    //sex goes to user
+    //spouse, and parent two goes to treemember
+
+    //get parent user
+    //if no parent -  show parent, child, spouse
+    //if parent = female - show father, child, sibling, spouse
+    //if parent = male - show mother, child, sibling, spouse
+
+    const {
+        isLoading: isLoadingParent,
+        isFetching: isFetchingParent,
+        data: dataParent,
+        refetch: refetchParent,
+        isError: isErrorParent,
+        error: errorParent,
+    } = useQuery({
+        queryKey: "fetch_parent",
+        queryFn: () => {
+            return axios.get("/api/users/" + selectedTreeMemberData.parent_id);
+        },
+        enabled: selectedTreeMemberData.parent_id === "" ? false : true,
+        onSuccess: (d) => {
+            setParentSex(d.data.data.sex);
+            console.log("user ", d.data.data);
+        },
+    });
 
     const {
         isLoading: isLoadingLocations,
@@ -733,6 +816,51 @@ function StepOne({
         },
     });
 
+    const {
+        isLoading: isLoadingAddParentOrSpouse,
+        isFetching: isFetchingAddParentOrSpouse,
+        data: dataAddParentOrSpouse,
+        refetch: refetchAddParentOrSpouse,
+        isError: isErrorAddParentOrSpouse,
+        error: errorAddParentOrSpouse,
+    } = useQuery({
+        queryKey: "add_parents_or_spouse",
+        queryFn: () => {
+            let bod = {};
+            if (radioValue === "mother") {
+                bod = {
+                    mothers_name: `${treeMemberMotherName} ${treeMemberMotherLastName}`,
+                    //fathers_name: "",
+                    //spouse: "",
+                    //canPost: false,
+                };
+            }
+            if (radioValue === "spouse") {
+                bod = {
+                    //mothers_name: `${treeMemberMotherName} ${treeMemberMotherLastName}`,
+                    //fathers_name: "",
+                    spouse: treeMemberSpouse,
+                    //canPost: false,
+                };
+            }
+            if (radioValue === "father2") {
+                bod = {
+                    //mothers_name: `${treeMemberMotherName} ${treeMemberMotherLastName}`,
+                    fathers_name: treeMemberFatherName,
+                    //spouse: "",
+                    //canPost: false,
+                };
+            }
+            console.log("bod:::", bod);
+            const url = `/api/family-tree-api/tree-members/${selectedTreeMemberData._id.toString()}`;
+            return axios.put(url, bod);
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            window.location.reload();
+        },
+    });
+
     const handleLocationSelect = (l) => {
         console.log(l);
         setNewRelativeCurrentResidence(l);
@@ -759,6 +887,11 @@ function StepOne({
         if (radioValue === "") {
             setRadioValueError(true);
         }
+
+        if (newRelativeSex === "") {
+            setMemberSexError(true);
+        }
+
         if (newRelativeEmail === "") {
             setNewRelativeEmailError(true);
         }
@@ -779,6 +912,9 @@ function StepOne({
         if (radioValue === "") {
             setRadioValueError(true);
         }
+        if (newRelativeSex === "") {
+            setMemberSexError(true);
+        }
         if (newRelativeFirstName === "") {
             setNewRelativeFirstNameError(true);
         }
@@ -794,6 +930,21 @@ function StepOne({
             setMode("info");
             setActive(1);
         }
+    };
+
+    const handleAddMother = () => {
+        console.log("adding mother");
+        refetchAddParentOrSpouse();
+    };
+
+    const handleAddSpouse = () => {
+        console.log("adding spouse");
+        refetchAddParentOrSpouse();
+    };
+
+    const handleAddFather = () => {
+        console.log("adding father");
+        refetchAddParentOrSpouse();
     };
 
     return (
@@ -814,126 +965,270 @@ function StepOne({
                         <Radio value="father" label="Parent" />
                     )}
 
+                    {selectedTreeMemberData.parent_id !== "" &&
+                        parentSex === "male" && (
+                            <Radio value="mother" label="Mother" />
+                        )}
+
+                    {selectedTreeMemberData.parent_id !== "" &&
+                        parentSex === "female" && (
+                            <Radio value="father2" label="Father" />
+                        )}
+
+                    {selectedTreeMemberData.parent_id !== "" && (
+                        <Radio value="sibling" label="Sibling" />
+                    )}
+
                     <Radio value="child" label="Child" />
+                    <Radio value="spouse" label="Spouse" />
                 </Radio.Group>
             </Paper>
-            <Paper withBorder p="md">
-                <Radio.Group
-                    value={memberLifeStatus}
-                    onChange={setMemberLifeStatus}
-                    name="memberLifeStatusType"
-                    label="Member Status"
-                    description={`Is this family member alive or deceased?`}
-                    withAsterisk
-                    pos="center"
-                    error={memberLifeStatusError && "invalid input"}
-                    onFocus={() => setMemberLifeStatusError(false)}
-                >
-                    <Radio value="living" label="Living" />
-                    <Radio value="deceased" label="Deceased" />
-                </Radio.Group>
-            </Paper>
-            <Paper withBorder p="md">
-                <Stack spacing={1}>
-                    <Text align="center" size="sm" fw={500} c="dimmed">
-                        If your relative is already in our database, we will
-                        find them by their email.
-                    </Text>
-                    <TextInput
-                        label="Email"
-                        value={newRelativeEmail}
-                        description="email"
-                        icon={<IconAt size={19} />}
-                        placeholder="email"
-                        onChange={(e) => setNewRelativeEmail(e.target.value)}
-                        error={newRelativeEmailError && "invalid email"}
-                        onFocus={() => setNewRelativeEmailError(false)}
-                    />
-                    <Button
-                        mt="sm"
-                        variant="outline"
-                        onClick={handleFindByEmail}
-                    >
-                        Find by Email
-                    </Button>
+            {radioValue === "mother" && (
+                <Paper withBorder p="md">
+                    <Stack spacing={1}>
+                        <TextInput
+                            label="Name"
+                            value={treeMemberMotherName}
+                            description="mothers name"
+                            placeholder="name"
+                            onChange={(e) =>
+                                setTreeMemberMotherName(e.target.value)
+                            }
+                        />
+                        <TextInput
+                            label="Last Name"
+                            value={treeMemberMotherLastName}
+                            description="Last Name"
+                            onChange={(e) =>
+                                setTreeMemberMotherLastName(e.target.value)
+                            }
+                        />
+                        <Button
+                            mt="sm"
+                            variant="outline"
+                            onClick={handleAddMother}
+                            disabled={treeMemberMotherName === ""}
+                            loading={
+                                isLoadingAddParentOrSpouse ||
+                                isFetchingAddParentOrSpouse
+                            }
+                        >
+                            Add Mother
+                        </Button>
+                    </Stack>
+                </Paper>
+            )}
+            {radioValue === "father2" && (
+                <Paper withBorder p="md">
+                    <Stack spacing={1}>
+                        <TextInput
+                            label="Name"
+                            value={treeMemberFatherName}
+                            description="fathers name"
+                            placeholder="name"
+                            onChange={(e) =>
+                                setTreeMemberFatherName(e.target.value)
+                            }
+                        />
+                        <TextInput
+                            label="Last Name"
+                            value={treeMemberFatherLastName}
+                            description="Last Name"
+                            onChange={(e) =>
+                                setTreeMemberFatherLastName(e.target.value)
+                            }
+                        />
+                        <Button
+                            mt="sm"
+                            variant="outline"
+                            onClick={handleAddFather}
+                            disabled={treeMemberFatherName === ""}
+                            loading={
+                                isLoadingAddParentOrSpouse ||
+                                isFetchingAddParentOrSpouse
+                            }
+                        >
+                            Add Father
+                        </Button>
+                    </Stack>
+                </Paper>
+            )}
+            {radioValue === "spouse" && (
+                <Paper withBorder p="md">
+                    <Stack spacing={1}>
+                        <TextInput
+                            label="Spouse"
+                            value={treeMemberSpouse}
+                            description="Name"
+                            placeholder="name"
+                            onChange={(e) =>
+                                setTreeMemberSpouse(e.target.value)
+                            }
+                        />
+                        <Button
+                            mt="sm"
+                            variant="outline"
+                            onClick={handleAddSpouse}
+                            disabled={treeMemberSpouse === ""}
+                            loading={
+                                isLoadingAddParentOrSpouse ||
+                                isFetchingAddParentOrSpouse
+                            }
+                        >
+                            Add Spouse
+                        </Button>
+                    </Stack>
+                </Paper>
+            )}
+
+            {(radioValue === "father" ||
+                radioValue === "child" ||
+                radioValue === "sibling") && (
+                <Stack>
+                    <Paper withBorder p="md">
+                        <Radio.Group
+                            value={memberLifeStatus}
+                            onChange={setMemberLifeStatus}
+                            name="memberLifeStatusType"
+                            label="Member Status"
+                            description={`Is this family member alive or deceased?`}
+                            withAsterisk
+                            pos="center"
+                            error={memberLifeStatusError && "invalid input"}
+                            onFocus={() => setMemberLifeStatusError(false)}
+                        >
+                            <Radio value="living" label="Living" />
+                            <Radio value="deceased" label="Deceased" />
+                        </Radio.Group>
+                    </Paper>
+                    <Paper withBorder p="md">
+                        <Radio.Group
+                            value={newRelativeSex}
+                            onChange={setNewRelativeSex}
+                            name="memberSex"
+                            label="Sex"
+                            pos="center"
+                            error={memberSexError && "invalid input"}
+                            onFocus={() => setMemberSexError(false)}
+                        >
+                            <Radio value="female" label="Female" />
+                            <Radio value="male" label="Male" />
+                        </Radio.Group>
+                    </Paper>
+                    <Paper withBorder p="md">
+                        <Stack spacing={1}>
+                            <Text align="center" size="sm" fw={500} c="dimmed">
+                                If your relative is already in our database, we
+                                will find them by their email.
+                            </Text>
+                            <TextInput
+                                label="Email"
+                                value={newRelativeEmail}
+                                description="email"
+                                icon={<IconAt size={19} />}
+                                placeholder="email"
+                                onChange={(e) =>
+                                    setNewRelativeEmail(e.target.value)
+                                }
+                                error={newRelativeEmailError && "invalid email"}
+                                onFocus={() => setNewRelativeEmailError(false)}
+                            />
+                            <Button
+                                mt="sm"
+                                variant="outline"
+                                onClick={handleFindByEmail}
+                            >
+                                Find by Email
+                            </Button>
+                        </Stack>
+                    </Paper>
+                    <Divider label="Or" labelPosition="center" />
+                    <Paper withBorder p="md">
+                        <Stack spacing={1}>
+                            <Text align="center" size="sm" fw={500} c="dimmed">
+                                Give us info on your relative and we will look
+                                for them in our database. If they are not in our
+                                database, we will create a profile for them so
+                                you can add them to your family tree.
+                            </Text>
+                            <TextInput
+                                label="Name"
+                                icon={<IconAbc size={19} />}
+                                value={newRelativeFirstName}
+                                description="First Name"
+                                placeholder="name"
+                                onChange={(e) =>
+                                    setNewRelativeFirstName(e.target.value)
+                                }
+                                error={
+                                    newRelativeFirstNameError && "invalid input"
+                                }
+                                onFocus={() =>
+                                    setNewRelativeFirstNameError(false)
+                                }
+                            />
+
+                            <TextInput
+                                label="Father's Name"
+                                icon={<IconAbc size={19} />}
+                                value={newRelativeFatherName}
+                                description="Father's Name"
+                                placeholder="father's name"
+                                onChange={(e) =>
+                                    setNewRelativeFatherName(e.target.value)
+                                }
+                            />
+                            <TextInput
+                                label="Nicknames"
+                                value={newRelativeNicknames}
+                                icon={<IconAbc size={19} />}
+                                description="If any"
+                                placeholder="nicknames"
+                                onChange={(e) =>
+                                    setNewRelativeNicknames(e.target.value)
+                                }
+                            />
+
+                            <Autocomplete
+                                label="Location"
+                                description="City they currently live in"
+                                value={locationInputValue}
+                                onChange={setLocationInputValue}
+                                data={fetchedLocations}
+                                onItemSubmit={handleLocationSelect}
+                            />
+                            <Autocomplete
+                                label="Place of birth"
+                                description="City they were born in"
+                                value={locationInputValue2}
+                                onChange={setLocationInputValue2}
+                                data={fetchedLocations2}
+                                onItemSubmit={handleLocationSelect2}
+                            />
+
+                            <DatePicker
+                                placeholder="Pick date"
+                                label="Birthday"
+                                icon={<IconCalendarEvent size={19} />}
+                                value={newRelativeBirthday}
+                                onChange={setNewRelativeBirthday}
+                            />
+                            <Button
+                                mt="sm"
+                                variant="outline"
+                                onClick={handleFindByInfo}
+                            >
+                                Find Relative
+                            </Button>
+                        </Stack>
+                    </Paper>
                 </Stack>
-            </Paper>
-            <Divider label="Or" labelPosition="center" />
-            <Paper withBorder p="md">
-                <Stack spacing={1}>
-                    <Text align="center" size="sm" fw={500} c="dimmed">
-                        Give us info on your relative and we will look for them
-                        in our database. If they are not in our database, we
-                        will create a profile for them so you can add them to
-                        your family tree.
-                    </Text>
-                    <TextInput
-                        label="Name"
-                        icon={<IconAbc size={19} />}
-                        value={newRelativeFirstName}
-                        description="First Name"
-                        placeholder="name"
-                        onChange={(e) =>
-                            setNewRelativeFirstName(e.target.value)
-                        }
-                        error={newRelativeFirstNameError && "invalid input"}
-                        onFocus={() => setNewRelativeFirstNameError(false)}
-                    />
-
-                    <TextInput
-                        label="Father's Name"
-                        icon={<IconAbc size={19} />}
-                        value={newRelativeFatherName}
-                        description="Father's Name"
-                        placeholder="father's name"
-                        onChange={(e) =>
-                            setNewRelativeFatherName(e.target.value)
-                        }
-                    />
-                    <TextInput
-                        label="Nicknames"
-                        value={newRelativeNicknames}
-                        icon={<IconAbc size={19} />}
-                        description="If any"
-                        placeholder="nicknames"
-                        onChange={(e) =>
-                            setNewRelativeNicknames(e.target.value)
-                        }
-                    />
-
-                    <Autocomplete
-                        label="Location"
-                        description="City they currently live in"
-                        value={locationInputValue}
-                        onChange={setLocationInputValue}
-                        data={fetchedLocations}
-                        onItemSubmit={handleLocationSelect}
-                    />
-                    <Autocomplete
-                        label="Place of birth"
-                        description="City they were born in"
-                        value={locationInputValue2}
-                        onChange={setLocationInputValue2}
-                        data={fetchedLocations2}
-                        onItemSubmit={handleLocationSelect2}
-                    />
-
-                    <DatePicker
-                        placeholder="Pick date"
-                        label="Birthday"
-                        icon={<IconCalendarEvent size={19} />}
-                        value={newRelativeBirthday}
-                        onChange={setNewRelativeBirthday}
-                    />
-                    <Button
-                        mt="sm"
-                        variant="outline"
-                        onClick={handleFindByInfo}
-                    >
-                        Find Relative
-                    </Button>
-                </Stack>
-            </Paper>
+            )}
+            {radioValue === "" && (
+                <Text align="center" size="sm" fw={500} c="dimmed">
+                    Please select relative type to get started
+                </Text>
+            )}
         </Stack>
     );
 }
@@ -1259,6 +1554,7 @@ function StepThree({
     newRelativeFatherName = "",
     newRelativeNicknames = "",
     newRelativeBirthday = "",
+    newRelativeSex,
     newRelativeCurrentResidence = {
         value: "",
         lon: 0.0,
@@ -1283,6 +1579,7 @@ function StepThree({
                 newRelativeBirthplace={newRelativeBirthplace}
                 radioValue={radioValue}
                 selectedTreeMemberData={selectedTreeMemberData}
+                newRelativeSex={newRelativeSex}
             />
         );
     }
@@ -1307,6 +1604,7 @@ function CreateAndAdd({
     newRelativeFatherName = "",
     newRelativeNicknames = "",
     newRelativeBirthday = "",
+    newRelativeSex,
     newRelativeCurrentResidence = {
         value: "",
         lon: 0.0,
@@ -1329,7 +1627,7 @@ function CreateAndAdd({
         isError: isErrorOwner,
         error: errorOwner,
     } = useQuery({
-        queryKey: "create-user",
+        queryKey: "load_owner",
         queryFn: () => {
             const url = `/api/users/users-mongoose/${session.user.email}`;
             return axios.get(url);
@@ -1372,6 +1670,7 @@ function CreateAndAdd({
                     current_residence: newRelativeCurrentResidence,
                     fathers_name: newRelativeFatherName,
                     last_name: "",
+                    sex: newRelativeSex,
                     nicknames: newRelativeNicknames,
                     isHistorian: false,
                     isBlocked: false,
@@ -1517,6 +1816,9 @@ function CreateAndAdd({
                     <h1>
                         {newRelativeFirstName} {newRelativeFatherName}
                     </h1>
+                    <Text fw={500} c="dimmed">
+                        {newRelativeSex}
+                    </Text>
                 </Stack>
             </Paper>
             <Paper p="sm" withBorder>
@@ -1626,30 +1928,57 @@ function AddExistingProfile({
             let bod = {};
             if (radioValue === "father") {
                 bod = {
-                    treeId: selectedTreeMemberData.treeId,
+                    relationType: radioValue,
+                    selectedTreeMemberData: selectedTreeMemberData,
                     id: selectedSearchResultCard._id.toString(),
                     name: selectedSearchResultCard.name,
+                    sex: selectedSearchResultCard.sex,
                     parent_id: "",
                     attributes: {
                         spouse: "",
                         status: memberLifeStatus,
                     },
+                    fathers_name: "",
+                    mothers_name: "",
+                    spouse: "",
                     canPost: false,
                 };
             } else if (radioValue === "child") {
                 bod = {
-                    treeId: selectedTreeMemberData.treeId,
+                    relationType: radioValue,
+                    selectedTreeMemberData: selectedTreeMemberData,
                     id: selectedSearchResultCard._id.toString(),
                     name: selectedSearchResultCard.name,
+                    sex: selectedSearchResultCard.sex,
                     parent_id: selectedTreeMemberData.id.toString(),
                     attributes: {
                         spouse: "",
                         status: memberLifeStatus,
                     },
+                    fathers_name: "",
+                    mothers_name: "",
+                    spouse: "",
+                    canPost: false,
+                };
+            } else if (radioValue === "sibling") {
+                bod = {
+                    relationType: radioValue,
+                    selectedTreeMemberData: selectedTreeMemberData,
+                    id: selectedSearchResultCard._id.toString(),
+                    name: selectedSearchResultCard.name,
+                    sex: selectedSearchResultCard.sex,
+                    parent_id: selectedTreeMemberData.parent_id,
+                    attributes: {
+                        spouse: "",
+                        status: memberLifeStatus,
+                    },
+                    fathers_name: "",
+                    mothers_name: "",
+                    spouse: "",
                     canPost: false,
                 };
             }
-            const url = `/api/family-tree-api/tree-members/manage-members/`;
+            const url = `/api/family-tree-api/tree-members/add-from-existing/`;
             return axios.post(url, bod);
         },
         enabled: false,
@@ -1736,9 +2065,6 @@ function AddExistingProfile({
                     <Text fz="xl" fw={500}>
                         Photos
                     </Text>
-                    <Carousel maw={320} mx="auto" withIndicators>
-                        {slides}
-                    </Carousel>
                 </Stack>
             </Paper>
             <Button
@@ -1768,13 +2094,13 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
     const router = useRouter();
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
-        queryKey: "fetch-stories",
+        queryKey: "fetch_user_viewTreeMember",
         queryFn: () => {
             return axios.get("/api/users/" + selectedTreeMemberUserId);
         },
 
         onSuccess: (d) => {
-            console.log("events of ", d.data.data);
+            console.log("user ", d.data.data);
         },
     });
     const handleGoToProfile = () => {
@@ -1833,9 +2159,6 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
                     <Text fz="xl" fw={500}>
                         Photos
                     </Text>
-                    <Carousel maw={320} mx="auto" withIndicators>
-                        {slides}
-                    </Carousel>
                 </Stack>
             </Paper>
             <Button onClick={handleGoToProfile}>Go to profile</Button>

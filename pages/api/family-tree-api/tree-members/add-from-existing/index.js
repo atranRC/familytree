@@ -33,26 +33,41 @@ export default async function handler(req, res) {
             break;*/
         case "POST":
             try {
-                console.log(req.body);
-                const newUser = await Users.create(req.body.newUserInfo);
+                //console.log(req.body);
+                //const newUser = await Users.create(req.body.newUserInfo);
+                /*
+                    treeId: selectedTreeMemberData.treeId,
+                    id: selectedSearchResultCard._id.toString(),
+                    name: selectedSearchResultCard.name,
+                    sex: selectedSearchResultCard.sex,
+                    parent_id: "",
+                    attributes: {
+                        spouse: "",
+                        status: memberLifeStatus,
+                    },
+                    fathers_name: "",
+                    mothers_name: "",
+                    spouse: "",
+                    canPost: false,
+                */
                 if (req.body.relationType === "father") {
                     const bod = {
                         treeId: req.body.selectedTreeMemberData.treeId,
-                        id: newUser._id.toString(),
-                        name: newUser.name,
-                        sex: req.body.newUserInfo.sex,
+                        id: req.body.id,
+                        name: req.body.name,
+                        sex: req.body.sex,
                         parent_id: "",
                         attributes: req.body.attributes,
-                        mothers_name: "",
-                        fathers_name: "",
-                        spouse: "",
+                        mothers_name: req.body.mothers_name,
+                        fathers_name: req.body.fathers_name,
+                        spouse: req.body.spouse,
                         canPost: false,
                     };
                     const newTreeMember = await TreeMembers.create(bod);
                     const updatedTreeNode = await TreeMembers.findByIdAndUpdate(
                         req.body.selectedTreeMemberData._id,
                         {
-                            parent_id: newUser._id.toString(),
+                            parent_id: req.body.id,
                         },
                         {
                             new: true,
@@ -67,14 +82,14 @@ export default async function handler(req, res) {
                 } else if (req.body.relationType === "child") {
                     const bod = {
                         treeId: req.body.selectedTreeMemberData.treeId,
-                        id: newUser._id.toString(),
-                        name: newUser.name,
-                        sex: req.body.newUserInfo.sex,
-                        parent_id: req.body.selectedTreeMemberData.id,
+                        id: req.body.id,
+                        name: req.body.name,
+                        sex: req.body.sex,
+                        parent_id: req.body.parent_id,
                         attributes: req.body.attributes,
-                        mothers_name: "",
-                        fathers_name: "",
-                        spouse: "",
+                        mothers_name: req.body.mothers_name,
+                        fathers_name: req.body.fathers_name,
+                        spouse: req.body.spouse,
                         canPost: false,
                     };
                     const newTreeMember = await TreeMembers.create(bod);
@@ -85,14 +100,14 @@ export default async function handler(req, res) {
                 } else if (req.body.relationType === "sibling") {
                     const bod = {
                         treeId: req.body.selectedTreeMemberData.treeId,
-                        id: newUser._id.toString(),
-                        name: newUser.name,
-                        sex: req.body.newUserInfo.sex,
+                        id: req.body.id,
+                        name: req.body.name,
+                        sex: req.body.sex,
                         parent_id: req.body.selectedTreeMemberData.parent_id,
                         attributes: req.body.attributes,
-                        mothers_name: "",
-                        fathers_name: "",
-                        spouse: "",
+                        mothers_name: req.body.mothers_name,
+                        fathers_name: req.body.fathers_name,
+                        spouse: req.body.spouse,
                         canPost: false,
                     };
                     const newTreeMember = await TreeMembers.create(bod);

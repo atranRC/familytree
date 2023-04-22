@@ -54,7 +54,9 @@ export default async function handler(req, res) {
     }
 }
 */
+import { ObjectId } from "mongodb";
 import dbConnect from "../../../../lib/dbConnect";
+import Events from "../../../../models/Events";
 import Users from "../../../../models/Users";
 
 export default async function handler(req, res) {
@@ -75,13 +77,23 @@ export default async function handler(req, res) {
                 { email: email },
                 { $set: req.body },
                 options,
-                (err, doc) => {
+                async (err, doc) => {
                     if (err) {
                         console.log("Something wrong when updating data!");
                         return res.status(400).json({ success: false });
                     }
                     console.log(doc);
                     if (doc) {
+                        //add events instance here
+                        const event = await Events.create({
+                            userId: ObjectId(doc._id.toString()),
+                            authorId: ObjectId(doc._id.toString()),
+                            authorName: req.body.name,
+                            type: "birth",
+                            description: "Birthday",
+                            location: req.body.birth_place,
+                            eventDate: req.body.birthday,
+                        });
                         res.status(200).json({ success: true, data: doc });
                     } else {
                         res.status(400).json({ success: false });

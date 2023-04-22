@@ -43,6 +43,7 @@ import {
     ThemeIcon,
     Pagination,
     Autocomplete,
+    Radio,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { Carousel } from "@mantine/carousel";
@@ -210,6 +211,8 @@ export function StepperUserInfo() {
     const [birthPlace, setBirthPlace] = useState("");
     const [birthPlaceError, setBirthPlaceError] = useState("");
     const [birthday, setBirthday] = useState("");
+    const [sex, setSex] = useState("");
+    const [sexError, setSexError] = useState(false);
     const [birthdayError, setBirthdayError] = useState("");
     const [unclaimedAccounts, setUnclaimedAccounts] = useState(null);
     const [updatedUser, setUpdatedUser] = useState();
@@ -391,6 +394,9 @@ export function StepperUserInfo() {
                 fathers_name: fathersName.value,
                 last_name: grandFathersName,
                 nicknames: nicknames,
+                sex: sex,
+                isHistorian: false,
+                isBlocked: false,
             })
             .then((res) => {
                 console.log(res.data.data);
@@ -411,6 +417,9 @@ export function StepperUserInfo() {
             if (fathersName.value === "") {
                 console.log(fathersName);
                 setFathersName({ ...fathersName, error: true });
+            }
+            if (sex === "") {
+                setSexError(true);
             }
             if (name.value !== "" && fathersName.value !== "") {
                 setActive(active + 1);
@@ -544,6 +553,18 @@ export function StepperUserInfo() {
                     value={nicknames}
                     onChange={(e) => setNicknames(e.target.value)}
                 />
+                <Radio.Group
+                    value={sex}
+                    onChange={setSex}
+                    name="sex"
+                    label="Sex"
+                    pos="center"
+                    error={sexError && "invalid input"}
+                    onFocus={() => setSexError(false)}
+                >
+                    <Radio value="female" label="Female" />
+                    <Radio value="male" label="Male" />
+                </Radio.Group>
                 {/*
                 <PasswordInput
                     label="Password"

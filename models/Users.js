@@ -56,9 +56,15 @@ const UsersSchema = mongoose.Schema({
         type: String,
     },
 
+    sex: {
+        type: String,
+        required: [true, "Please provide your name."],
+    },
+
     nicknames: {
         type: String,
     },
+
     isHistorian: {
         type: Boolean,
         default: false,

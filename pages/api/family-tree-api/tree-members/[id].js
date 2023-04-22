@@ -97,18 +97,10 @@ export default async function handler(req, res) {
 
         case "PUT":
             try {
-                const tree = await FamilyTrees.findOneAndUpdate(
-                    { _id: ObjectId(id) },
-                    {
-                        $push: {
-                            collaborators: { $each: req.body.new_collabs },
-                        },
-                    },
-                    {
-                        new: true,
-                        runValidators: true,
-                    }
-                );
+                const tree = await TreeMembers.findByIdAndUpdate(id, req.body, {
+                    new: true,
+                    runValidators: true,
+                });
                 if (!tree) {
                     return res.status(400).json({ success: false });
                 }

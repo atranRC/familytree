@@ -17,6 +17,17 @@ use("famtree");
   multi: true}
 )*/
 
+/*db.treemembers.update(
+    {},
+    { $set: { mothers_name: "", fathers_name: "", spouse: "" } },
+    { upsert: false, multi: true }
+);*/
+/*db.treemembers.update(
+    {},
+    { $set: { sex: "male" } },
+    { upsert: false, multi: true }
+);*/
+//db.users.find({})
 //delete all documents
 //db.sessions.deleteMany({});
 //db.accounts.deleteMany({});

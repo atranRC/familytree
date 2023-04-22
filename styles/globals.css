@@ -20,3 +20,14 @@ h1 {
     height: 100%;
     z-index: 0;
 }
+.node__root > circle {
+    fill: darkgreen;
+}
+.node__branch > circle {
+    fill: lightseagreen;
+}
+.node__leaf > circle {
+    fill: transparent;
+    /* Let's also make the radius of leaf nodes larger */
+    /*radius: 40;*/
+}

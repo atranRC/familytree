@@ -11,8 +11,12 @@ const TreeMembersSchema = mongoose.Schema({
         required: [true, "please provide userId"],
     },
     name: { type: String, required: [true, "please provide collab name"] },
+    sex: { type: String },
     parent_id: { type: String },
     attributes: { type: Object },
+    mothers_name: { type: String },
+    fathers_name: { type: String },
+    spouse: { type: String },
     canPost: { type: Boolean },
 });
 
