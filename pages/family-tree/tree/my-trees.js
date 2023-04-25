@@ -48,7 +48,10 @@ export default function MyTreesPage({ ownerData, treesData }) {
             <tr key={tree._id.toString()}>
                 <td>
                     <Link
-                        href={"/family-tree/tree/" + tree._id.toString()}
+                        //legacyBehavior
+                        href={"/family-tree/tree/v2/" + tree._id.toString()}
+                        rel="noopener noreferrer"
+                        target="_blank"
                         className={classes.treeLink}
                     >
                         {tree.tree_name}
@@ -97,8 +100,8 @@ export default function MyTreesPage({ ownerData, treesData }) {
     } = useQuery({
         queryKey: "create-first-member",
         queryFn: () => {
-            let uri = "/api/family-tree-api/tree-members";
-            const bod = {
+            //let uri = "/api/family-tree-api/tree-members";
+            /*const bod = {
                 treeId: data.data.data._id.toString(),
                 id: ownerData._id,
                 name: ownerData.name,
@@ -107,6 +110,21 @@ export default function MyTreesPage({ ownerData, treesData }) {
                     spouse: "",
                     status: "",
                 },
+            };*/
+            let uri = "/api/family-tree-api/tree-members-b/add-member";
+            const bod = {
+                treeId: data.data.data._id.toString(),
+                updateData: {
+                    nodesAdded: [
+                        {
+                            id: ownerData._id,
+                            name: ownerData.name,
+                            gender: ownerData.sex,
+                            img: ownerData.image,
+                        },
+                    ],
+                    nodesUpdated: [],
+                },
             };
             console.log(bod);
             return axios.post(uri, bod);
@@ -114,8 +132,11 @@ export default function MyTreesPage({ ownerData, treesData }) {
         enabled: data ? true : false,
 
         onSuccess: (d) => {
-            console.log("hizzz", d.data.data._id.toString());
-            router.push("/family-tree/tree/" + data.data.data._id.toString());
+            window.location.reload();
+            /*console.log("hizzz", d.data.data._id.toString());
+            router.push(
+                "/family-tree/tree/v2/" + data.data.data._id.toString()
+            );*/
         },
     });
 

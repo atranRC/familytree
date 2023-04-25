@@ -116,7 +116,7 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
             console.log("owner now fetched", d.data.data);
         },
         onError: () => {
-            console.log("iddddds", id);
+            console.log("iddddds");
         },
     });
 
@@ -140,7 +140,7 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
             setTreeId(asPath.split("/").pop());
         },
         onError: () => {
-            console.log("iddddds", id);
+            console.log("iddddds");
         },
     });
 
@@ -167,7 +167,7 @@ export default function FamilyTreeView({ asPath, query, pathname }) {
             setCollabsIdArray(mid);
         },
         onError: () => {
-            console.log("iddddds", id);
+            console.log("iddddds");
         },
     });
 
