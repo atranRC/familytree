@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     switch (method) {
         case "GET":
             try {
-                console.log(id, userId);
+                //console.log(id, userId);
                 /*const flaggedArticle = await FlaggedArticles.findById(id);
                 if (!flaggedArticle) {
                     return res.status(400).json({ success: false });

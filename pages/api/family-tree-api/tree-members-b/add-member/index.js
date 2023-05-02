@@ -55,11 +55,15 @@ export default async function handler(req, res) {
                 //
                 //console.log("hello", req.body.updateData.nodesAdded);
                 const nodesToAdd = req.body.updateData.nodesAdded.map((n) => {
+                    let tUser = null;
+                    if (req.body.taggedUser) {
+                        tUser = req.body.taggedUser;
+                    }
                     return {
                         treeId: req.body.treeId,
                         id: n.id,
                         nodeInfo: n,
-                        taggedUser: null,
+                        taggedUser: tUser,
                         canPost: false,
                     };
                 });

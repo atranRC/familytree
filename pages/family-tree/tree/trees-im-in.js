@@ -24,9 +24,10 @@ import { TreePageTitleSection } from "../../../components/titleSections";
 import TreesNav from "../../../components/tree-page/modals/navigation/treePageNav";
 import dbConnect from "../../../lib/dbConnect";
 import FamilyTrees from "../../../models/FamilyTrees";
-import TreeMembers from "../../../models/TreeMembers";
+//import TreeMembers from "../../../models/TreeMembers";
 import Users from "../../../models/Users";
 import { authOptions } from "../../api/auth/[...nextauth]";
+import TreeMembersB from "../../../models/TreeMembersB";
 
 export default function TreesImInPage({ ownerData, treesImInData2 }) {
     const useStyles = createStyles((theme) => ({
@@ -51,7 +52,10 @@ export default function TreesImInPage({ ownerData, treesImInData2 }) {
             <tr key={tree._id.toString()}>
                 <td>
                     <Link
-                        href={"/family-tree/tree/" + tree._id.toString()}
+                        //href={"/family-tree/tree/" + tree._id.toString()}
+                        href={"/family-tree/tree/v2/" + tree._id.toString()}
+                        rel="noopener noreferrer"
+                        target="_blank"
                         className={classes.treeLink}
                     >
                         {tree.tree_name}
@@ -117,7 +121,7 @@ export async function getServerSideProps(context) {
 
     const user = await Users.findOne({ email: session.user.email });
 
-    const treesImIn = await TreeMembers.find({ id: user._id.toString() });
+    const treesImIn = await TreeMembersB.find({ taggedUser: user._id });
     const treesImInIds = treesImIn.map((t) => {
         return ObjectId(t.treeId);
     });

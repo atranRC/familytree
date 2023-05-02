@@ -125,6 +125,7 @@ export default function MyTreesPage({ ownerData, treesData }) {
                     ],
                     nodesUpdated: [],
                 },
+                taggedUser: ownerData._id,
             };
             console.log(bod);
             return axios.post(uri, bod);

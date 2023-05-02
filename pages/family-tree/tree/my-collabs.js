@@ -50,7 +50,10 @@ export default function MyCollabsPage({ ownerData, myCollabsTrees2 }) {
             <tr key={tree._id.toString()}>
                 <td>
                     <Link
-                        href={"/family-tree/tree/" + tree._id.toString()}
+                        //href={"/family-tree/tree/" + tree._id.toString()}
+                        href={"/family-tree/tree/v2/" + tree._id.toString()}
+                        rel="noopener noreferrer"
+                        target="_blank"
                         className={classes.treeLink}
                     >
                         {tree.tree_name}

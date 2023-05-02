@@ -3,6 +3,7 @@ import FamilyTrees from "../../../models/FamilyTrees";
 import { ObjectId } from "mongodb";
 import Users from "../../../models/Users";
 import TreeMembers from "../../../models/TreeMembers";
+import TreeMembersB from "../../../models/TreeMembersB";
 export default async function handler(req, res) {
     const {
         query: { id },
@@ -250,12 +251,22 @@ export default async function handler(req, res) {
 
         case "DELETE" /* Delete a model by its ID */:
             try {
-                const deletedFamilyTree = await FamilyTrees.deleteOne({
-                    _id: id,
-                });
+                const deletedFamilyTree = await FamilyTrees.findByIdAndDelete(
+                    id
+                );
+
                 if (!deletedFamilyTree) {
                     return res.status(400).json({ success: false });
                 }
+
+                const deletedTreeMembers = await TreeMembersB.deleteMany({
+                    treeId: id,
+                });
+
+                if (!deletedTreeMembers) {
+                    return res.status(400).json({ success: false });
+                }
+
                 res.status(200).json({ success: true, data: {} });
             } catch (error) {
                 res.status(400).json({ success: false });

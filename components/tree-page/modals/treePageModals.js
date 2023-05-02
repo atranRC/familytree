@@ -1,4 +1,12 @@
-import { Button, Loader, Radio, Stack, TextInput } from "@mantine/core";
+import {
+    Button,
+    Group,
+    Loader,
+    Radio,
+    Stack,
+    TextInput,
+    Title,
+} from "@mantine/core";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -95,6 +103,7 @@ export function EditTree({ treeId }) {
                         w={300}
                         variant="outline"
                         onClick={handleUpdateTree}
+                        loading={isFetchingUpdate || isLoadingUpdate}
                     >
                         Update Tree
                     </Button>
@@ -103,5 +112,52 @@ export function EditTree({ treeId }) {
                 <Loader />
             )}
         </>
+    );
+}
+
+export function DeleteTree({ treeId, setConfirmDeleteOpened, treeName }) {
+    //const [buttonDisabled, setButtonDisabled] = useState(false)
+    const router = useRouter();
+    const {
+        isLoading: isLoadingDelete,
+        isFetching: isFetchingDelete,
+        data: dataDelete,
+        refetch: refetchDelete,
+        isError: isErrorDelete,
+        error: errorDelete,
+    } = useQuery({
+        queryKey: "delete-tree-v2",
+        queryFn: () => {
+            return axios.delete(`/api/family-tree-api/${treeId}`);
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            router.push("/family-tree/tree/my-trees");
+        },
+    });
+
+    const handleTreeDelete = () => {
+        refetchDelete();
+    };
+
+    return (
+        <Stack spacing="md" align="center" justify="center">
+            <Title order={5} fw={500}>
+                Are you sure you want to delete {treeName} ?
+            </Title>
+            <Group>
+                <Button onClick={() => setConfirmDeleteOpened(false)}>
+                    Cancel
+                </Button>
+                <Button
+                    loading={isLoadingDelete || isFetchingDelete}
+                    color="red"
+                    onClick={handleTreeDelete}
+                    //disabled={buttonDisabled}
+                >
+                    Delete
+                </Button>
+            </Group>
+        </Stack>
     );
 }

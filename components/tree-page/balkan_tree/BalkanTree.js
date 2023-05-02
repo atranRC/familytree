@@ -36,7 +36,10 @@ function Familytree(props) {
             nodeBinding: props.nodeBinding,
             nodes: props.nodes,
         };
-        if (props.sessionTreeRelation === "owner") {
+        if (
+            props.sessionTreeRelation === "owner" ||
+            props.sessionTreeRelation === "collab"
+        ) {
             t_options = {
                 //template: "hugo",
                 //mode: "dark",
@@ -54,8 +57,12 @@ function Familytree(props) {
                 partnerChildrenSplitSeparation: 90,
                 nodeMenu: {
                     tagUser: {
-                        text: "Tag a user",
-                        onClick: (d) => console.log(d),
+                        text: "Tagged User",
+                        onClick: (d) => {
+                            console.log(d);
+                            props.setBalkanMemberId(d);
+                            props.setOpened(true);
+                        },
                     },
                 },
                 nodeTreeMenu: true,
@@ -165,8 +172,12 @@ var nodeBinding = {
     img_0: "img",
 };
 
-export default function BalkanTree({ treeIdProp, sessionTreeRelation }) {
-    const [opened, setOpened] = useState(false);
+export default function BalkanTree({
+    treeIdProp,
+    sessionTreeRelation,
+    setBalkanMemberId,
+    setOpened,
+}) {
     // const [data2, setData2] = useState(tdata);
     const [fetchedTreeMembers, setFetchedTreeMembers] = useState(tdata);
 
@@ -198,6 +209,7 @@ export default function BalkanTree({ treeIdProp, sessionTreeRelation }) {
             nodeBinding={nodeBinding}
             treeIdProp={treeIdProp}
             sessionTreeRelation={sessionTreeRelation}
+            setBalkanMemberId={setBalkanMemberId}
             setOpened={setOpened}
         />
     );

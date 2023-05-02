@@ -11,10 +11,12 @@ import {
     Badge,
 } from "@mantine/core";
 import axios from "axios";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { useQuery } from "react-query";
 
 export function ClaimRequestModalContent({ claimRequest }) {
+    const router = useRouter();
     const [declineButtonDisabled, setDeclineButtonDisabled] = useState(false);
     const [approveButtonDisabled, setApproveButtonDisabled] = useState(false);
     const {
@@ -97,7 +99,29 @@ export function ClaimRequestModalContent({ claimRequest }) {
                 `/profiles/${claimRequest.targetId}/claim-requests`
             );*/
             setApproveButtonDisabled(true);
-            window.location.reload();
+        },
+    });
+
+    const {
+        isLoading: isLoadingDeleteUnclaimedProfile,
+        isFetching: isFetchingDeleteUnclaimedProfile,
+        data: dataDeleteUnclaimedProfile,
+        refetch: refetchDeleteUnclaimedProfile,
+        isError: isErrorDeleteUnclaimedProfile,
+        error: errorDeleteUnclaimedProfile,
+    } = useQuery({
+        queryKey: "delete_unclaimed_profile",
+        queryFn: () => {
+            return axios.delete(`/api/users/${claimRequest.targetId}`);
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            /*Router.reload(
+                `/profiles/${claimRequest.targetId}/claim-requests`
+            );*/
+            //delete profile
+            setApproveButtonDisabled(true);
+            router.push("/family-tree/tree/unclaimed");
         },
     });
 
@@ -125,8 +149,9 @@ export function ClaimRequestModalContent({ claimRequest }) {
             /*Router.reload(
                 `/profiles/${claimRequest.targetId}/claim-requests`
             );*/
+            //delete profile
             setApproveButtonDisabled(true);
-            window.location.reload();
+            refetchDeleteUnclaimedProfile();
         },
     });
 

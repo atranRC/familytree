@@ -1,5 +1,7 @@
+import { ObjectId } from "mongodb";
 import dbConnect from "../../../../lib/dbConnect";
 import TreeMembers from "../../../../models/TreeMembers";
+import TreeMembersB from "../../../../models/TreeMembersB";
 export default async function handler(req, res) {
     const { method } = req;
 
@@ -18,7 +20,7 @@ export default async function handler(req, res) {
             break;
         case "PUT":
             try {
-                const filterIdName = {
+                /*const filterIdName = {
                     id: req.body.filterIdName.id,
                 };
                 const newDataIdName = {
@@ -66,7 +68,27 @@ export default async function handler(req, res) {
                             data: resAll,
                         });
                     }
+                }*/
+                const filterIdName = {
+                    taggedUser: ObjectId(req.body.filterIdName.id),
+                    //id: req.body.filterIdName.id,
+                };
+                const newDataIdName = {
+                    $set: {
+                        taggedUser: ObjectId(req.body.newDataIdName.id),
+                    },
+                };
+                const res1 = await TreeMembersB.updateMany(
+                    filterIdName,
+                    newDataIdName
+                );
+                if (!res1.acknowledged) {
+                    res.status(400).json({ success: false });
                 }
+                res.status(201).json({
+                    success: true,
+                    data: res1,
+                });
                 //events
                 //written stories
                 //voice notes
