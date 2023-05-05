@@ -265,6 +265,7 @@ export default function PlacesPage({ asPath }) {
             const m = d.data.data.map((event) => {
                 return {
                     id: event._id,
+                    type: "event",
                     geoloc: [
                         event.location.lat.$numberDecimal,
                         event.location.lon.$numberDecimal,
@@ -298,6 +299,7 @@ export default function PlacesPage({ asPath }) {
             const m = d.data.data.map((story) => {
                 return {
                     id: story._id,
+                    type: "writtenStory",
                     geoloc: [
                         story.location.lat.$numberDecimal,
                         story.location.lon.$numberDecimal,
@@ -331,6 +333,7 @@ export default function PlacesPage({ asPath }) {
             const m = d.data.data.map((story) => {
                 return {
                     id: story._id,
+                    type: "audioStory",
                     geoloc: [
                         story.location.lat.$numberDecimal,
                         story.location.lon.$numberDecimal,
@@ -340,7 +343,7 @@ export default function PlacesPage({ asPath }) {
                         <div>
                             {story.title}{" "}
                             <div>
-                                <audio controls>
+                                <audio controls preload="none">
                                     <source
                                         src={story.audioUrl}
                                         type="audio/ogg"

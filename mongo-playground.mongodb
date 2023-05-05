@@ -27,6 +27,11 @@ use("famtree");
     { $set: { sex: "male" } },
     { upsert: false, multi: true }
 );*/
+db.events.update(
+    {},
+    { $set: { userName: "User" } },
+    { upsert: false, multi: true }
+);
 //db.users.find({})
 //delete all documents
 //db.sessions.deleteMany({});

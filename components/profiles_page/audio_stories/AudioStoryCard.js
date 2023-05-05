@@ -374,7 +374,7 @@ export default function AudioStoryCard({
                 {!editMode ? (
                     <Stack>
                         {audioValue && (
-                            <audio controls>
+                            <audio controls preload="none">
                                 <source src={audioValue} type="audio/webm" />
                                 <source src={audioValue} type="audio/ogg" />
                                 Your browser does not support the audio element.

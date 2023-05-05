@@ -8,6 +8,10 @@ const AudioStoriesSchema = mongoose.Schema(
             type: ObjectId,
             required: [true, "Please provide userId."],
         },
+        userName: {
+            type: String,
+            required: [true, "please provide userName"],
+        },
         authorId: {
             type: ObjectId,
             required: [true, "please provide authorId"],

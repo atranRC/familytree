@@ -73,6 +73,7 @@ export function AddEventCard({
         queryFn: () => {
             return axios.post("/api/events/", {
                 userId: profileUser._id,
+                userName: profileUser.name,
                 authorId: sessionUser._id,
                 authorName: sessionUser.name,
                 type: eventType,

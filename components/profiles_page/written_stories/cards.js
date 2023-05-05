@@ -55,6 +55,7 @@ export function AddStoryCard({
         queryFn: () => {
             return axios.post("/api/written-stories/", {
                 userId: profileUser._id,
+                userName: profileUser.name,
                 authorId: sessionUser._id,
                 authorName: sessionUser.name,
                 title: storyTitle,

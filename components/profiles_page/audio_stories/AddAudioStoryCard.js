@@ -92,6 +92,7 @@ export default function AddAudioStoryCard({
             return axios.post("/api/audio-stories", {
                 data: audioBase64,
                 userId: profileUser._id,
+                userName: profileUser.name,
                 authorId: sessionUser._id,
                 authorName: sessionUser.name,
                 title: storyTitle,

@@ -18,6 +18,7 @@ import {
     Autocomplete,
     Radio,
     CopyButton,
+    Menu,
 } from "@mantine/core";
 import AppShellContainer from "../../../../components/appShell";
 import { TitleSection } from "../../../../components/titleSections";
@@ -25,6 +26,11 @@ import {
     IconAbc,
     IconAt,
     IconCalendarEvent,
+    IconCaretDown,
+    IconClock,
+    IconGrowth,
+    IconMap2,
+    IconMicrophone,
     IconPencil,
     IconPlus,
     IconShare,
@@ -53,6 +59,50 @@ const BalkanTree = dynamic(
     }
 );
 
+const FamilyEventsTimeline = dynamic(
+    () =>
+        import(
+            "../../../../components/v2/famtree_page_comps/FamilyEventsTimeline"
+        ),
+    {
+        ssr: false,
+    }
+);
+
+const WrittenStoriesTimeline = dynamic(
+    () =>
+        import(
+            "../../../../components/v2/famtree_page_comps/WrittenStoriesTimeline"
+        ),
+    {
+        ssr: false,
+    }
+);
+
+const EventsMap = dynamic(
+    () => import("../../../../components/v2/famtree_page_comps/EventsMap"),
+    {
+        ssr: false,
+    }
+);
+
+const AudioStoriesTimeline = dynamic(
+    () =>
+        import(
+            "../../../../components/v2/famtree_page_comps/AudioStoriesTimeline"
+        ),
+    {
+        ssr: false,
+    }
+);
+
+const StoriesMap = dynamic(
+    () => import("../../../../components/v2/famtree_page_comps/StoriesMap"),
+    {
+        ssr: false,
+    }
+);
+
 export default function FamTreeTwoPage({ asPath, pathname }) {
     //const { asPath, pathname } = useRouter();
     const { data: session, status } = useSession();
@@ -65,6 +115,8 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
     const [collabModalOpened, setCollabModalOpened] = useState(false);
     const [editModalOpened, setEditModalOpened] = useState(false);
     const [confirmDeleteOpened, setConfirmDeleteOpened] = useState(false);
+
+    const [viewMode, setViewMode] = useState("tree");
 
     const {
         isLoading: isLoadingUser,
@@ -236,7 +288,68 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
                             </Title>
                         </Stack>
                     )}
-
+                    <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                            <Button
+                                compact
+                                rightIcon={<IconCaretDown size={14} />}
+                            >
+                                Change View
+                            </Button>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                            <Menu.Label>Trees</Menu.Label>
+                            <Menu.Item
+                                icon={<IconGrowth size={18} color="blue" />}
+                                onClick={() => window.location.reload()}
+                            >
+                                {fetchedFamilyTree.tree_name}
+                            </Menu.Item>
+                            <Menu.Label>Family Timelines</Menu.Label>
+                            <Menu.Item
+                                icon={
+                                    <IconCalendarEvent
+                                        size={18}
+                                        color="darkgreen"
+                                    />
+                                }
+                                onClick={() => setViewMode("events_timeline")}
+                            >
+                                Events Timeline
+                            </Menu.Item>
+                            <Menu.Item
+                                icon={<IconPencil size={18} color="blue" />}
+                                onClick={() =>
+                                    setViewMode("written_stories_timeline")
+                                }
+                            >
+                                Written Stories Timeline
+                            </Menu.Item>
+                            <Menu.Item
+                                icon={
+                                    <IconMicrophone size={18} color="brown" />
+                                }
+                                onClick={() =>
+                                    setViewMode("audio_stories_timeline")
+                                }
+                            >
+                                Audio Stories Timeline
+                            </Menu.Item>
+                            <Menu.Label>Maps</Menu.Label>
+                            <Menu.Item
+                                icon={<IconMap2 size={18} color="teal" />}
+                                onClick={() => setViewMode("events_map")}
+                            >
+                                Events Map
+                            </Menu.Item>
+                            <Menu.Item
+                                icon={<IconMap2 size={18} color="purple" />}
+                                onClick={() => setViewMode("stories_map")}
+                            >
+                                Stories Map
+                            </Menu.Item>
+                        </Menu.Dropdown>
+                    </Menu>
                     <CopyButton value={asPath}>
                         {({ copied, copy }) => (
                             <Button
@@ -281,26 +394,85 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
                 </Group>
             </TitleSection>
 
-            <div
-                style={{
-                    height: "100vh",
-                    border: "1px solid lightblue",
-                    background: "white",
-                }}
-            >
-                <div id="tree_balkan"></div>
-                {fetchedFamilyTree.privacy === "private" &&
-                sessionTreeRelation === "none" ? (
-                    <div>tree is private</div>
-                ) : (
-                    <BalkanTree
-                        treeIdProp={asPath.split("/").at(-1)}
-                        sessionTreeRelation={sessionTreeRelation}
-                        setBalkanMemberId={setBalkanMemberId}
-                        setOpened={setOpened}
-                    />
-                )}
-            </div>
+            {viewMode === "tree" && (
+                <div
+                    style={{
+                        height: "100vh",
+                        border: "1px solid lightblue",
+                        background: "white",
+                    }}
+                >
+                    <div id="tree_balkan"></div>
+                    {fetchedFamilyTree.privacy === "private" &&
+                    sessionTreeRelation === "none" ? (
+                        <div>tree is private</div>
+                    ) : (
+                        <BalkanTree
+                            treeIdProp={asPath.split("/").at(-1)}
+                            sessionTreeRelation={sessionTreeRelation}
+                            setBalkanMemberId={setBalkanMemberId}
+                            setOpened={setOpened}
+                        />
+                    )}
+                </div>
+            )}
+            {viewMode === "events_timeline" && (
+                <div>
+                    <h1 style={{ color: "grey" }}>Family Events Timeline</h1>
+                    <div
+                        style={{
+                            height: "100%",
+                            border: "1px solid lightblue",
+                        }}
+                    >
+                        <FamilyEventsTimeline
+                            treeId={asPath.split("/").at(-1)}
+                        />
+                    </div>
+                </div>
+            )}
+            {viewMode === "written_stories_timeline" && (
+                <div>
+                    <h1 style={{ color: "grey" }}>Written Stories Timeline</h1>
+                    <div
+                        style={{
+                            height: "100%",
+                            border: "1px solid lightblue",
+                        }}
+                    >
+                        <WrittenStoriesTimeline
+                            treeId={asPath.split("/").at(-1)}
+                        />
+                    </div>
+                </div>
+            )}
+            {viewMode === "audio_stories_timeline" && (
+                <div>
+                    <h1 style={{ color: "grey" }}>Audio Stories Timeline</h1>
+                    <div
+                        style={{
+                            height: "100%",
+                            border: "1px solid lightblue",
+                        }}
+                    >
+                        <AudioStoriesTimeline
+                            treeId={asPath.split("/").at(-1)}
+                        />
+                    </div>
+                </div>
+            )}
+            {viewMode === "events_map" && (
+                <div>
+                    <h1 style={{ color: "grey" }}>Family Events Map</h1>
+                    <EventsMap treeId={asPath.split("/").at(-1)} />
+                </div>
+            )}
+            {viewMode === "stories_map" && (
+                <div>
+                    <h1 style={{ color: "grey" }}>Family Stories Map</h1>
+                    <StoriesMap treeId={asPath.split("/").at(-1)} />
+                </div>
+            )}
 
             <Modal
                 opened={opened}

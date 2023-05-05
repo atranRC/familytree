@@ -45,6 +45,7 @@ export default async function handler(req, res) {
                 );*/
                 const audioStory = await AudioStories.create({
                     userId: req.body.userId,
+                    userName: req.body.userName,
                     authorId: req.body.authorId,
                     authorName: req.body.authorName,
                     title: req.body.title,
