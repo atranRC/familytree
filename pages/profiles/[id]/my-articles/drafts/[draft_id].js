@@ -210,8 +210,11 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
     };
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 

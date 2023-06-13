@@ -187,12 +187,18 @@ export function WikiViewer({ articleId }) {
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [articleId]);
 
     useEffect(() => {
-        if (session) {
+        function refetchIsFlaggedFun() {
             refetchIsFlagged();
+        }
+        if (session) {
+            refetchIsFlaggedFun();
         }
     }, [session]);
 

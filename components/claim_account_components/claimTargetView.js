@@ -191,7 +191,7 @@ export function ClaimTargetView({ targetAccountId }) {
                         {accountAlbum.map((accAl) => {
                             return (
                                 <Carousel.Slide key={accAl}>
-                                    <Image src={accAl} />
+                                    <Image src={accAl} alt="image" />
                                 </Carousel.Slide>
                             );
                         })}

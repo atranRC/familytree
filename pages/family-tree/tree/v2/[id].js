@@ -234,17 +234,23 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
     }, [session]);*/
 
     useEffect(() => {
-        refetchTree();
+        function refetchTreeFun() {
+            refetchTree();
+        }
+        refetchTreeFun();
     }, []);
 
     useEffect(() => {
+        function refetchIsCollabFun() {
+            refetchIsCollab();
+        }
         if (sessionUser && fetchedFamilyTree) {
             //console.log("sessionUser", sessionUser);
             //console.log("fetched tree", fetchedFamilyTree);
             if (fetchedFamilyTree.owner === sessionUser._id.toString()) {
                 setSessionTreeRelation("owner");
             } else {
-                refetchIsCollab();
+                refetchIsCollabFun();
             }
             //check if collab
             //check if member
@@ -828,14 +834,20 @@ function StepOne({
     };
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 
     useEffect(() => {
-        if (locationInputValue2 !== "") {
+        function refetchLocations2Fun() {
             refetchLocations2();
+        }
+        if (locationInputValue2 !== "") {
+            refetchLocations2Fun();
         }
     }, [locationInputValue2]);
 
@@ -1094,7 +1106,9 @@ function InfoSearchResult({
     };
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
     }, [page]);
 
     if (isLoading || isFetching) {

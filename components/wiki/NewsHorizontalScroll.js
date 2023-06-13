@@ -66,7 +66,7 @@ export function NewsHorizontalScroll() {
             m="xs"
         >
             <AspectRatio ratio={1920 / 1080}>
-                <Image src={article.image} />
+                <Image src={article.image} alt="img nine" />
             </AspectRatio>
             <Text
                 color="dimmed"

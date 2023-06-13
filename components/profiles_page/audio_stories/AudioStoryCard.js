@@ -164,8 +164,11 @@ export default function AudioStoryCard({
     };
 
     useEffect(() => {
+        function refetchaudiostoryFun() {
+            refetchAudioStory();
+        }
         setAudioValue(null);
-        refetchAudioStory();
+        refetchaudiostoryFun();
         setStoryDeleted(false);
         setDescriptionAreaValue(story.description);
         setTitleValue(story.title);
@@ -175,8 +178,11 @@ export default function AudioStoryCard({
     }, [story]);
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 

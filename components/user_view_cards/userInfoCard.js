@@ -184,7 +184,7 @@ export function UserInfoCard({
                             {accountAlbum.map((accAl) => {
                                 return (
                                     <Carousel.Slide key={accAl}>
-                                        <Image src={accAl} />
+                                        <Image src={accAl} alt="img six" />
                                     </Carousel.Slide>
                                 );
                             })}

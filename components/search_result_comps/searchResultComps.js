@@ -40,6 +40,7 @@ export function SomethingWentWrong({ type }) {
                             <Image
                                 p={10}
                                 src="https://img.freepik.com/free-vector/yes-no-concept-illustration_114360-7960.jpg"
+                                alt="img three"
                             />
                         </ThemeIcon>
                         <Title c="skyblue" fw={500} order={3} align="center">
@@ -52,6 +53,7 @@ export function SomethingWentWrong({ type }) {
                             <Image
                                 p={10}
                                 src="https://img.freepik.com/free-vector/yes-no-concept-illustration_114360-7960.jpg"
+                                alt="img four"
                             />
                         </ThemeIcon>
                         <Title c="skyblue" fw={500} order={3} align="center">

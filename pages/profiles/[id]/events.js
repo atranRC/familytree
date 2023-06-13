@@ -105,7 +105,10 @@ export default function EventsPage({
     }, [data]);
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page]);
 
     useEffect(() => {
@@ -113,7 +116,7 @@ export default function EventsPage({
             setTimelineActiveItem(data.data.data.events.indexOf(selectedEvent));
             console.log("tla", selectedEvent);
         }
-    }, [selectedEvent]);
+    }, [selectedEvent, data]);
 
     return (
         <AppShellContainer>

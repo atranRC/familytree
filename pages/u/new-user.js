@@ -331,22 +331,31 @@ export function StepperUserInfo() {
     };
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 
     useEffect(() => {
-        if (locationInputValue2 !== "") {
+        function refetchLocations2Fun() {
             refetchLocations2();
+        }
+        if (locationInputValue2 !== "") {
+            refetchLocations2Fun();
         }
     }, [locationInputValue2]);
 
     useEffect(() => {
-        if (name.value) {
+        function refetchAccsFun() {
             refetchAccs();
         }
-    }, [page]);
+        if (name.value) {
+            refetchAccsFun();
+        }
+    }, [page, name.value]);
 
     const handleFetchUsers = async () => {
         setIsLoading(true);

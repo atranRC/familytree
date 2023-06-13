@@ -109,7 +109,7 @@ export function AddEventCard({
         isError: isErrorLocations,
         error: errorLocations,
     } = useQuery({
-        queryKey: "fetch-locations",
+        queryKey: "fetch-locations1",
         queryFn: () => {
             return axios.get(
                 `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
@@ -134,8 +134,11 @@ export function AddEventCard({
     };
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 
@@ -453,7 +456,7 @@ export function EventCard({
         isError: isErrorLocations,
         error: errorLocations,
     } = useQuery({
-        queryKey: "fetch-locations",
+        queryKey: "fetch-locations2",
         queryFn: () => {
             return axios.get(
                 `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
@@ -496,8 +499,11 @@ export function EventCard({
     }, [event]);
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 

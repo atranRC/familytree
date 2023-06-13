@@ -366,19 +366,33 @@ export default function PlacesPage({ asPath }) {
     });
 
     useEffect(() => {
-        if (sessionUser) {
+        function refetchProfileUserFun() {
             refetchProfileUser();
+        }
+        if (sessionUser) {
+            refetchProfileUserFun();
         }
     }, [sessionUser]);
 
     useEffect(() => {
+        function refetchAudioStoriesMarkersFun() {
+            refetchAudioStoriesMarkers();
+        }
+
+        function refetchWrittenStoriesMarkersFun() {
+            refetchWrittenStoriesMarkers();
+        }
+
+        function refetchEventsMarkersFun() {
+            refetchEventsMarkers();
+        }
         setMapVisible(true);
         if (markerType === "events") {
-            refetchEventsMarkers();
+            refetchEventsMarkersFun();
         } else if (markerType === "writtenstories") {
-            refetchWrittenStoriesMarkers();
+            refetchWrittenStoriesMarkersFun();
         } else if (markerType === "audiostories") {
-            refetchAudioStoriesMarkers();
+            refetchAudioStoriesMarkersFun();
         }
     }, [markerType]);
 

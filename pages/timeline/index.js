@@ -77,11 +77,14 @@ export default function TimelinePage({ asPath, query, pathname }) {
         //pass article id to timeline comp
         //set selected article to idsd
         //console.log("params are", query);
-        refetch();
-        if (query.articleId) {
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
+        /*if (query.articleId) {
             console.log("the path is", asPath);
             console.log("the query is", query);
-        }
+        }*/
     }, [query.tag]);
     return (
         <Shell>

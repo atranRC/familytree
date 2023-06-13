@@ -841,10 +841,13 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
     };
 
     useEffect(() => {
-        if (newRelativeChosenMethod === "info") {
+        function refetchWithInfoFun() {
             refetchWithInfo();
         }
-    }, [page]);
+        if (newRelativeChosenMethod === "info") {
+            refetchWithInfoFun();
+        }
+    }, [page, newRelativeChosenMethod]);
 
     return (
         <>

@@ -246,12 +246,18 @@ export default function MyArticlesPage({ sessionUserJson }) {
     }, [data]);
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page]);
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 

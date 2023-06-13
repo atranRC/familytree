@@ -89,7 +89,7 @@ export function AddStoryCard({
         isError: isErrorLocations,
         error: errorLocations,
     } = useQuery({
-        queryKey: "fetch-locations",
+        queryKey: "fetch-locations1_1",
         queryFn: () => {
             return axios.get(
                 `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
@@ -114,8 +114,11 @@ export function AddStoryCard({
     };
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 
@@ -376,7 +379,7 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
         isError: isErrorLocations,
         error: errorLocations,
     } = useQuery({
-        queryKey: "fetch-locations",
+        queryKey: "fetch-locations2_2",
         queryFn: () => {
             return axios.get(
                 `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
@@ -418,8 +421,11 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
     }, [story]);
 
     useEffect(() => {
-        if (locationInputValue !== "") {
+        function refetchLocationsFun() {
             refetchLocations();
+        }
+        if (locationInputValue !== "") {
+            refetchLocationsFun();
         }
     }, [locationInputValue]);
 

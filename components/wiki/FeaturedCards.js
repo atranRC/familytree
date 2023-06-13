@@ -128,7 +128,10 @@ function FeaturedSmallCard({ tag }) {
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, []);
 
     if (isLoading || isFetching || !featuredWiki) {
@@ -139,7 +142,11 @@ function FeaturedSmallCard({ tag }) {
         <Card withBorder radius="md" p={0} className={classes.card}>
             <Group spacing={0}>
                 <MediaQuery largerThan="md" styles={{ width: "100%" }}>
-                    <Image src={featuredWiki.coverImage} height={140} />
+                    <Image
+                        src={featuredWiki.coverImage}
+                        height={140}
+                        alt="img eight"
+                    />
                 </MediaQuery>
                 <div className={classes.body}>
                     <Text
@@ -248,7 +255,10 @@ function FeaturedTallCard({ image, title, category, description }) {
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, []);
 
     if (isLoading || isFetching || !featuredWiki) {
@@ -366,7 +376,10 @@ function FeaturedMainCard({ image, title, category, description }) {
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, []);
 
     if (isLoading || isFetching || !featuredArticle) {

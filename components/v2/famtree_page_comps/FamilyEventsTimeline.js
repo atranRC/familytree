@@ -61,7 +61,10 @@ export default function FamilyEventsTimeline({ treeId }) {
     };
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page]);
 
     if (isLoading) {

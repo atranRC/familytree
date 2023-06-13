@@ -1,7 +1,10 @@
+export default function Search() {
+    return <div>search</div>;
+}
 /*
     on sign in, redirect user to a custom page where they can add info about themselves
 */
-
+/*
 import { unstable_getServerSession } from "next-auth/next";
 import { authOptions } from "../../api/auth/[...nextauth]";
 import Link from "next/link";
@@ -396,3 +399,4 @@ export async function getServerSideProps(context) {
         },
     };
 }
+*/

@@ -164,14 +164,20 @@ export default function AudioStoriesPage({ asPath }) {
     });
 
     useEffect(() => {
-        if (sessionUser) {
+        function refetchProfileUserFun() {
             refetchProfileUser();
+        }
+        if (sessionUser) {
+            refetchProfileUserFun();
         }
     }, [sessionUser]);
 
     useEffect(() => {
-        if (profileUser) {
+        function refetchFun() {
             refetch();
+        }
+        if (profileUser) {
+            refetchFun();
         }
     }, [page, profileUser]);
 

@@ -128,7 +128,10 @@ export default function ArtefactBanner() {
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, []);
 
     if (isLoading || isFetching || !featuredWiki) {
@@ -166,7 +169,11 @@ export default function ArtefactBanner() {
                     </Stack>
                 </Stack>
             </div>
-            <Image src={featuredWiki.coverImage} className={classes.image} />
+            <Image
+                src={featuredWiki.coverImage}
+                className={classes.image}
+                alt="img seven"
+            />
         </div>
     );
 }

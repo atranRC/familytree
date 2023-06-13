@@ -111,13 +111,19 @@ export default function StoriesMap({ treeId }) {
     });
 
     useEffect(() => {
+        function refetchWrittenStoriesMarkersFun() {
+            refetchWrittenStoriesMarkers();
+        }
         setMapVisible(true);
-        refetchWrittenStoriesMarkers();
+        refetchWrittenStoriesMarkersFun();
     }, []);
 
     useEffect(() => {
+        function refetchAudioStoriesMarkersFun() {
+            refetchAudioStoriesMarkers();
+        }
         setMapVisible(true);
-        refetchAudioStoriesMarkers();
+        refetchAudioStoriesMarkersFun();
     }, []);
 
     if (errorWrittenStoriesMarkers) {

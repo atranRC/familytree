@@ -184,7 +184,10 @@ export function ArticleViewer({ articleId }) {
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [articleId]);
 
     /*useEffect(() => {

@@ -103,7 +103,10 @@ export default function WrittenStoriesPage({
     }, [data]);
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page]);
 
     return (

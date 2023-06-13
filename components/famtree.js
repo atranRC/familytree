@@ -58,7 +58,7 @@ export default function FamTree({ userId }) {
             //setTreeItems(arrayToTree(res.data.tree));
             setTreeItemsFlatArray(res.data.tree);
         });
-    }, []);
+    }, [userId]);
 
     //set treeitems to feed to d3-tree
     useEffect(() => {

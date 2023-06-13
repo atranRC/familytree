@@ -112,7 +112,10 @@ export function MediaThumbnailGrid({
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page]);
 
     if (isLoading || isFetching) {

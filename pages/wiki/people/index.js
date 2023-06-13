@@ -46,7 +46,10 @@ export default function PeopleHome() {
     };
 
     useEffect(() => {
-        refetchWikiList();
+        function refetchWikiListFun() {
+            refetchWikiList();
+        }
+        refetchWikiListFun();
     }, [page]);
 
     return (

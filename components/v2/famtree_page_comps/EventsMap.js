@@ -60,8 +60,11 @@ export default function EventsMap({ treeId }) {
     });
 
     useEffect(() => {
+        function refetchEventsMarkersFun() {
+            refetchEventsMarkers();
+        }
         setMapVisible(true);
-        refetchEventsMarkers();
+        refetchEventsMarkersFun();
     }, []);
 
     if (errorEventsMarkers) {

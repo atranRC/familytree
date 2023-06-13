@@ -81,7 +81,10 @@ export function ClickUserToView({ type, userToView }) {
                         variant="filled"
                         size={300}
                     >
-                        <Image src={type === "single" ? singleUser : family} />
+                        <Image
+                            src={type === "single" ? singleUser : family}
+                            alt="img one"
+                        />
                     </ThemeIcon>
                     <Title c="skyblue" fw={500} order={3} align="center">
                         {type === "single" ? (
@@ -225,7 +228,7 @@ export function UserInfoDisplay({ accountToView }) {
                 {accountAlbum.map((accAl) => {
                     return (
                         <Carousel.Slide key={accAl}>
-                            <Image src={accAl} />
+                            <Image src={accAl} alt="img two" />
                         </Carousel.Slide>
                     );
                 })}

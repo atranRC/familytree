@@ -110,7 +110,10 @@ export default function MyWikidraftsPage({ sessionUserJson }) {
     }, [data]);
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page]);
 
     if (id !== sessionUserJson._id) {

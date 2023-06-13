@@ -60,7 +60,10 @@ export default function AudioStoriesTimeline({ treeId }) {
     };
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page]);
 
     if (isLoading) {

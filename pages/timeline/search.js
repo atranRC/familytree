@@ -70,8 +70,11 @@ export default function TimelineSearchPage({ query }) {
     });
 
     useEffect(() => {
-        console.log("effect searching for", query.searchTerm);
-        refetch();
+        //console.log("effect searching for", query.searchTerm);
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page, querySearchTerm]);
     return (
         <div style={{ backgroundColor: "#f1f2f2" }}>

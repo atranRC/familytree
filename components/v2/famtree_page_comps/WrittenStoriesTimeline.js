@@ -58,7 +58,10 @@ export default function WrittenStoriesTimeline({ treeId }) {
     };
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, [page]);
 
     if (isLoading) {

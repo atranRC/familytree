@@ -75,7 +75,10 @@ export function LastFourFeaturedTimelineEvents() {
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, []);
 
     if (isLoading || isFetching) {
@@ -199,7 +202,10 @@ function FeaturedCard({ cardHeight, articleId }) {
     });
 
     useEffect(() => {
-        refetch();
+        function refetchFun() {
+            refetch();
+        }
+        refetchFun();
     }, []);
 
     if (isLoading || isFetching) {

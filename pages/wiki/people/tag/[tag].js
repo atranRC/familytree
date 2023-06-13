@@ -62,7 +62,10 @@ export default function PeopleTagHome() {
     };
 
     useEffect(() => {
-        refetchWikiList();
+        function refetchWikiListFun() {
+            refetchWikiList();
+        }
+        refetchWikiListFun();
     }, [page]);
 
     return (

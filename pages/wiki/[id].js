@@ -21,9 +21,9 @@ import { Shell } from "../../components/wiki/Shell";
 import { WikiViewer } from "../../components/wiki_page/wiki_viewer/WikiViewer";
 
 export default function TimelinePage({ asPath, query, pathname }) {
-    useEffect(() => {
+    /*useEffect(() => {
         console.log(asPath.split("/").at(-1));
-    }, []);
+    }, []);*/
     return (
         <Shell>
             <WikiViewer articleId={asPath.split("/").at(-1)} />

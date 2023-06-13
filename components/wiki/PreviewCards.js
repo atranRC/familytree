@@ -170,6 +170,7 @@ export function CardWikiList({ id, title, description, coverImage, tag }) {
                 width={150}
                 src={coverImage}
                 className={classes.image}
+                alt="img eleven"
             />
         </div>
     );

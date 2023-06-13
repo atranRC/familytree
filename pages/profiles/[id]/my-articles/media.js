@@ -79,8 +79,11 @@ export default function MyArticlesMediaPage({ asPath }) {
         }
     }, [sessionUser]);*/
     useEffect(() => {
-        if (sessionUser) {
+        function refetchProfileUserFun() {
             refetchProfileUser();
+        }
+        if (sessionUser) {
+            refetchProfileUserFun();
         }
     }, [sessionUser]);
 
