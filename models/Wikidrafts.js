@@ -1,8 +1,8 @@
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 
-/* articledraftsschema will correspond to a collection in your MongoDB database. */
-const ArticledraftsSchema = mongoose.Schema(
+/* Wikidraftsschema will correspond to a collection in your MongoDB database. */
+const WikidraftsSchema = mongoose.Schema(
     {
         authorId: {
             type: ObjectId,
@@ -10,9 +10,9 @@ const ArticledraftsSchema = mongoose.Schema(
         },
         authorName: {
             type: String,
-            required: [true, "please provide collab authorName"],
+            required: [true, "please provide authorName"],
         },
-        articleId: {
+        wikiId: {
             type: ObjectId,
         },
         title: { type: String, required: [true, "please provide title"] },
@@ -24,23 +24,9 @@ const ArticledraftsSchema = mongoose.Schema(
             type: String,
             required: [true, "please provide description"],
         },
-        location: {
-            value: {
-                type: String,
-            },
-            lon: {
-                type: mongoose.Types.Decimal128,
-            },
-            lat: {
-                type: mongoose.Types.Decimal128,
-            },
-        },
-        date: {
-            type: Date,
-            required: [true, "please provide date"],
-        },
+
         tag: {
-            //gen or his
+            //hero/martyr/public_figure/artefact/history
             type: String,
             required: [true, "please provide tag"],
         },
@@ -51,5 +37,5 @@ const ArticledraftsSchema = mongoose.Schema(
     { timestamps: true }
 );
 
-export default mongoose.models.Articledrafts ||
-    mongoose.model("Articledrafts", ArticledraftsSchema);
+export default mongoose.models.Wikidrafts ||
+    mongoose.model("Wikidrafts", WikidraftsSchema);

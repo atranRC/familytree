@@ -34,7 +34,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useSession } from "next-auth/react";
-import styles from "./ArticleViewer.module.css";
+import styles from "./WikiViewer.module.css";
 
 function FlagArticleComp({
     articleId,
@@ -56,20 +56,21 @@ function FlagArticleComp({
     ];
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
-        queryKey: "flag-article",
+        queryKey: "flag-wiki",
         queryFn: () => {
             const bod = {
-                articleId: articleId,
+                wikiId: articleId,
                 flaggedBy: session.user.email,
-                articleTitle: articleTitle,
+                wikiTitle: articleTitle,
                 type: flagType,
                 description: message,
             };
-            return axios.post("/api/flagged-articles", bod);
+            return axios.post(`/api/flagged-wikis/`, bod);
         },
         enabled: false,
         onSuccess: (d) => {
             setFlaggedArticleObj(d.data.data);
+
             setFlaggedNotificationOpened(true);
             setMessage("");
             setFlagType("");
@@ -119,7 +120,7 @@ function FlagArticleComp({
     );
 }
 
-export function ArticleViewer({ articleId }) {
+export function WikiViewer({ articleId }) {
     const router = useRouter();
     const { data: session, status } = useSession();
     const [viewMode, setViewMode] = useState("article");
@@ -129,14 +130,15 @@ export function ArticleViewer({ articleId }) {
     const [showTableOfContents, setShowTableOfContents] = useState(false);
     const [isFlagged, setIsFlagged] = useState(false);
 
+    const [signInToFlagPopover, setSignInToFlagPopover] = useState(false);
+
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
-        queryKey: "fetch-article",
+        queryKey: "fetch_wiki",
         queryFn: () => {
-            return axios.get(`/api/articles/${articleId}`);
+            return axios.get(`/api/wikis/${articleId}`);
         },
         enabled: false,
         onSuccess: (d) => {
-            console.log("article loaded");
             //setFlaggedArticleObj(null);
         },
     });
@@ -147,14 +149,15 @@ export function ArticleViewer({ articleId }) {
         data: dataUnflag,
         refetch: refetchUnflag,
     } = useQuery({
-        queryKey: "unflag-article",
+        queryKey: "unflag_wiki",
         queryFn: () => {
             return axios.delete(
-                `/api/flagged-articles/user-has-flagged/${articleId}?email=${session.user.email}`
+                `/api/flagged-wikis/user-has-flagged/${articleId}?email=${session.user.email}`
             );
         },
         enabled: false,
         onSuccess: (d) => {
+            //console.log(d);
             setIsFlagged(false);
         },
     });
@@ -165,13 +168,13 @@ export function ArticleViewer({ articleId }) {
         data: dataIsFlagged,
         refetch: refetchIsFlagged,
     } = useQuery({
-        queryKey: "check_is_article_flagged",
+        queryKey: "check_is_flagged",
         queryFn: () => {
             return axios.get(
-                `/api/flagged-articles/user-has-flagged/${articleId}?email=${session.user.email}`
+                `/api/flagged-wikis/user-has-flagged/${articleId}?email=${session.user.email}`
             );
         },
-        enabled: session ? true : false,
+        enabled: false,
         onSuccess: (d) => {
             console.log(d.data);
             if (d.data.isFlaggedByUser) {
@@ -187,21 +190,24 @@ export function ArticleViewer({ articleId }) {
         refetch();
     }, [articleId]);
 
-    /*useEffect(() => {
+    useEffect(() => {
         if (session) {
             refetchIsFlagged();
         }
-    }, [session]);*/
+    }, [session]);
 
     const handleUnflag = () => {
-        //console.log("unflagging", flaggedArticleObj);
+        console.log(session);
         refetchUnflag();
     };
 
-    /*useEffect(() => {
-        var headers = document.querySelectorAll("img");
-        console.log("after document load", headers);
-    }, [document]);*/
+    if (isLoading || isFetching) {
+        return (
+            <div>
+                <Loader />
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -234,7 +240,7 @@ export function ArticleViewer({ articleId }) {
                                             {data.data.data.title}{" "}
                                         </Title>
                                         <CopyButton
-                                            value={`/timeline?articleId=${articleId}`}
+                                            value={`/wikis/${articleId}`}
                                             timeout={2000}
                                         >
                                             {({ copied, copy }) => (

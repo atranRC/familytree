@@ -6,13 +6,19 @@ export default async function handler(req, res) {
 
     await dbConnect();
 
+    let eventTag = "gen";
+    if (req.query.tag && req.query.tag === "his") {
+        eventTag = "his";
+    }
+
     switch (method) {
         case "GET":
-            console.log(req.query.gt, req.query.lt);
+            //console.log(req.query.gt, req.query.lt, req.query.tag);
             try {
                 const articles = await Articles.find(
                     {
                         date: { $gte: req.query.gt, $lte: req.query.lt },
+                        tag: eventTag,
                         isPublished: true,
                     },
                     "title date"

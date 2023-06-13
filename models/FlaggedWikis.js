@@ -1,20 +1,20 @@
 import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 
-/* FlaggedArticlesSchema will correspond to a collection in your MongoDB database. */
-const FlaggedArticlesSchema = mongoose.Schema(
+/* FlaggedWikisSchema will correspond to a collection in your MongoDB database. */
+const FlaggedWikisSchema = mongoose.Schema(
     {
-        articleId: {
+        wikiId: {
             type: ObjectId,
-            required: [true, "please provide articleId"],
+            required: [true, "please provide wikiId"],
         },
         flaggedBy: {
             type: String,
             required: [true, "please provide email"],
         },
-        articleTitle: {
+        wikiTitle: {
             type: String,
-            required: [true, "please provide articleTitle"],
+            required: [true, "please provide wikiTitle"],
         },
         type: { type: String, required: [true, "please provide type"] },
         description: {
@@ -25,5 +25,5 @@ const FlaggedArticlesSchema = mongoose.Schema(
     { timestamps: true }
 );
 
-export default mongoose.models.FlaggedArticles ||
-    mongoose.model("FlaggedArticles", FlaggedArticlesSchema);
+export default mongoose.models.FlaggedWikis ||
+    mongoose.model("FlaggedWikis", FlaggedWikisSchema);

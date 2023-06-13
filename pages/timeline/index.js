@@ -9,6 +9,7 @@ import {
     Modal,
     RangeSlider,
     Stack,
+    Text,
     TextInput,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
@@ -23,6 +24,11 @@ import {
 import Tl from "../../components/timelineComp";
 import { ArticleViewer } from "../../components/timeline_page_comps/article_viewer/ArticleViewer";
 import { useRouter } from "next/router";
+import { Shell } from "../../components/wiki/Shell";
+import {
+    LastFourFeaturedTimelineEvents,
+    SelectEventBanner,
+} from "../../components/timeline_page_comps/landing_components/LandingComponents";
 
 export default function TimelinePage({ asPath, query, pathname }) {
     const [timelineItems, setTimelineItems] = useState([]);
@@ -37,7 +43,7 @@ export default function TimelinePage({ asPath, query, pathname }) {
         queryKey: "fetch-timeline-items",
         queryFn: () => {
             return axios.get(
-                `/api/public-timeline?gt=${minDate}&lt=${maxDate}`
+                `/api/public-timeline?gt=${minDate}&lt=${maxDate}&tag=${query.tag}`
             );
         },
         enabled: false,
@@ -50,12 +56,19 @@ export default function TimelinePage({ asPath, query, pathname }) {
                 };
             });
             setTimelineItems(tlItems);
-            console.log("timeline items ", tlItems);
+            //console.log("timeline items ", tlItems);
             if (query.articleId) {
                 setSelectedArticle(query.articleId);
             }
         },
     });
+
+    const getTagType = () => {
+        if (query.tag === "gen") {
+            return `Showing Tigray Genocide Timeline Events from ${minDate} to ${maxDate}`;
+        }
+        return `Showing Tigray Historical Timeline Events from ${minDate} to ${maxDate}`;
+    };
 
     useEffect(() => {
         //on page load
@@ -63,16 +76,15 @@ export default function TimelinePage({ asPath, query, pathname }) {
         //if article id
         //pass article id to timeline comp
         //set selected article to idsd
+        //console.log("params are", query);
         refetch();
         if (query.articleId) {
             console.log("the path is", asPath);
             console.log("the query is", query);
         }
-    }, []);
+    }, [query.tag]);
     return (
-        <div style={{ backgroundColor: "#f1f2f2" }}>
-            <PrimaryNavBar />
-
+        <Shell>
             <Box pos="relative" style={{ backgroundColor: "#f5fffa" }}>
                 <LoadingOverlay
                     visible={isLoading || isFetching}
@@ -84,8 +96,19 @@ export default function TimelinePage({ asPath, query, pathname }) {
                     setSelectedArticle={setSelectedArticle}
                 />
             </Box>
-
-            <ActionIcon
+            <Text fs="xs" c="dimmed" italic align="center">
+                {getTagType()}{" "}
+                <Text
+                    span
+                    c="blue"
+                    underline
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setDateRangeSelectorOpened(true)}
+                >
+                    change date
+                </Text>
+            </Text>
+            {/*<ActionIcon
                 color="blue"
                 variant="subtle"
                 w="100%"
@@ -93,9 +116,11 @@ export default function TimelinePage({ asPath, query, pathname }) {
                 onClick={() => setDateRangeSelectorOpened(true)}
             >
                 <IconCalendarDue size="1.5rem" />
-            </ActionIcon>
-            <SecondaryNavbar activePage="timeline" />
+            </ActionIcon>*/}
+
             {selectedArticle && <ArticleViewer articleId={selectedArticle} />}
+            {!selectedArticle && <SelectEventBanner />}
+            {!selectedArticle && <LastFourFeaturedTimelineEvents />}
 
             <Modal
                 opened={dateRangeSelectorOpened}
@@ -132,7 +157,7 @@ export default function TimelinePage({ asPath, query, pathname }) {
                     </Button>
                 </Stack>
             </Modal>
-        </div>
+        </Shell>
     );
 }
 

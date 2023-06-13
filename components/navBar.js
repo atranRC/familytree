@@ -199,7 +199,13 @@ export const AvatarWithMenu = ({
 
     if (session) {
         return (
-            <Menu shadow="md" width={200} opened={opened} onChange={setOpened}>
+            <Menu
+                shadow="md"
+                width={200}
+                opened={opened}
+                onChange={setOpened}
+                styles={{ zIndex: 100 }}
+            >
                 <Menu.Target>
                     <Avatar
                         radius="xl"

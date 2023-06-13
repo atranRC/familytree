@@ -1,6 +1,38 @@
-import { Menu, Tabs, Text } from "@mantine/core";
-import { IconArrowAutofitDown, IconCaretDown } from "@tabler/icons";
+import { Box, Menu, NavLink, Popover, Tabs, Text } from "@mantine/core";
+import {
+    IconArrowAutofitDown,
+    IconCaretDown,
+    IconFingerprint,
+    IconGauge,
+    IconJpg,
+    IconNotebook,
+    IconTimelineEvent,
+    IconVectorBezier,
+} from "@tabler/icons";
 import { useRouter } from "next/router";
+
+{
+    /*<Menu shadow="md" width={200}>
+                        <Menu.Target>
+                            <Tabs.Tab value="#" icon={<IconCaretDown />}>
+                                Articles
+                            </Tabs.Tab>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                            <Menu.Item>
+                                <Tabs.Tab value="my-articles">
+                                    Published
+                                </Tabs.Tab>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <Tabs.Tab value="drafts">Drafts</Tabs.Tab>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <Tabs.Tab value="media">Media</Tabs.Tab>
+                            </Menu.Item>
+                        </Menu.Dropdown>
+                </Menu>*/
+}
 
 export default function SecondaryNavbar({
     activePage,
@@ -39,26 +71,76 @@ export default function SecondaryNavbar({
                     <Tabs.Tab value="privacy">Privacy Settings</Tabs.Tab>
                 )}
                 {sessionProfileRelation === "self" && (
-                    <Menu shadow="md" width={200}>
-                        <Menu.Target>
+                    <Popover
+                        width={200}
+                        position="bottom"
+                        withArrow
+                        shadow="md"
+                    >
+                        <Popover.Target>
                             <Tabs.Tab value="#" icon={<IconCaretDown />}>
                                 Articles
                             </Tabs.Tab>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                            <Menu.Item>
-                                <Tabs.Tab value="my-articles">
-                                    Published
-                                </Tabs.Tab>
-                            </Menu.Item>
-                            <Menu.Item>
-                                <Tabs.Tab value="drafts">Drafts</Tabs.Tab>
-                            </Menu.Item>
-                            <Menu.Item>
-                                <Tabs.Tab value="media">Media</Tabs.Tab>
-                            </Menu.Item>
-                        </Menu.Dropdown>
-                    </Menu>
+                        </Popover.Target>
+                        <Popover.Dropdown>
+                            <Box w={180}>
+                                <NavLink
+                                    label="Timeline Articles"
+                                    icon={<IconTimelineEvent size={18} />}
+                                    childrenOffset={28}
+                                >
+                                    <NavLink
+                                        label="Published"
+                                        onClick={() =>
+                                            router.push(
+                                                `/profiles/${id}/my-articles/`
+                                            )
+                                        }
+                                    />
+                                    <NavLink
+                                        label="Drafts"
+                                        onClick={() =>
+                                            router.push(
+                                                `/profiles/${id}/my-articles/drafts`
+                                            )
+                                        }
+                                    />
+                                </NavLink>
+
+                                <NavLink
+                                    label="Wiki Pages"
+                                    icon={<IconNotebook size={18} />}
+                                    childrenOffset={28}
+                                >
+                                    <NavLink
+                                        label="Published"
+                                        onClick={() =>
+                                            router.push(
+                                                `/profiles/${id}/my-wikis/`
+                                            )
+                                        }
+                                    />
+                                    <NavLink
+                                        label="Drafts"
+                                        onClick={() =>
+                                            router.push(
+                                                `/profiles/${id}/my-wikis/drafts`
+                                            )
+                                        }
+                                    />
+                                </NavLink>
+                                <NavLink
+                                    label="Media"
+                                    icon={<IconJpg size={18} />}
+                                    onClick={() =>
+                                        router.push(
+                                            `/profiles/${id}/my-articles/media`
+                                        )
+                                    }
+                                />
+                            </Box>
+                        </Popover.Dropdown>
+                    </Popover>
                 )}
             </Tabs.List>
         </Tabs>

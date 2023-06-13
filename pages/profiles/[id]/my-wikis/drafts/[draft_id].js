@@ -1,7 +1,7 @@
 import { unstable_getServerSession } from "next-auth";
 import { useRouter } from "next/router";
 import dbConnect from "../../../../../lib/dbConnect";
-import Articledrafts from "../../../../../models/Articledrafts";
+import Wikidrafts from "../../../../../models/Wikidrafts";
 import Users from "../../../../../models/Users";
 import { authOptions } from "../../../../api/auth/[...nextauth]";
 import { Editor } from "@tinymce/tinymce-react";
@@ -34,11 +34,9 @@ import {
     IconCalendarEvent,
     IconDeviceFloppy,
     IconFile,
-    IconLocation,
 } from "@tabler/icons";
-import { DatePicker } from "@mantine/dates";
 
-export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
+export default function WikiDraftEditPage({ sessionUserJson, wikidraftJson }) {
     const router = useRouter();
     const id = router.query.id;
 
@@ -52,34 +50,23 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
     const [savedAlert, setSavedAlert] = useState(false);
     const [publishClicked, setPublishClicked] = useState(false);
     const [title, setTitle] = useState(
-        articledraftJson ? articledraftJson.title : ""
+        wikidraftJson ? wikidraftJson.title : ""
     );
     const [description, setDescription] = useState(
-        articledraftJson ? articledraftJson.description : ""
+        wikidraftJson ? wikidraftJson.description : ""
     );
     const [coverImgUrl, setCoverImgUrl] = useState(
-        articledraftJson
-            ? articledraftJson.coverImage
-            : "https://static.remove.bg/sample-gallery/graphics/bird-thumbnail.jpg"
+        wikidraftJson
+            ? wikidraftJson.coverImage
+            : "https://png.pngtree.com/element_our/20190522/ourlarge/pngtree-open-book-illustration-image_1072047.jpg"
     );
-
-    const [location, setLocation] = useState(
-        articledraftJson ? articledraftJson.location : null
-    );
-    const [date, setDate] = useState(
-        articledraftJson ? articledraftJson.date : ""
-    );
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState(null);
-    const [errorSelectedLocation, setErrorSelectedLocation] = useState(false);
-    const [fetchedLocations, setFetchedLocations] = useState([]);
     let t = "";
-    if (articledraftJson && articledraftJson.tag === "gen") {
+    if (wikidraftJson && wikidraftJson.tag === "gen") {
         t = "gen";
-    } else if (articledraftJson && articledraftJson.tag === "his") {
+    } else if (wikidraftJson && wikidraftJson.tag === "his") {
         t = "his";
     }
-    const [tagValue, setTagValue] = useState(articledraftJson.tag);
+    const [tagValue, setTagValue] = useState(wikidraftJson.tag);
 
     const {
         isLoading: isLoadingSave,
@@ -89,21 +76,17 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         isError: isErrorSave,
         error: errorSave,
     } = useQuery({
-        queryKey: "save-draft",
+        queryKey: "save_wiki_draft",
         queryFn: () => {
             const bod = {
                 title: title,
                 description: description,
                 content: editorRef.current.getContent(),
-                location: selectedLocation,
-                date: date.toString(),
+                //isPublished: true,
                 tag: tagValue,
                 coverImage: coverImgUrl,
             };
-            return axios.put(
-                `/api/article-drafts/${articledraftJson._id}`,
-                bod
-            );
+            return axios.put(`/api/wiki-drafts/${wikidraftJson._id}`, bod);
         },
         enabled: false,
         onSuccess: (d) => {
@@ -125,21 +108,17 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         isError: isErrorPublish,
         error: errorPublish,
     } = useQuery({
-        queryKey: "publish",
+        queryKey: "publish_wiki",
         queryFn: () => {
             //title field
             //description text field
-            //location field
-            //date field
             const bod = {
                 authorId: sessionUserJson._id,
                 authorName: sessionUserJson.name,
-                draftId: articledraftJson._id,
+                draftId: wikidraftJson._id,
                 title: title,
                 description: description,
                 content: editorRef.current.getContent(),
-                location: selectedLocation,
-                date: date,
                 isPublished: true,
                 tag: tagValue,
                 coverImage: coverImgUrl,
@@ -148,7 +127,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
             console.log("boddd", bod);
 
             return axios.post(
-                `/api/article-drafts/publish/${articledraftJson._id}`,
+                `/api/wiki-drafts/publish/${wikidraftJson._id}`,
                 bod
             );
         },
@@ -159,67 +138,20 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         },
     });
 
-    const {
-        isLoading: isLoadingLocations,
-        isFetching: isFetchingLocations,
-        data: dataLocations,
-        refetch: refetchLocations,
-        isError: isErrorLocations,
-        error: errorLocations,
-    } = useQuery({
-        queryKey: "fetch-locations",
-        queryFn: () => {
-            return axios.get(
-                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
-            );
-        },
-        enabled: false,
-        onSuccess: (d) => {
-            const cit = d.data.map((d) => {
-                return {
-                    value: d.display_name,
-                    lat: d.lat,
-                    lon: d.lon,
-                };
-            });
-            setFetchedLocations(cit);
-        },
-    });
-
-    const handleLocationSelect = (l) => {
-        console.log(l);
-        setSelectedLocation(l);
-    };
-
     const handleDraftSave = () => {
-        if (selectedLocation) {
-            refetchSave();
-        } else {
-            setErrorSelectedLocation(true);
-        }
+        refetchSave();
     };
 
     const handlePublish = () => {
-        if (selectedLocation) {
-            console.log("date", date);
-            setPublishClicked(true);
-            refetchSave();
-        } else {
-            setErrorSelectedLocation(true);
-        }
+        setPublishClicked(true);
+        refetchSave();
     };
 
-    useEffect(() => {
-        if (locationInputValue !== "") {
-            refetchLocations();
-        }
-    }, [locationInputValue]);
-
-    if (!articledraftJson) {
+    if (!wikidraftJson) {
         return <div>DRAFT DOESN&apos;T EXIST</div>;
     }
 
-    if (sessionUserJson._id !== articledraftJson.authorId) {
+    if (sessionUserJson._id !== wikidraftJson.authorId) {
         return <div>RESTRICTED PAGE</div>;
     }
     return (
@@ -229,7 +161,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                     {sessionUserJson.name}
                 </Title>
                 <Title order={5} fw={500}>
-                    Drafts
+                    Wiki Page Draft
                 </Title>
             </ProfileTitleSection>
             <SecondaryNavbar
@@ -267,42 +199,31 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                                 }
                             />
 
-                            <Autocomplete
-                                label="Location"
-                                value={locationInputValue}
-                                onChange={setLocationInputValue}
-                                data={fetchedLocations}
-                                onItemSubmit={handleLocationSelect}
-                                error={
-                                    errorSelectedLocation && "invalid location"
-                                }
-                            />
                             <NativeSelect
                                 value={tagValue}
                                 onChange={(event) =>
                                     setTagValue(event.currentTarget.value)
                                 }
                                 data={[
-                                    { value: "gen", label: "Gen" },
-                                    { value: "his", label: "History" },
+                                    { value: "hero", label: "A Hero" },
+                                    { value: "martyr", label: "A Martyr" },
+                                    {
+                                        value: "public_figure",
+                                        label: "A Public Figure",
+                                    },
+                                    { value: "artefact", label: "An Artefact" },
+                                    { value: "heritage", label: "Heritage" },
                                 ]}
                                 label="Type "
                                 // /description="Select the type of event"
                                 withAsterisk
-                            />
-                            <DatePicker
-                                placeholder="Pick date of the event"
-                                label="Date"
-                                icon={<IconCalendarEvent size={19} />}
-                                value={date}
-                                onChange={setDate}
                             />
                         </Stack>
                     </Paper>
                     <Editor
                         tinymceScriptSrc="/tinymce/tinymce.min.js"
                         onInit={(evt, editor) => (editorRef.current = editor)}
-                        initialValue={articledraftJson.content}
+                        initialValue={wikidraftJson.content}
                         init={{
                             height: "calc(100vh - 2rem)",
                             menubar: false,
@@ -352,18 +273,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                     Your draft has been saved!
                 </Alert>
             )}
-            {errorSelectedLocation && (
-                <Alert
-                    icon={<IconAlertCircle size={16} />}
-                    title="Saved"
-                    color="red"
-                    radius="xl"
-                    withCloseButton
-                    onClose={() => setErrorSelectedLocation(false)}
-                >
-                    Invalid Inputs. Please check for empty fields.
-                </Alert>
-            )}
+
             <Group grow mt="md">
                 {/*<button onClick={log}>Log editor content</button>*/}
                 <Button
@@ -404,23 +314,23 @@ export async function getServerSideProps(context) {
     }
 
     //fetch session user
-    console.log("article-drafts", context.query.id, context.query.draft_id);
+    console.log("wiki-drafts", context.query.id, context.query.draft_id);
     await dbConnect();
 
     const sessionUserPromise = Users.findOne({ email: session.user.email });
-    const articledraftPromise = Articledrafts.findById(context.query.draft_id);
-    const [sessionUser, articledraft] = await Promise.all([
+    const wikidraftPromise = Wikidrafts.findById(context.query.draft_id);
+    const [sessionUser, wikidraft] = await Promise.all([
         sessionUserPromise,
-        articledraftPromise,
+        wikidraftPromise,
     ]);
     const sessionUserJson = JSON.parse(JSON.stringify(sessionUser));
-    const articledraftJson = JSON.parse(JSON.stringify(articledraft));
+    const wikidraftJson = JSON.parse(JSON.stringify(wikidraft));
 
     return {
         props: {
             session,
             sessionUserJson,
-            articledraftJson,
+            wikidraftJson,
             //sessionUserCanPost,
             //allReqs2,
             //profileData,

@@ -43,6 +43,14 @@ const ArticlesSchema = mongoose.Schema(
             type: Boolean,
             required: [true, "please provide isPublished"],
         },
+        tag: {
+            //gen or his
+            type: String,
+            required: [true, "please provide tag"],
+        },
+        coverImage: {
+            type: String,
+        },
     },
     { timestamps: true }
 );

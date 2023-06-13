@@ -21,8 +21,7 @@ import {
     Autocomplete,
     NativeSelect,
 } from "@mantine/core";
-import { DatePicker } from "@mantine/dates";
-import { IconCalendarEvent, IconLocation, IconTrash } from "@tabler/icons";
+import { IconTrash } from "@tabler/icons";
 import axios from "axios";
 import { unstable_getServerSession } from "next-auth";
 import { useRouter } from "next/router";
@@ -36,7 +35,7 @@ import dbConnect from "../../../../lib/dbConnect";
 import Users from "../../../../models/Users";
 import { authOptions } from "../../../api/auth/[...nextauth]";
 
-export default function MyArticlesPage({ sessionUserJson }) {
+export default function MyWikisPage({ sessionUserJson }) {
     const router = useRouter();
     const id = router.query.id;
 
@@ -56,36 +55,28 @@ export default function MyArticlesPage({ sessionUserJson }) {
 
     const [page, setPage] = useState(1);
     const [pageCount, setPageCount] = useState(0);
-    const [articleToTakeDown, setArticleToTakeDown] = useState("");
+    const [wikiToTakeDown, setWikiToTakeDown] = useState("");
     const [takeDownModal, setTakeDownModal] = useState(false);
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [location, setLocation] = useState("");
-    const [date, setDate] = useState("");
+
     const [tagValue, setTagValue] = useState("");
     const [coverImgUrl, setCoverImgUrl] = useState(
-        "https://static.remove.bg/sample-gallery/graphics/bird-thumbnail.jpg"
+        "https://png.pngtree.com/element_our/20190522/ourlarge/pngtree-open-book-illustration-image_1072047.jpg"
     );
-
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState({});
-    const [fetchedLocations, setFetchedLocations] = useState([]);
 
     //fetch drafts by sessionUserJson._id
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "fetch-drafts-by",
         queryFn: () => {
             return axios.get(
-                "/api/articles/articles-by/" +
-                    sessionUserJson._id +
-                    "?p=" +
-                    page
+                "/api/wikis/wikis-by/" + sessionUserJson._id + "?p=" + page
             );
         },
         enabled: false,
         onSuccess: (d) => {
-            console.log("articles by ", d.data.data);
+            console.log("wikis by ", d.data.data);
         },
     });
     const {
@@ -98,7 +89,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
     } = useQuery({
         queryKey: "take-down",
         queryFn: () => {
-            return axios.put("/api/articles/" + articleToTakeDown, {
+            return axios.put("/api/wikis/" + wikiToTakeDown, {
                 isPublished: false,
             });
         },
@@ -122,64 +113,27 @@ export default function MyArticlesPage({ sessionUserJson }) {
             const bod = {
                 authorId: sessionUserJson._id,
                 authorName: sessionUserJson.name,
-                articleId: null,
+                wikiId: null,
                 title: title,
                 description: description,
                 content: "Start here...",
-                location: {
-                    value: locationInputValue,
-                    lon: selectedLocation.lon
-                        ? selectedLocation.lon
-                        : "39.476826",
-                    lat: selectedLocation.lat
-                        ? selectedLocation.lat
-                        : "13.496664",
-                },
-                date: date,
                 tag: tagValue,
                 coverImage: coverImgUrl,
             };
-            return axios.post("/api/article-drafts/", bod);
+            return axios.post("/api/wiki-drafts/", bod);
         },
         enabled: false,
         onSuccess: (d) => {
             console.log("created ", d.data.data);
             router.push(
-                `/profiles/${sessionUserJson._id}/my-articles/drafts/${d.data.data._id}`
+                `/profiles/${sessionUserJson._id}/my-wikis/drafts/${d.data.data._id}`
             );
-        },
-    });
-
-    const {
-        isLoading: isLoadingLocations,
-        isFetching: isFetchingLocations,
-        data: dataLocations,
-        refetch: refetchLocations,
-        isError: isErrorLocations,
-        error: errorLocations,
-    } = useQuery({
-        queryKey: "fetch-locations",
-        queryFn: () => {
-            return axios.get(
-                `https://nominatim.openstreetmap.org/search?q=${locationInputValue}&format=json`
-            );
-        },
-        enabled: false,
-        onSuccess: (d) => {
-            const cit = d.data.map((d) => {
-                return {
-                    value: d.display_name,
-                    lat: d.lat,
-                    lon: d.lon,
-                };
-            });
-            setFetchedLocations(cit);
         },
     });
 
     const rows =
         data &&
-        data.data.data.articles.map((r) => {
+        data.data.data.wikis.map((r) => {
             let color = "yellow";
             let status = "In draft";
             if (r.isPublished) {
@@ -190,7 +144,6 @@ export default function MyArticlesPage({ sessionUserJson }) {
             return (
                 <tr key={r._id.toString()}>
                     <td>{r.title}</td>
-                    <td>{r.date.toString()}</td>
                     <td>
                         <Text truncate>{r.description}</Text>
                     </td>
@@ -204,7 +157,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
                             className={classes.articleLink}
                             onClick={() => {
                                 router.push(
-                                    `/profiles/${sessionUserJson._id}/my-articles/drafts/${r.draftId}`
+                                    `/profiles/${sessionUserJson._id}/my-wikis/drafts/${r.draftId}`
                                 );
                             }}
                         >
@@ -214,14 +167,14 @@ export default function MyArticlesPage({ sessionUserJson }) {
                         <ActionIcon
                             loading={isLoadingTakeDown || isFetchingTakeDown}
                             onClick={() => {
-                                setArticleToTakeDown(r._id);
+                                setWikiToTakeDown(r._id);
                                 setTakeDownModal(true);
                             }}
                         >
                             <IconTrash size={18} />
                         </ActionIcon>
                         {/*<span className={classes.articleLink} onClick={() => {
-                            setArticleToTakeDown(r._id)
+                            setWikiToTakeDown(r._id)
 
                         }}>take down</span>*/}
                     </td>
@@ -230,13 +183,8 @@ export default function MyArticlesPage({ sessionUserJson }) {
         });
 
     const handleStartNew = () => {
+        //console.log(tagValue);
         refetchStartNew();
-        //console.log("start new", title, description, location, date);
-    };
-
-    const handleLocationSelect = (l) => {
-        console.log(l);
-        setSelectedLocation(l);
     };
 
     useEffect(() => {
@@ -249,12 +197,6 @@ export default function MyArticlesPage({ sessionUserJson }) {
         refetch();
     }, [page]);
 
-    useEffect(() => {
-        if (locationInputValue !== "") {
-            refetchLocations();
-        }
-    }, [locationInputValue]);
-
     if (id !== sessionUserJson._id) {
         return <div>RESTRICTED PAGE</div>;
     }
@@ -266,7 +208,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
                     {sessionUserJson.name}
                 </Title>
                 <Title order={5} fw={500}>
-                    Published Articles
+                    Published Wiki Pages
                 </Title>
             </ProfileTitleSection>
             <SecondaryNavbar
@@ -279,7 +221,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
                 styles={{ paddingleft: "0px", paddingRight: "0px" }}
             >
                 <Container pt="md" c="dimmed">
-                    <Title p="md">All Articles</Title>
+                    <Title p="md">All Wiki Pages</Title>
                     {isLoading || isFetching ? (
                         <Group grow>
                             <DraftsTableSkeleton />
@@ -305,7 +247,6 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                             <thead>
                                                 <tr>
                                                     <th>Title</th>
-                                                    <th>Date</th>
                                                     <th>Description</th>
                                                     <th>Status</th>
                                                     <th>Actions</th>
@@ -363,27 +304,19 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                     setTagValue(event.currentTarget.value)
                                 }
                                 data={[
-                                    { value: "", label: "Select..." },
-                                    { value: "gen", label: "Gen" },
-                                    { value: "his", label: "History" },
+                                    { value: "", label: "Choose..." },
+                                    { value: "hero", label: "A Hero" },
+                                    { value: "martyr", label: "A Martyr" },
+                                    {
+                                        value: "public_figure",
+                                        label: "A Public Figure",
+                                    },
+                                    { value: "artefact", label: "An Artefact" },
+                                    { value: "heritage", label: "Heritage" },
                                 ]}
-                                label="Type "
+                                label="What is this page about"
                                 // /description="Select the type of event"
                                 withAsterisk
-                            />
-                            <Autocomplete
-                                label="Location"
-                                value={locationInputValue}
-                                onChange={setLocationInputValue}
-                                data={fetchedLocations}
-                                onItemSubmit={handleLocationSelect}
-                            />
-                            <DatePicker
-                                placeholder="Pick date of the event"
-                                label="Date"
-                                icon={<IconCalendarEvent size={19} />}
-                                value={date}
-                                onChange={setDate}
                             />
                             <Button
                                 mt="md"
@@ -392,7 +325,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                 }
                                 onClick={handleStartNew}
                             >
-                                Start Article
+                                Start Wiki Page
                             </Button>
                         </Stack>
                     </Paper>
@@ -401,7 +334,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
             <Modal
                 opened={takeDownModal}
                 onClose={() => setTakeDownModal(false)}
-                title="Take Down Article?"
+                title="Take Down Wiki Page?"
             >
                 <Group grow>
                     <Button>Cancel</Button>
@@ -437,7 +370,7 @@ export async function getServerSideProps(context) {
     }
 
     //fetch session user
-    console.log("articles", context.query.id);
+    console.log("wikis", context.query.id);
     await dbConnect();
 
     const sessionUser = await Users.findOne({ email: session.user.email });

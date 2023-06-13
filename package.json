@@ -33,6 +33,7 @@
         "eslint-config-next": "13.0.7",
         "fs-extra": "^11.1.0",
         "leaflet": "^1.9.3",
+        "moment": "^2.29.4",
         "mongodb": "^4.12.1",
         "mongoose": "^6.8.1",
         "mongoose-fuzzy-searching": "^2.0.2",
