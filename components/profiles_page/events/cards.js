@@ -140,7 +140,7 @@ export function AddEventCard({
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     const handleAddEvent = () => {
         if (
@@ -505,7 +505,7 @@ export function EventCard({
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     if (eventDeleted) {
         return (

@@ -65,7 +65,7 @@ export default function EventsMap({ treeId }) {
         }
         setMapVisible(true);
         refetchEventsMarkersFun();
-    }, []);
+    }, [refetchEventsMarkers]);
 
     if (errorEventsMarkers) {
         return <div>error fetching events</div>;

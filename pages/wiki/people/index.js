@@ -50,7 +50,7 @@ export default function PeopleHome() {
             refetchWikiList();
         }
         refetchWikiListFun();
-    }, [page]);
+    }, [page, refetchWikiList]);
 
     return (
         <ShellWithAside page="people">

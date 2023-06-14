@@ -337,7 +337,7 @@ export function StepperUserInfo() {
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     useEffect(() => {
         function refetchLocations2Fun() {
@@ -346,7 +346,7 @@ export function StepperUserInfo() {
         if (locationInputValue2 !== "") {
             refetchLocations2Fun();
         }
-    }, [locationInputValue2]);
+    }, [locationInputValue2, refetchLocations2]);
 
     useEffect(() => {
         function refetchAccsFun() {
@@ -355,7 +355,7 @@ export function StepperUserInfo() {
         if (name.value) {
             refetchAccsFun();
         }
-    }, [page, name.value]);
+    }, [page, name.value, refetchAccs]);
 
     const handleFetchUsers = async () => {
         setIsLoading(true);

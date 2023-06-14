@@ -372,7 +372,7 @@ export default function PlacesPage({ asPath }) {
         if (sessionUser) {
             refetchProfileUserFun();
         }
-    }, [sessionUser]);
+    }, [sessionUser, refetchProfileUser]);
 
     useEffect(() => {
         function refetchAudioStoriesMarkersFun() {
@@ -394,7 +394,12 @@ export default function PlacesPage({ asPath }) {
         } else if (markerType === "audiostories") {
             refetchAudioStoriesMarkersFun();
         }
-    }, [markerType]);
+    }, [
+        markerType,
+        refetchAudioStoriesMarkers,
+        refetchWrittenStoriesMarkers,
+        refetchEventsMarkers,
+    ]);
 
     if (status === "unauthenticated") {
         return <Link href="/api/auth/signin">Sign in</Link>;

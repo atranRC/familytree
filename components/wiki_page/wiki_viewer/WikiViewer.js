@@ -191,7 +191,7 @@ export function WikiViewer({ articleId }) {
             refetch();
         }
         refetchFun();
-    }, [articleId]);
+    }, [articleId, refetch]);
 
     useEffect(() => {
         function refetchIsFlaggedFun() {
@@ -200,7 +200,7 @@ export function WikiViewer({ articleId }) {
         if (session) {
             refetchIsFlaggedFun();
         }
-    }, [session]);
+    }, [session, refetchIsFlagged]);
 
     const handleUnflag = () => {
         console.log(session);

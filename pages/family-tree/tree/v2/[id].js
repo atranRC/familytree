@@ -238,7 +238,7 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
             refetchTree();
         }
         refetchTreeFun();
-    }, []);
+    }, [refetchTree]);
 
     useEffect(() => {
         function refetchIsCollabFun() {
@@ -255,7 +255,7 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
             //check if collab
             //check if member
         }
-    }, [sessionUser, fetchedFamilyTree]);
+    }, [sessionUser, fetchedFamilyTree, refetchIsCollab]);
 
     if (status === "unauthenticated") {
         return <Link href="/api/auth/signin">Sign in</Link>;
@@ -840,7 +840,7 @@ function StepOne({
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     useEffect(() => {
         function refetchLocations2Fun() {
@@ -849,7 +849,7 @@ function StepOne({
         if (locationInputValue2 !== "") {
             refetchLocations2Fun();
         }
-    }, [locationInputValue2]);
+    }, [locationInputValue2, refetchLocations2]);
 
     const handleFindByEmail = () => {
         /*if (newRelativeSex === "") {
@@ -1109,7 +1109,8 @@ function InfoSearchResult({
         function refetchFun() {
             refetch();
         }
-    }, [page]);
+        refetchFun();
+    }, [page, refetch]);
 
     if (isLoading || isFetching) {
         return <Loader />;

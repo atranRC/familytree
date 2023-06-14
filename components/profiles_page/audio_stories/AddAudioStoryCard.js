@@ -173,7 +173,7 @@ export default function AddAudioStoryCard({
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     /*const convertFile = async (blob) => {
         console.log(blob);

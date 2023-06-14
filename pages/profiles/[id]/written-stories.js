@@ -107,7 +107,7 @@ export default function WrittenStoriesPage({
             refetch();
         }
         refetchFun();
-    }, [page]);
+    }, [page, refetch]);
 
     return (
         <AppShellContainer>

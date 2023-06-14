@@ -250,7 +250,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
             refetch();
         }
         refetchFun();
-    }, [page]);
+    }, [page, refetch]);
 
     useEffect(() => {
         function refetchLocationsFun() {
@@ -259,7 +259,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     if (id !== sessionUserJson._id) {
         return <div>RESTRICTED PAGE</div>;

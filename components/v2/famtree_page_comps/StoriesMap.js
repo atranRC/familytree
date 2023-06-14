@@ -116,7 +116,7 @@ export default function StoriesMap({ treeId }) {
         }
         setMapVisible(true);
         refetchWrittenStoriesMarkersFun();
-    }, []);
+    }, [refetchWrittenStoriesMarkers]);
 
     useEffect(() => {
         function refetchAudioStoriesMarkersFun() {
@@ -124,7 +124,7 @@ export default function StoriesMap({ treeId }) {
         }
         setMapVisible(true);
         refetchAudioStoriesMarkersFun();
-    }, []);
+    }, [refetchAudioStoriesMarkers]);
 
     if (errorWrittenStoriesMarkers) {
         return <div>error fetching WrittenStories</div>;

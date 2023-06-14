@@ -64,7 +64,7 @@ export default function AudioStoriesTimeline({ treeId }) {
             refetch();
         }
         refetchFun();
-    }, [page]);
+    }, [page, refetch]);
 
     if (isLoading) {
         return <Loader />;

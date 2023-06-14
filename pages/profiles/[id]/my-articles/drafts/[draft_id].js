@@ -216,7 +216,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     if (!articledraftJson) {
         return <div>DRAFT DOESN&apos;T EXIST</div>;

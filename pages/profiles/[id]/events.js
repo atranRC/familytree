@@ -109,7 +109,7 @@ export default function EventsPage({
             refetch();
         }
         refetchFun();
-    }, [page]);
+    }, [page, refetch]);
 
     useEffect(() => {
         if (data) {

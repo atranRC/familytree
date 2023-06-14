@@ -188,7 +188,7 @@ export function ArticleViewer({ articleId }) {
             refetch();
         }
         refetchFun();
-    }, [articleId]);
+    }, [articleId, refetch]);
 
     /*useEffect(() => {
         if (session) {

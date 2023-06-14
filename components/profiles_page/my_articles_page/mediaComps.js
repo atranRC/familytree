@@ -116,7 +116,7 @@ export function MediaThumbnailGrid({
             refetch();
         }
         refetchFun();
-    }, [page]);
+    }, [page, refetch]);
 
     if (isLoading || isFetching) {
         return <Loader />;

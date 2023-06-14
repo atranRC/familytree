@@ -66,7 +66,7 @@ export default function PeopleTagHome() {
             refetchWikiList();
         }
         refetchWikiListFun();
-    }, [page]);
+    }, [page, refetchWikiList]);
 
     return (
         <ShellWithAside page="people">

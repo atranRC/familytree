@@ -114,7 +114,7 @@ export default function MyWikidraftsPage({ sessionUserJson }) {
             refetch();
         }
         refetchFun();
-    }, [page]);
+    }, [page, refetch]);
 
     if (id !== sessionUserJson._id) {
         return <div>RESTRICTED PAGE</div>;

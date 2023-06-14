@@ -132,7 +132,7 @@ function FeaturedSmallCard({ tag }) {
             refetch();
         }
         refetchFun();
-    }, []);
+    }, [refetch]);
 
     if (isLoading || isFetching || !featuredWiki) {
         return <Loader />;
@@ -259,7 +259,7 @@ function FeaturedTallCard({ image, title, category, description }) {
             refetch();
         }
         refetchFun();
-    }, []);
+    }, [refetch]);
 
     if (isLoading || isFetching || !featuredWiki) {
         return <Loader />;
@@ -380,7 +380,7 @@ function FeaturedMainCard({ image, title, category, description }) {
             refetch();
         }
         refetchFun();
-    }, []);
+    }, [refetch]);
 
     if (isLoading || isFetching || !featuredArticle) {
         return <Loader />;

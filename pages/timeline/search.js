@@ -75,7 +75,7 @@ export default function TimelineSearchPage({ query }) {
             refetch();
         }
         refetchFun();
-    }, [page, querySearchTerm]);
+    }, [page, querySearchTerm, refetch]);
     return (
         <div style={{ backgroundColor: "#f1f2f2" }}>
             <PrimaryNavBar setQuerySearchTerm={setQuerySearchTerm} />

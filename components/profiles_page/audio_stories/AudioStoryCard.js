@@ -175,7 +175,7 @@ export default function AudioStoryCard({
         setLocationInputValue("");
         setDeleteStoryNotification(false);
         setEditMode(false);
-    }, [story]);
+    }, [story, refetchAudioStory]);
 
     useEffect(() => {
         function refetchLocationsFun() {
@@ -184,7 +184,7 @@ export default function AudioStoryCard({
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     if (storyDeleted) {
         return (

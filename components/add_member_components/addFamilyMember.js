@@ -847,7 +847,7 @@ export function ModalAddMember({ ownerId, selectedTreeMemberId, treeId }) {
         if (newRelativeChosenMethod === "info") {
             refetchWithInfoFun();
         }
-    }, [page, newRelativeChosenMethod]);
+    }, [page, newRelativeChosenMethod, refetchWithInfo]);
 
     return (
         <>

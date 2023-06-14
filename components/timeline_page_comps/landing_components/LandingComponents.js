@@ -79,7 +79,7 @@ export function LastFourFeaturedTimelineEvents() {
             refetch();
         }
         refetchFun();
-    }, []);
+    }, [refetch]);
 
     if (isLoading || isFetching) {
         return (
@@ -206,7 +206,7 @@ function FeaturedCard({ cardHeight, articleId }) {
             refetch();
         }
         refetchFun();
-    }, []);
+    }, [refetch]);
 
     if (isLoading || isFetching) {
         return <Loader />;

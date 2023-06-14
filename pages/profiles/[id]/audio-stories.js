@@ -170,7 +170,7 @@ export default function AudioStoriesPage({ asPath }) {
         if (sessionUser) {
             refetchProfileUserFun();
         }
-    }, [sessionUser]);
+    }, [sessionUser, refetchProfileUser]);
 
     useEffect(() => {
         function refetchFun() {
@@ -179,7 +179,7 @@ export default function AudioStoriesPage({ asPath }) {
         if (profileUser) {
             refetchFun();
         }
-    }, [page, profileUser]);
+    }, [page, profileUser, refetch]);
 
     if (status === "unauthenticated") {
         return <Link href="/api/auth/signin">Sign in</Link>;

@@ -120,7 +120,7 @@ export function AddStoryCard({
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     const handleAddStory = () => {
         if (storyTitle === "" || storyContent === "") {
@@ -427,7 +427,7 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue]);
+    }, [locationInputValue, refetchLocations]);
 
     if (storyDeleted) {
         return (

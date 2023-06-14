@@ -85,7 +85,7 @@ export default function MyArticlesMediaPage({ asPath }) {
         if (sessionUser) {
             refetchProfileUserFun();
         }
-    }, [sessionUser]);
+    }, [sessionUser, refetchProfileUser]);
 
     if (status === "unauthenticated") {
         return <Link href="/api/auth/signin">Sign in</Link>;

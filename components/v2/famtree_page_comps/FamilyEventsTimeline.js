@@ -65,7 +65,7 @@ export default function FamilyEventsTimeline({ treeId }) {
             refetch();
         }
         refetchFun();
-    }, [page]);
+    }, [page, refetch]);
 
     if (isLoading) {
         return <Loader />;

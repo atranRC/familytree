@@ -85,7 +85,7 @@ export default function TimelinePage({ asPath, query, pathname }) {
             console.log("the path is", asPath);
             console.log("the query is", query);
         }*/
-    }, [query.tag]);
+    }, [query.tag, refetch]);
     return (
         <Shell>
             <Box pos="relative" style={{ backgroundColor: "#f5fffa" }}>

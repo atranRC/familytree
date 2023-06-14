@@ -132,7 +132,7 @@ export default function ArtefactBanner() {
             refetch();
         }
         refetchFun();
-    }, []);
+    }, [refetch]);
 
     if (isLoading || isFetching || !featuredWiki) {
         return <Loader />;
