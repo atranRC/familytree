@@ -48,7 +48,7 @@ import {
     IconWriting,
 } from "@tabler/icons";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { AvatarMenuContent, AvatarWithMenu } from "../navBar";
 
 export function Shell({ children }) {
@@ -385,12 +385,13 @@ export function Shell({ children }) {
                                     {session ? (
                                         <AvatarWithMenu />
                                     ) : (
-                                        <Link href="#">
-                                            <Group spacing={0}>
-                                                <IconLogin />
-                                                Login
-                                            </Group>
-                                        </Link>
+                                        <Group
+                                            spacing={0}
+                                            onClick={() => signIn()}
+                                        >
+                                            Login
+                                            <IconLogin />
+                                        </Group>
                                     )}
                                 </div>
                             </MediaQuery>
