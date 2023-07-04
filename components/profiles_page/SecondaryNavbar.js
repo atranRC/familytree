@@ -68,7 +68,28 @@ export default function SecondaryNavbar({
                 )}
                 {(sessionProfileRelation === "owner" ||
                     sessionProfileRelation === "self") && (
-                    <Tabs.Tab value="privacy">Privacy Settings</Tabs.Tab>
+                    <Popover
+                        width={200}
+                        position="bottom"
+                        withArrow
+                        shadow="md"
+                    >
+                        <Popover.Target>
+                            <Tabs.Tab value="#" icon={<IconCaretDown />}>
+                                Privacy Settings
+                            </Tabs.Tab>
+                        </Popover.Target>
+                        <Popover.Dropdown>
+                            <Box w={180}>
+                                <NavLink
+                                    label="Choose who can post to this profile"
+                                    onClick={() =>
+                                        router.push(`/profiles/${id}/privacy/`)
+                                    }
+                                />
+                            </Box>
+                        </Popover.Dropdown>
+                    </Popover>
                 )}
                 {sessionProfileRelation === "self" && (
                     <Popover

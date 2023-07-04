@@ -9,12 +9,16 @@ import {
     Group,
     Pagination,
     TextInput,
+    Grid,
+    Image,
+    Box,
 } from "@mantine/core";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { PrimaryNavBar } from "../../components/timeline_page_comps/navbars/PublicTimelineNavbars";
+import { Shell } from "../../components/wiki/Shell";
 
 function Skeletons() {
     return (
@@ -29,22 +33,31 @@ function Skeletons() {
 
 function PreviewCard({ article }) {
     return (
-        <Paper withBorder p="md">
-            <Stack spacing={2}>
-                <Link href={`/timeline?articleId=${article._id.toString()}`}>
-                    {article.title}
-                </Link>
-                <Text truncate>{article.description}</Text>
-                <Group>
-                    <Text fz="sm" color="dimmed">
-                        {article.authorName}
-                    </Text>
-                    <Divider orientation="vertical" />
-                    <Text fz="sm" color="dimmed">
-                        {article.date.split("T")[0]}
-                    </Text>
-                </Group>
-            </Stack>
+        <Paper withBorder>
+            <Grid grow>
+                <Grid.Col span={8}>
+                    <Stack spacing={10} p="md">
+                        <Link
+                            href={`/timeline?articleId=${article._id.toString()}`}
+                        >
+                            {article.title}
+                        </Link>
+                        <Text truncate>{article.description}</Text>
+                        <Group>
+                            <Text fz="sm" color="dimmed">
+                                {article.authorName}
+                            </Text>
+                            <Divider orientation="vertical" />
+                            <Text fz="sm" color="dimmed">
+                                {article.date.split("T")[0]}
+                            </Text>
+                        </Group>
+                    </Stack>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                    <Image height="10rem" src={article.coverImage} />
+                </Grid.Col>
+            </Grid>
         </Paper>
     );
 }
@@ -77,50 +90,56 @@ export default function TimelineSearchPage({ query }) {
         refetchFun();
     }, [page, querySearchTerm, refetch]);
     return (
-        <div style={{ backgroundColor: "#f1f2f2" }}>
-            <PrimaryNavBar setQuerySearchTerm={setQuerySearchTerm} />
-            {query.searchTerm && (
-                <Container>
-                    <Stack>
-                        <Stack spacing={0}>
-                            <h1 style={{ marginBottom: "-5px", color: "gray" }}>
-                                Search Results:
-                            </h1>
-                            <Divider />
+        <Shell>
+            <Box sx={{ backgroundColor: "#F8F9FA" }}>
+                {query.searchTerm && (
+                    <Container>
+                        <Stack>
+                            <Stack spacing={0}>
+                                <h1
+                                    style={{
+                                        marginBottom: "-5px",
+                                        color: "gray",
+                                    }}
+                                >
+                                    Search Results: {query.searchTerm}
+                                </h1>
+                                <Divider />
+                            </Stack>
+                            {searchResultItems.length > 0 ? (
+                                searchResultItems.map((item) => {
+                                    return (
+                                        <PreviewCard
+                                            key={item._id.toString()}
+                                            article={item}
+                                        />
+                                    );
+                                })
+                            ) : (
+                                <>
+                                    <Skeletons />
+                                    <Skeletons />
+                                    <Skeletons />
+                                    <Skeletons />
+                                    <Skeletons />
+                                </>
+                            )}
+                            {data && (
+                                <Pagination
+                                    mb="lg"
+                                    page={page}
+                                    onChange={setPage}
+                                    total={data.data.data.pagination.pageCount}
+                                    siblings={1}
+                                    initialPage={1}
+                                    position="center"
+                                />
+                            )}
                         </Stack>
-                        {searchResultItems.length > 0 ? (
-                            searchResultItems.map((item) => {
-                                return (
-                                    <PreviewCard
-                                        key={item._id.toString()}
-                                        article={item}
-                                    />
-                                );
-                            })
-                        ) : (
-                            <>
-                                <Skeletons />
-                                <Skeletons />
-                                <Skeletons />
-                                <Skeletons />
-                                <Skeletons />
-                            </>
-                        )}
-                        {data && (
-                            <Pagination
-                                mb="lg"
-                                page={page}
-                                onChange={setPage}
-                                total={data.data.data.pagination.pageCount}
-                                siblings={1}
-                                initialPage={1}
-                                position="center"
-                            />
-                        )}
-                    </Stack>
-                </Container>
-            )}
-        </div>
+                    </Container>
+                )}
+            </Box>
+        </Shell>
     );
 }
 

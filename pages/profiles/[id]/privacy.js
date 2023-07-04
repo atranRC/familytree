@@ -28,9 +28,11 @@ import AppShellContainer from "../../../components/appShell";
 import SecondaryNavbar from "../../../components/profiles_page/SecondaryNavbar";
 import { TreePageTitleSection } from "../../../components/titleSections";
 import dbConnect from "../../../lib/dbConnect";
-import TreeMembers from "../../../models/TreeMembers";
+//import TreeMembers from "../../../models/TreeMembers";
 import Users from "../../../models/Users";
 import { authOptions } from "../../api/auth/[...nextauth]";
+import TreeMembersB from "../../../models/TreeMembersB";
+import { ObjectId } from "mongodb";
 
 export default function ProfilePrivacyPage({
     treesCanPost2,
@@ -94,7 +96,9 @@ export default function ProfilePrivacyPage({
                 <tr key={tree._id.toString()}>
                     <td>
                         <Link
-                            href={"/family-tree/tree/" + tree._id.toString()}
+                            href={"/family-tree/tree/v2/" + tree._id.toString()}
+                            rel="noopener noreferrer"
+                            target="_blank"
                             className={classes.treeLink}
                         >
                             {tree.tree_name}
@@ -230,61 +234,76 @@ export default function ProfilePrivacyPage({
                 sessionProfileRelation={sessionProfileRelation}
             />
             <MediaQuery smallerThan="sm" styles={{ padding: "0px" }}>
-                <Container mt="sm">
+                <Container
+                    mt="sm"
+                    sx={{ border: "1px solid lightgray", borderRadius: "10px" }}
+                    p="xl"
+                >
                     <SimpleGrid
                         cols={2}
-                        spacing="lg"
+                        spacing="xl"
                         breakpoints={[
                             { maxWidth: 755, cols: 2, spacing: "sm" },
                             { maxWidth: 600, cols: 1, spacing: "sm" },
                         ]}
                     >
-                        {isLoadingCanPost || isFetchingCanPost ? (
+                        {isLoadingCanPost ? (
                             <>
                                 <Skeleton height={8} mt={6} radius="xl" />
                                 <Skeleton height={8} mt={6} radius="xl" />
                                 <Skeleton height={8} mt={6} radius="xl" />
                             </>
                         ) : (
-                            <Paper withBorder p="md" bg="#f7f9fc" mt="md">
-                                <Table
-                                    striped
-                                    highlightOnHover
-                                    withBorder
-                                    bg="white"
-                                >
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Description</th>
-                                            <th>Privacy</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>{canPostRows}</tbody>
-                                </Table>
-                            </Paper>
-                        )}
-                        <Paper withBorder p="md" bg="#f7f9fc" mt="md">
-                            <Stack justify="center" align="center" spacing={3}>
-                                <MultiSelect
-                                    data={multiSelectData}
-                                    value={multiSelectValue}
-                                    label="Allow trees"
-                                    onChange={setMultiSelectValue}
-                                    placeholder="select"
-                                    error={multiSelectError && "Please select"}
-                                    onFocus={() => setMultiSelectError(false)}
-                                />
-                                <Button
-                                    w={300}
-                                    variant="outline"
-                                    loading={isLoadingAllow || isFetchingAllow}
-                                    onClick={handleAllow}
-                                >
-                                    Allow
-                                </Button>
+                            <Stack mt="md">
+                                <Title c="dimmed">Allowed Trees</Title>
+                                <Paper withBorder p="md">
+                                    <Table
+                                        striped
+                                        highlightOnHover
+                                        withBorder
+                                        bg="white"
+                                    >
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Privacy</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>{canPostRows}</tbody>
+                                    </Table>
+                                </Paper>
                             </Stack>
-                        </Paper>
+                        )}
+                        <Stack mt="md">
+                            <Title c="dimmed">Allow More Trees</Title>
+                            <Paper withBorder p="md">
+                                <Stack justify="center" spacing={3}>
+                                    <MultiSelect
+                                        data={multiSelectData}
+                                        value={multiSelectValue}
+                                        onChange={setMultiSelectValue}
+                                        placeholder="select trees to allow"
+                                        error={
+                                            multiSelectError && "Please select"
+                                        }
+                                        onFocus={() =>
+                                            setMultiSelectError(false)
+                                        }
+                                    />
+                                    <Button
+                                        w={300}
+                                        variant="outline"
+                                        loading={
+                                            isLoadingAllow || isFetchingAllow
+                                        }
+                                        onClick={handleAllow}
+                                    >
+                                        Allow
+                                    </Button>
+                                </Stack>
+                            </Paper>
+                        </Stack>
                     </SimpleGrid>
                 </Container>
             </MediaQuery>
@@ -329,6 +348,8 @@ export async function getServerSideProps(context) {
         authOptions
     );
 
+    console.log("this changes everything", session);
+
     if (!session) {
         return {
             redirect: {
@@ -337,53 +358,32 @@ export async function getServerSideProps(context) {
             },
         };
     }
-    console.log("contexttt", context.query.id);
-    //get claim requests for context.query.id
+
     await dbConnect();
 
-    //fetch session user and profile user
-    const sessionUserPromise = Users.findOne({ email: session.user.email });
-    const profileUserPromise = Users.findById(context.query.id);
-    const [sessionUser, profileUser] = await Promise.all([
-        sessionUserPromise,
-        profileUserPromise,
-    ]);
-    const sessionUserJson = JSON.parse(JSON.stringify(sessionUser));
-    const profileUserJson = JSON.parse(JSON.stringify(profileUser));
+    const profileUser = await Users.findById(context.query.id);
 
     //check sessionProfileRelation
-    let sessionProfileRelation = "none";
     //session mode = 'self', 'owner', or 'relative'
-    //if profile not session user's or session user not owner of profile
-    if (sessionUser._id.toString() === context.query.id) {
+    let sessionProfileRelation = "none";
+    if (session.user.id === context.query.id) {
         sessionProfileRelation = "self";
     } else {
-        if (profileUser.owner === sessionUser._id.toString()) {
+        if (session.user.id === profileUser.owner) {
             sessionProfileRelation = "owner";
         }
     }
 
-    console.log(
-        "session profile relation is",
-        sessionProfileRelation,
-        sessionUserJson._id
-    );
-
     //fetch profile's trees
     const profileUserTrees = JSON.parse(
         JSON.stringify(
-            await TreeMembers.find({
-                id: context.query.id,
+            await TreeMembersB.find({
+                taggedUser: ObjectId(context.query.id),
             })
         )
     );
     //check if any session user trees are in profile user trees
     //send canPost prop
-    //console.log("events page session user", sessionUser);
-    //console.log("events page profile user", profileUser);
-    //console.log("events page session user trees", sessionUserTrees);
-    //console.log("events page profile user trees", profileUserTrees);
-
     let treesCanPost = [];
     let treesNoPost = [];
 
@@ -395,65 +395,8 @@ export async function getServerSideProps(context) {
         }
     });
 
-    /*console.log("trees ", profileUserTrees);
-    console.log("can posts", treesCanPost);
-    console.log("no posts", treesNoPost);*/
     const treesCanPost2 = JSON.parse(JSON.stringify(treesCanPost));
     const treesNoPost2 = JSON.parse(JSON.stringify(treesNoPost));
-
-    /* const requestsFor = await axios.get(
-        "/api/claim-requests-api/requests-for/" +
-            context.query.id
-    );
-    const allReqs = await requestsFor.data;
-    const allReqs2 = JSON.parse(JSON.stringify(allReqs.data));*/
-
-    /*const userByEmail = await axios.get(
-        "/api/users/users-mongoose/" + session.user.email
-    );
-    const ownerData = await userByEmail.data.data;*/
-    //await dbConnect();
-    //let trees = [];
-
-    /*Users.findOne({ email: session.user.email }, function (err, user) {
-        FamilyTrees.find(
-            { owner: user._id.toString() },
-            async function (err, docs) {
-                trees = await docs;
-            }
-        );
-    });*/
-    /*const user = await Users.findOne({ email: session.user.email });
-    const trees = await FamilyTrees.find({ owner: user._id.toString() });
-
-    //trees i'm in
-    const treesImIn = await TreeMembers.find({ id: user._id.toString() });
-    const treesImInIds = treesImIn.map((t) => {
-        return ObjectId(t.treeId);
-    });
-    const treesImInData = await FamilyTrees.find({
-        _id: { $in: treesImInIds },
-    });*/
-    //console.log("trees im in", treesImInData);
-
-    //collaborations
-    /* const myCollabs = await Collabs.find({ userId: user._id.toString() });
-    const myCollabsIds = myCollabs.map((c) => {
-        return ObjectId(c.treeId);
-    });
-    const myCollabsTrees = await FamilyTrees.find({
-        _id: { $in: myCollabsIds },
-    });
-    console.log("my collabs", myCollabsTrees);
-
-    const treesData = JSON.parse(JSON.stringify(trees));
-    const ownerData = JSON.parse(JSON.stringify(user));
-    const treesImInData2 = JSON.parse(JSON.stringify(treesImInData));
-    const myCollabsTrees2 = JSON.parse(JSON.stringify(myCollabsTrees));*/
-    //console.log(trees);
-    //console.log(ownerData);
-
-    //console.log("these be the trees", trees);
 
     return {
         props: {
@@ -461,14 +404,6 @@ export async function getServerSideProps(context) {
             treesCanPost2,
             treesNoPost2,
             sessionProfileRelation,
-            //sessionUserCanPost,
-            //allReqs2,
-            //profileData,
-            //allUsersData,
-            //ownerData,
-            //treesData,
-            //treesImInData2,
-            //myCollabsTrees2,
         },
     };
 }

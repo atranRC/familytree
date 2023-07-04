@@ -1,6 +1,6 @@
 import dbConnect from "../../../../lib/dbConnect";
 import { ObjectId } from "mongodb";
-import TreeMembers from "../../../../models/TreeMembers";
+import TreeMembersB from "../../../../models/TreeMembersB";
 
 export default async function handler(req, res) {
     const {
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
         case "DELETE" /* Delete a model by its ID */:
             try {
-                const removedAllowedTree = await TreeMembers.findOneAndUpdate(
+                const removedAllowedTree = await TreeMembersB.findOneAndUpdate(
                     { _id: ObjectId(id) },
                     { canPost: false },
                     { new: true }

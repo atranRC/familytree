@@ -27,9 +27,9 @@ import {
 } from "../../../components/profiles_page/written_stories/cards";
 import { ProfileTitleSection } from "../../../components/titleSections";
 import dbConnect from "../../../lib/dbConnect";
-import TreeMembers from "../../../models/TreeMembers";
 import Users from "../../../models/Users";
 import { authOptions } from "../../api/auth/[...nextauth]";
+import TreeMembersB from "../../../models/TreeMembersB";
 
 export default function WrittenStoriesPage({
     sessionUserJson,
@@ -314,13 +314,13 @@ export async function getServerSideProps(context) {
             //check if session user inside allowed common tree of profile
 
             //fetch profile trees where post = true
-            const profileUserTreesPromise = TreeMembers.find({
-                id: context.query.id,
+            const profileUserTreesPromise = TreeMembersB.find({
+                taggedUser: context.query.id,
                 canPost: true,
             });
             //fetch session trees
-            const sessionUserTreesPromise = TreeMembers.find({
-                id: sessionUser._id.toString(),
+            const sessionUserTreesPromise = TreeMembersB.find({
+                taggedUser: sessionUser._id.toString(),
             });
             const [profileUserTrees, sessionUserTrees] = await Promise.all([
                 profileUserTreesPromise,

@@ -12,7 +12,6 @@ export default async function handler(req, res) {
     switch (method) {
         case "POST" /* Get a model by its ID */:
             try {
-                console.log("bod", req.body);
                 const oidArray = req.body.map((id) => {
                     return ObjectId(id);
                 });

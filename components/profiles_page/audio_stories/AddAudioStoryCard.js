@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 //import { ReactMic } from "react-mic";
 import { useReactMediaRecorder } from "react-media-recorder-2";
+import LocationAutocomplete from "../../location/LocationAutocomplete";
 
 export default function AddAudioStoryCard({
     profileUser,
@@ -32,11 +33,12 @@ export default function AddAudioStoryCard({
     const [description, setDescription] = useState("");
     const [storyContentError, setStoryContentError] = useState(false);
     const [addStoryNotification, setAddStoryNotification] = useState(false);
-    const [locationError, setLocationError] = useState(false);
 
     const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState({});
     const [fetchedLocations, setFetchedLocations] = useState([]);
+
+    const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
 
     const [record, setRecord] = useState(false);
 
@@ -75,7 +77,7 @@ export default function AddAudioStoryCard({
         //audio.controls = true;
         //setAudioBlob(blob);
         const b64Blob = await blobToBase64(blobUrl);
-        console.log(b64Blob);
+        //console.log(b64Blob);
         setAudioBase64(b64Blob);
         //document.body.appendChild(audio);
     };
@@ -98,7 +100,7 @@ export default function AddAudioStoryCard({
                 title: storyTitle,
                 description: description,
                 location: {
-                    value: locationInputValue,
+                    value: selectedLocation.value,
                     lon: selectedLocation.lon
                         ? selectedLocation.lon
                         : "39.476826",
@@ -110,7 +112,7 @@ export default function AddAudioStoryCard({
         },
         enabled: false,
         onSuccess: (d) => {
-            console.log("edited", d.data.data);
+            //console.log("edited", d.data.data);
             setStoryTitle("");
             setDescription("");
             setAudioBase64(null);
@@ -119,7 +121,7 @@ export default function AddAudioStoryCard({
         },
     });
 
-    const {
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -144,7 +146,7 @@ export default function AddAudioStoryCard({
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
     /*
     const handleUpload = async () => {
@@ -161,19 +163,19 @@ export default function AddAudioStoryCard({
     };
 */
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
-    };
+    };*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
     /*const convertFile = async (blob) => {
         console.log(blob);
@@ -190,8 +192,9 @@ export default function AddAudioStoryCard({
     }, [audioBlob]);*/
 
     const handleAddStory = () => {
-        if (storyTitle === "") {
+        if (storyTitle === "" || !selectedLocation) {
             storyTitle === "" && setStoryTitleError(true);
+            !selectedLocation && setLocationError(true);
         } else {
             refetch();
         }
@@ -271,7 +274,7 @@ export default function AddAudioStoryCard({
                 </button>*/}
 
                 <Divider />
-                <Autocomplete
+                {/*<Autocomplete
                     label="Where did this story happen"
                     value={locationInputValue}
                     onChange={setLocationInputValue}
@@ -281,6 +284,13 @@ export default function AddAudioStoryCard({
                     onFocus={() => {
                         setLocationError(false);
                     }}
+                />*/}
+                <LocationAutocomplete
+                    selectedLocation={selectedLocation}
+                    setSelectedLocation={setSelectedLocation}
+                    locationError={locationError}
+                    setLocationError={setLocationError}
+                    id="add-audio-story"
                 />
                 {addStoryNotification && (
                     <Notification

@@ -24,6 +24,8 @@ import {
     Text,
     Autocomplete,
     NativeSelect,
+    Box,
+    Divider,
 } from "@mantine/core";
 import SecondaryNavbar from "../../../../../components/profiles_page/SecondaryNavbar";
 import { useQuery } from "react-query";
@@ -37,6 +39,7 @@ import {
     IconLocation,
 } from "@tabler/icons";
 import { DatePicker } from "@mantine/dates";
+import LocationAutocomplete from "../../../../../components/location/LocationAutocomplete";
 
 export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
     const router = useRouter();
@@ -54,25 +57,26 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
     const [title, setTitle] = useState(
         articledraftJson ? articledraftJson.title : ""
     );
+    const [titleError, setTitleError] = useState(false);
     const [description, setDescription] = useState(
         articledraftJson ? articledraftJson.description : ""
     );
+    const [descriptionError, setDescriptionError] = useState(false);
     const [coverImgUrl, setCoverImgUrl] = useState(
         articledraftJson
             ? articledraftJson.coverImage
             : "https://static.remove.bg/sample-gallery/graphics/bird-thumbnail.jpg"
     );
+    const [coverImgError, setCoverImageError] = useState(false);
 
-    const [location, setLocation] = useState(
-        articledraftJson ? articledraftJson.location : null
-    );
     const [date, setDate] = useState(
-        articledraftJson ? articledraftJson.date : ""
+        articledraftJson ? articledraftJson.date : null
     );
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState(null);
-    const [errorSelectedLocation, setErrorSelectedLocation] = useState(false);
-    const [fetchedLocations, setFetchedLocations] = useState([]);
+    const [dateError, setDateError] = useState(false);
+    const [showDateInput, setShowDateInput] = useState(
+        articledraftJson.date ? false : true
+    );
+
     let t = "";
     if (articledraftJson && articledraftJson.tag === "gen") {
         t = "gen";
@@ -80,6 +84,15 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         t = "his";
     }
     const [tagValue, setTagValue] = useState(articledraftJson.tag);
+    const [tagValueError, setTagValueError] = useState(false);
+
+    const [selectedLocation, setSelectedLocation] = useState(
+        articledraftJson.location
+    );
+    const [locationError, setLocationError] = useState(false);
+    const [showLocationInput, setShowLocationInput] = useState(
+        articledraftJson.location ? false : true
+    );
 
     const {
         isLoading: isLoadingSave,
@@ -159,7 +172,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
         },
     });
 
-    const {
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -184,39 +197,76 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
-    };
+    };*/
 
     const handleDraftSave = () => {
-        if (selectedLocation) {
+        if (
+            !selectedLocation ||
+            title === "" ||
+            description === "" ||
+            tagValue === "" ||
+            coverImgUrl === "" ||
+            !date
+        ) {
+            !selectedLocation && setLocationError(true);
+            title === "" && setTitleError(true);
+            description === "" && setDescriptionError(true);
+            tagValue === "" && setTagValueError(true);
+            coverImgUrl === "" && setCoverImageError(true);
+            !date && setDateError(true);
+        } else {
+            refetchSave();
+        }
+
+        /*if (selectedLocation) {
             refetchSave();
         } else {
             setErrorSelectedLocation(true);
-        }
+        }*/
     };
 
     const handlePublish = () => {
-        if (selectedLocation) {
+        if (
+            !selectedLocation ||
+            title === "" ||
+            description === "" ||
+            tagValue === "" ||
+            coverImgUrl === "" ||
+            !date
+        ) {
+            !selectedLocation && setLocationError(true);
+            title === "" && setTitleError(true);
+            description === "" && setDescriptionError(true);
+            tagValue === "" && setTagValueError(true);
+            coverImgUrl === "" && setCoverImageError(true);
+            !date && setDateError(true);
+        } else {
+            setPublishClicked(true);
+            refetchSave();
+        }
+
+        /*if (selectedLocation) {
             console.log("date", date);
             setPublishClicked(true);
             refetchSave();
         } else {
             setErrorSelectedLocation(true);
-        }
+        }*/
     };
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
     if (!articledraftJson) {
         return <div>DRAFT DOESN&apos;T EXIST</div>;
@@ -253,6 +303,8 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                                 onChange={(event) =>
                                     setTitle(event.currentTarget.value)
                                 }
+                                error={titleError && "please enter title"}
+                                onFocus={() => setTitleError(false)}
                             />
                             <Textarea
                                 label="Description"
@@ -260,6 +312,11 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                                 onChange={(event) =>
                                     setDescription(event.currentTarget.value)
                                 }
+                                error={
+                                    descriptionError &&
+                                    "please enter description"
+                                }
+                                onFocus={() => setDescriptionError(false)}
                             />
 
                             <Textarea
@@ -268,9 +325,14 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                                 onChange={(event) =>
                                     setCoverImgUrl(event.currentTarget.value)
                                 }
+                                error={
+                                    coverImgError &&
+                                    "please enter cover image url"
+                                }
+                                onFocus={() => setCoverImageError(false)}
                             />
 
-                            <Autocomplete
+                            {/*<Autocomplete
                                 label="Location"
                                 value={locationInputValue}
                                 onChange={setLocationInputValue}
@@ -279,7 +341,76 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                                 error={
                                     errorSelectedLocation && "invalid location"
                                 }
-                            />
+                            />*/}
+                            {showLocationInput ? (
+                                <div>
+                                    <LocationAutocomplete
+                                        selectedLocation={selectedLocation}
+                                        setSelectedLocation={
+                                            setSelectedLocation
+                                        }
+                                        locationError={locationError}
+                                        setLocationError={setLocationError}
+                                        id="article-drafts-edit"
+                                    />
+                                    <Text c="dimmed">
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() => {
+                                                setSelectedLocation(
+                                                    articledraftJson.location
+                                                );
+                                                setShowLocationInput(false);
+                                            }}
+                                        >
+                                            Click here
+                                        </Text>{" "}
+                                        to keep previous location
+                                    </Text>
+                                </div>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        border: "1px solid lightgrey",
+                                        borderRadius: "5px",
+                                        padding: "10px",
+                                    }}
+                                >
+                                    <Text c="dimmed">
+                                        Location previously set to{" "}
+                                        <Text span c="teal.7">
+                                            {articledraftJson.location.value}
+                                            {" - "}
+                                        </Text>
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() =>
+                                                setShowLocationInput(true)
+                                            }
+                                        >
+                                            Click here
+                                        </Text>
+                                        <Text span> to edit</Text>
+                                    </Text>
+                                </Box>
+                            )}
+
                             <NativeSelect
                                 value={tagValue}
                                 onChange={(event) =>
@@ -292,14 +423,80 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                                 label="Type "
                                 // /description="Select the type of event"
                                 withAsterisk
+                                error={tagValueError && "please enter type"}
+                                onFocus={() => setTagValueError(false)}
                             />
-                            <DatePicker
-                                placeholder="Pick date of the event"
-                                label="Date"
-                                icon={<IconCalendarEvent size={19} />}
-                                value={date}
-                                onChange={setDate}
-                            />
+                            {showDateInput ? (
+                                <div>
+                                    <DatePicker
+                                        placeholder="Pick date of the event"
+                                        label="Date"
+                                        icon={<IconCalendarEvent size={19} />}
+                                        value={date}
+                                        onChange={setDate}
+                                        error={dateError && "please enter date"}
+                                        onFocus={() => setDateError(false)}
+                                    />
+                                    <Text c="dimmed">
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() => {
+                                                setDate(articledraftJson.date);
+                                                setShowDateInput(false);
+                                            }}
+                                        >
+                                            Click here
+                                        </Text>{" "}
+                                        to keep previous date
+                                    </Text>
+                                </div>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        border: "1px solid lightgrey",
+                                        borderRadius: "5px",
+                                        padding: "10px",
+                                    }}
+                                >
+                                    <Text c="dimmed">
+                                        Date previously set to{" "}
+                                        <Text span c="teal.7">
+                                            {
+                                                articledraftJson.date
+                                                    .toString()
+                                                    .split("T")[0]
+                                            }
+                                            {" - "}
+                                        </Text>
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() => {
+                                                setDate(null);
+                                                setShowDateInput(true);
+                                            }}
+                                        >
+                                            Click here
+                                        </Text>
+                                        <Text span> to edit</Text>
+                                    </Text>
+                                </Box>
+                            )}
                         </Stack>
                     </Paper>
                     <Editor
@@ -330,13 +527,15 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                                 "wordcount",
                                 "anchor",
                                 "preview",
+                                "table",
                             ],
                             toolbar:
                                 "undo redo | blocks | " +
                                 "bold italic forecolor underline | alignleft aligncenter " +
                                 "alignright alignjustify | bullist numlist outdent indent | " +
                                 "removeformat | backcolor | help" +
-                                " link unlink anchor preview image",
+                                " link unlink anchor preview image |" +
+                                " table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol",
                             content_style:
                                 "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                         }}
@@ -355,7 +554,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                     Your draft has been saved!
                 </Alert>
             )}
-            {errorSelectedLocation && (
+            {/*errorSelectedLocation && (
                 <Alert
                     icon={<IconAlertCircle size={16} />}
                     title="Saved"
@@ -366,7 +565,7 @@ export default function DraftEditPage({ sessionUserJson, articledraftJson }) {
                 >
                     Invalid Inputs. Please check for empty fields.
                 </Alert>
-            )}
+            )*/}
             <Group grow mt="md">
                 {/*<button onClick={log}>Log editor content</button>*/}
                 <Button

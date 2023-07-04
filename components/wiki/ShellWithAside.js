@@ -82,6 +82,7 @@ export function ShellWithAside({ children, page }) {
     const [opened, setOpened] = useState(false);
     const [showNavbar, setShowNavbar] = useState(true);
     const [avatarOpened, setAvatarOpened] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
     {
         /*<div>
             {" "}
@@ -114,6 +115,7 @@ export function ShellWithAside({ children, page }) {
                             hidden={!opened}
                             width={{ sm: 200, lg: 200 }}
                             style={styles}
+                            sx={{ zIndex: 99 }}
                         >
                             <Navbar.Section grow component={ScrollArea}>
                                 <MediaQuery
@@ -122,10 +124,27 @@ export function ShellWithAside({ children, page }) {
                                 >
                                     <TextInput
                                         placeholder="Search TigrayWiki"
+                                        value={searchTerm}
+                                        onChange={(e) =>
+                                            setSearchTerm(e.currentTarget.value)
+                                        }
+                                        onKeyDown={(e) => {
+                                            if (e.code == "Enter") {
+                                                window.location.replace(
+                                                    `/timeline/search?searchTerm=${searchTerm}`
+                                                );
+                                            }
+                                        }}
                                         rightSection={
                                             <ActionIcon
-                                                variant="filled"
+                                                //variant="filled"
                                                 radius="xl"
+                                                disabled={searchTerm.length < 1}
+                                                onClick={() => {
+                                                    window.location.replace(
+                                                        `/timeline/search?searchTerm=${searchTerm}`
+                                                    );
+                                                }}
                                             >
                                                 <IconSearch size={18} />{" "}
                                             </ActionIcon>
@@ -384,31 +403,62 @@ export function ShellWithAside({ children, page }) {
                             >
                                 <TextInput
                                     placeholder="Search TigrayWiki"
+                                    value={searchTerm}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.currentTarget.value)
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (e.code == "Enter") {
+                                            window.location.replace(
+                                                `/timeline/search?searchTerm=${searchTerm}`
+                                            );
+                                        }
+                                    }}
                                     rightSection={
                                         <ActionIcon
-                                            variant="outline"
+                                            //variant="filled"
                                             radius="xl"
-                                            color="blue"
+                                            disabled={searchTerm.length < 1}
+                                            onClick={() => {
+                                                window.location.replace(
+                                                    `/timeline/search?searchTerm=${searchTerm}`
+                                                );
+                                            }}
                                         >
                                             <IconSearch size={18} />{" "}
                                         </ActionIcon>
                                     }
-                                    color="blue"
+                                    c="blue"
                                 />
                             </MediaQuery>
-                            <MediaQuery
-                                smallerThan="sm"
-                                styles={{ display: "none" }}
-                            >
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "row-reverse",
+                            {session ? (
+                                <MediaQuery
+                                    smallerThan="sm"
+                                    styles={{
+                                        display: "none",
+                                        marginLeft: "100px",
                                     }}
                                 >
-                                    {session ? (
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "row-reverse",
+                                        }}
+                                    >
                                         <AvatarWithMenu />
-                                    ) : (
+                                    </div>
+                                </MediaQuery>
+                            ) : (
+                                <MediaQuery
+                                    smallerThan="sm"
+                                    styles={{ display: "none" }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "row-reverse",
+                                        }}
+                                    >
                                         <Group
                                             spacing={0}
                                             onClick={() => signIn()}
@@ -416,9 +466,9 @@ export function ShellWithAside({ children, page }) {
                                             Login
                                             <IconLogin />
                                         </Group>
-                                    )}
-                                </div>
-                            </MediaQuery>
+                                    </div>
+                                </MediaQuery>
+                            )}
                         </Group>
                     </div>
                 </Header>

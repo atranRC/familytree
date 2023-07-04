@@ -21,6 +21,7 @@ import {
     ActionIcon,
     Menu,
     Avatar,
+    Grid,
 } from "@mantine/core";
 import {
     IconAbc,
@@ -50,6 +51,7 @@ import {
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { AvatarMenuContent, AvatarWithMenu } from "../navBar";
+import { useRouter } from "next/router";
 
 export function Shell({ children }) {
     const useStyles = createStyles((theme) => ({
@@ -72,12 +74,14 @@ export function Shell({ children }) {
             color: theme.colors.gray[7],
         },
     }));
+    const router = useRouter();
     const { classes } = useStyles();
     const theme = useMantineTheme();
     const { data: session, status } = useSession();
     const [opened, setOpened] = useState(false);
     const [showNavbar, setShowNavbar] = useState(true);
     const [avatarOpened, setAvatarOpened] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
     {
         /*<div>
             {" "}
@@ -110,6 +114,7 @@ export function Shell({ children }) {
                             hidden={!opened}
                             width={{ sm: 200, lg: 200 }}
                             style={styles}
+                            sx={{ zIndex: 99 }}
                         >
                             <Navbar.Section grow component={ScrollArea}>
                                 <MediaQuery
@@ -118,10 +123,27 @@ export function Shell({ children }) {
                                 >
                                     <TextInput
                                         placeholder="Search TigrayWiki"
+                                        value={searchTerm}
+                                        onChange={(e) =>
+                                            setSearchTerm(e.currentTarget.value)
+                                        }
+                                        onKeyDown={(e) => {
+                                            if (e.code == "Enter") {
+                                                window.location.replace(
+                                                    `/timeline/search?searchTerm=${searchTerm}`
+                                                );
+                                            }
+                                        }}
                                         rightSection={
                                             <ActionIcon
-                                                variant="filled"
+                                                //variant="filled"
                                                 radius="xl"
+                                                disabled={searchTerm.length < 1}
+                                                onClick={() => {
+                                                    window.location.replace(
+                                                        `/timeline/search?searchTerm=${searchTerm}`
+                                                    );
+                                                }}
                                             >
                                                 <IconSearch size={18} />{" "}
                                             </ActionIcon>
@@ -354,17 +376,35 @@ export function Shell({ children }) {
                                     Wiki
                                 </span>
                             </h1>
+
                             <MediaQuery
                                 smallerThan="sm"
                                 styles={{ display: "none" }}
                             >
                                 <TextInput
                                     placeholder="Search TigrayWiki"
+                                    value={searchTerm}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.currentTarget.value)
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (e.code == "Enter") {
+                                            window.location.replace(
+                                                `/timeline/search?searchTerm=${searchTerm}`
+                                            );
+                                        }
+                                    }}
                                     rightSection={
                                         <ActionIcon
                                             variant="outline"
                                             radius="xl"
                                             color="blue"
+                                            disabled={searchTerm.length < 1}
+                                            onClick={() => {
+                                                window.location.replace(
+                                                    `/timeline/search?searchTerm=${searchTerm}`
+                                                );
+                                            }}
                                         >
                                             <IconSearch size={18} />{" "}
                                         </ActionIcon>
@@ -372,19 +412,35 @@ export function Shell({ children }) {
                                     color="blue"
                                 />
                             </MediaQuery>
-                            <MediaQuery
-                                smallerThan="sm"
-                                styles={{ display: "none" }}
-                            >
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "row-reverse",
+
+                            {session ? (
+                                <MediaQuery
+                                    smallerThan="sm"
+                                    styles={{
+                                        display: "none",
+                                        marginLeft: "100px",
                                     }}
                                 >
-                                    {session ? (
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "row-reverse",
+                                        }}
+                                    >
                                         <AvatarWithMenu />
-                                    ) : (
+                                    </div>
+                                </MediaQuery>
+                            ) : (
+                                <MediaQuery
+                                    smallerThan="sm"
+                                    styles={{ display: "none" }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "row-reverse",
+                                        }}
+                                    >
                                         <Group
                                             spacing={0}
                                             onClick={() => signIn()}
@@ -392,9 +448,9 @@ export function Shell({ children }) {
                                             Login
                                             <IconLogin />
                                         </Group>
-                                    )}
-                                </div>
-                            </MediaQuery>
+                                    </div>
+                                </MediaQuery>
+                            )}
                         </Group>
                     </div>
                 </Header>

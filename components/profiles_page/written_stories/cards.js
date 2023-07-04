@@ -16,6 +16,7 @@ import {
     ActionIcon,
     Image,
     Autocomplete,
+    Box,
 } from "@mantine/core";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -32,6 +33,7 @@ import {
     IconTrash,
     IconX,
 } from "@tabler/icons";
+import LocationAutocomplete from "../../location/LocationAutocomplete";
 
 export function AddStoryCard({
     profileUser,
@@ -44,11 +46,9 @@ export function AddStoryCard({
     const [storyContent, setStoryContent] = useState("");
     const [storyContentError, setStoryContentError] = useState(false);
     const [addStoryNotification, setAddStoryNotification] = useState(false);
-    const [locationError, setLocationError] = useState(false);
 
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState({});
-    const [fetchedLocations, setFetchedLocations] = useState([]);
+    const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "post-story",
@@ -61,7 +61,7 @@ export function AddStoryCard({
                 title: storyTitle,
                 content: storyContent,
                 location: {
-                    value: locationInputValue,
+                    value: selectedLocation.value,
                     lon: selectedLocation.lon
                         ? selectedLocation.lon
                         : "39.476826",
@@ -81,7 +81,7 @@ export function AddStoryCard({
         },
     });
 
-    const {
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -106,26 +106,27 @@ export function AddStoryCard({
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
-    };
+    };*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
     const handleAddStory = () => {
-        if (storyTitle === "" || storyContent === "") {
+        if (storyTitle === "" || storyContent === "" || !selectedLocation) {
             storyTitle === "" && setStoryTitleError(true);
             storyContent === "" && setStoryContentError(true);
+            !selectedLocation && setLocationError(true);
         } else {
             refetch();
         }
@@ -154,7 +155,7 @@ export function AddStoryCard({
                     placeholder="enter title"
                 />
 
-                <Autocomplete
+                {/*<Autocomplete
                     label="Where did this story happen"
                     value={locationInputValue}
                     onChange={setLocationInputValue}
@@ -164,6 +165,14 @@ export function AddStoryCard({
                     onFocus={() => {
                         setLocationError(false);
                     }}
+                />*/}
+
+                <LocationAutocomplete
+                    selectedLocation={selectedLocation}
+                    setSelectedLocation={setSelectedLocation}
+                    locationError={locationError}
+                    setLocationError={setLocationError}
+                    id="written-stories-1"
                 />
 
                 <Textarea
@@ -314,39 +323,34 @@ export function MiniAddStoryCard({ setViewMode, viewMode, setDrawerOpened }) {
 }
 
 export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
-    const [contentAreaValue, setContentAreaValue] = useState("");
-    const [titleValue, setTitleValue] = useState("");
+    const [title, setTitle] = useState(story?.title);
+    const [titleError, setTitleError] = useState(false);
+    const [content, setContent] = useState(story?.content);
+    const [contentError, setContentError] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editStoryNotification, setEditStoryNotification] = useState(false);
     const [deleteStoryNotification, setDeleteStoryNotification] =
         useState(false);
     const [storyDeleted, setStoryDeleted] = useState(false);
-    const [locationValue, setLocationValue] = useState("");
 
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState({});
-    const [fetchedLocations, setFetchedLocations] = useState([]);
+    const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
+    const [showLocationInput, setShowLocationInput] = useState(
+        story.location ? false : true
+    );
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "edit-story",
         queryFn: () => {
             return axios.put("/api/written-stories/" + story._id, {
-                title: titleValue,
-                content: contentAreaValue,
-                location: {
-                    value: locationInputValue,
-                    lon: selectedLocation.lon
-                        ? selectedLocation.lon
-                        : "39.476826",
-                    lat: selectedLocation.lat
-                        ? selectedLocation.lat
-                        : "13.496664",
-                },
+                title: title,
+                content: content,
+                location: selectedLocation,
             });
         },
         enabled: false,
         onSuccess: (d) => {
-            console.log("edited", d.data.data);
+            //console.log("edited", d.data.data);
             setEditMode(false);
             setEditStoryNotification(true);
             refetchStories();
@@ -371,7 +375,7 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
         },
     });
 
-    const {
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -396,38 +400,64 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
     const handleSaveEdit = () => {
-        refetch();
+        if (
+            !selectedLocation ||
+            title === "" ||
+            !title ||
+            !content ||
+            content === ""
+        ) {
+            !selectedLocation && setLocationError(true);
+            (title === "" || !title) && setTitleError(true);
+            (!content || content === "") && setContentError(true);
+        } else {
+            refetch();
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setTitle(story?.title);
+        setContent(story?.content);
+        setSelectedLocation(story?.location);
+        setDeleteStoryNotification(false);
+        setEditMode(false);
+        setTitleError(false);
+        setContentError(false);
+        setLocationError(false);
     };
 
     const handleDeleteStory = () => {
         refetchDeleteStory();
     };
 
-    const handleLocationSelect = (l) => {
+    /* const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
-    };
+    };*/
 
     useEffect(() => {
+        setTitle(story?.title);
+        setContent(story?.content);
+        setSelectedLocation(story?.location);
         setStoryDeleted(false);
-        setContentAreaValue(story.content);
-        setTitleValue(story.title);
-        setLocationValue(story.location.value);
+        //setContentAreaValue(story.content);
+        //setTitleValue(story.title);
+        setEditStoryNotification(false);
         setDeleteStoryNotification(false);
         setEditMode(false);
     }, [story]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
     if (storyDeleted) {
         return (
@@ -453,23 +483,94 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
     return (
         <Paper withBorder p="md" mih="100vh">
             <Stack justify="center">
-                <Stack spacing={1} justify="center" align="center">
+                <Stack spacing={1}>
                     {editMode ? (
                         <Stack>
                             <TextInput
-                                value={titleValue}
+                                value={title}
+                                label="Title"
                                 onChange={(event) =>
-                                    setTitleValue(event.currentTarget.value)
+                                    setTitle(event.currentTarget.value)
                                 }
-                                size="xl"
+                                error={titleError && "please enter title"}
+                                onFocus={() => setTitleError(false)}
+                                //size="xl"
                             />
-                            <Autocomplete
+                            {/*<Autocomplete
                                 label="Location"
                                 value={locationInputValue}
                                 onChange={setLocationInputValue}
                                 data={fetchedLocations}
                                 onItemSubmit={handleLocationSelect}
-                            />
+                            />*/}
+                            {showLocationInput ? (
+                                <div>
+                                    <LocationAutocomplete
+                                        selectedLocation={selectedLocation}
+                                        setSelectedLocation={
+                                            setSelectedLocation
+                                        }
+                                        locationError={locationError}
+                                        setLocationError={setLocationError}
+                                        id="written-stories-2"
+                                    />
+                                    <Text c="dimmed">
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() => {
+                                                setSelectedLocation(
+                                                    story.location
+                                                );
+                                                setShowLocationInput(false);
+                                            }}
+                                        >
+                                            Click here
+                                        </Text>{" "}
+                                        to keep previous location
+                                    </Text>
+                                </div>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        border: "1px solid lightgrey",
+                                        borderRadius: "5px",
+                                        padding: "10px",
+                                    }}
+                                >
+                                    <Text c="dimmed">
+                                        Location previously set to{" "}
+                                        <Text span c="teal.7">
+                                            {story.location.value}
+                                            {" - "}
+                                        </Text>
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() =>
+                                                setShowLocationInput(true)
+                                            }
+                                        >
+                                            Click here
+                                        </Text>
+                                        <Text span> to edit</Text>
+                                    </Text>
+                                </Box>
+                            )}
                         </Stack>
                     ) : (
                         <Title
@@ -477,23 +578,25 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
                             align="center"
                             color="darkgreen"
                         >
-                            {titleValue}
+                            {story?.title}
                         </Title>
                     )}
-                    <Group>
-                        <Title order={6} color="dimmed" fw={450}>
-                            {story.authorName}
-                        </Title>
-                        <Divider orientation="vertical" />
-                        <Title order={6} color="dimmed" fw={450}>
-                            {story.location.value}
-                        </Title>
+                    {!editMode && (
+                        <Group>
+                            <Title order={6} color="dimmed" fw={450}>
+                                {story.authorName}
+                            </Title>
+                            <Divider orientation="vertical" />
+                            <Title order={6} color="dimmed" fw={450}>
+                                {story.location.value}
+                            </Title>
 
-                        <Divider orientation="vertical" />
-                        <Title order={6} color="dimmed" fw={450}>
-                            {story.createdAt.split("T")[0]}
-                        </Title>
-                    </Group>
+                            <Divider orientation="vertical" />
+                            <Title order={6} color="dimmed" fw={450}>
+                                {story.createdAt.split("T")[0]}
+                            </Title>
+                        </Group>
+                    )}
                     {deleteStoryNotification && (
                         <Notification
                             icon={<IconAlertOctagon size={18} />}
@@ -559,12 +662,7 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
                                             color="dark"
                                             radius="xl"
                                             variant="default"
-                                            onClick={() => {
-                                                setDeleteStoryNotification(
-                                                    false
-                                                );
-                                                setEditMode(false);
-                                            }}
+                                            onClick={handleCancelEdit}
                                         >
                                             <IconX size={20} color="blue" />
                                         </ActionIcon>
@@ -616,15 +714,17 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
                     labelPosition="center"
                 />
                 {!editMode ? (
-                    <Text>{contentAreaValue}</Text>
+                    <Text>{content}</Text>
                 ) : (
                     <Textarea
                         autosize
                         minRows={10}
-                        value={contentAreaValue}
+                        value={content}
                         onChange={(event) =>
-                            setContentAreaValue(event.currentTarget.value)
+                            setContent(event.currentTarget.value)
                         }
+                        error={contentError && "please enter content"}
+                        onFocus={() => setContentError(false)}
                     />
                 )}
                 <Divider

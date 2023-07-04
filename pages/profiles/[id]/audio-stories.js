@@ -141,7 +141,7 @@ export default function AudioStoriesPage({ asPath }) {
                 } else if (d.data.data.owner === sessionUser._id.toString()) {
                     setSessionProfileRelation("owner");
                 } else {
-                    setSessionProfileRelation("none");
+                    checkIsRelative.refetch();
                 }
             }
         },
@@ -160,6 +160,28 @@ export default function AudioStoriesPage({ asPath }) {
         enabled: false,
         onSuccess: (d) => {
             console.log("edited", d.data.data);
+        },
+    });
+
+    const checkIsRelative = useQuery({
+        queryKey: ["check-can-post"],
+        queryFn: () => {
+            return axios.get(
+                `/api/family-tree-api/is-allowed-to-post-on-wall?profileId=${asPath
+                    .split("/")
+                    .at(-2)}&postApplicantId=${session.user.id}`
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            if (d.data.data === "relative") {
+                setSessionProfileRelation("relative");
+            } else {
+                setSessionProfileRelation("none");
+            }
+        },
+        onError: (error) => {
+            setSessionProfileRelation("none");
         },
     });
 

@@ -15,6 +15,7 @@ import {
     ActionIcon,
     Title,
     Loader,
+    MediaQuery,
 } from "@mantine/core";
 import {
     IconSettings,
@@ -26,6 +27,7 @@ import {
     IconBell,
     IconLogout,
     IconUser,
+    IconLogin,
 } from "@tabler/icons";
 import { useDisclosure } from "@mantine/hooks";
 import { useQuery } from "react-query";

@@ -14,6 +14,7 @@ import {
     createStyles,
     Notification,
     Image,
+    Box,
 } from "@mantine/core";
 import {
     IconAlertOctagon,
@@ -30,27 +31,35 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 //import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import { useQuery } from "react-query";
+import LocationAutocomplete from "../../location/LocationAutocomplete";
 
 export default function AudioStoryCard({
     story,
     refetchStories,
     sessionProfileRelation,
 }) {
-    const [descriptionAreaValue, setDescriptionAreaValue] = useState("");
-    const [titleValue, setTitleValue] = useState("");
+    //const [descriptionAreaValue, setDescriptionAreaValue] = useState("");
+    //const [titleValue, setTitleValue] = useState("");
     const [audioValue, setAudioValue] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [editStoryNotification, setEditStoryNotification] = useState(false);
     const [deleteStoryNotification, setDeleteStoryNotification] =
         useState(false);
     const [storyDeleted, setStoryDeleted] = useState(false);
-    const [locationValue, setLocationValue] = useState("");
 
-    const [locationInputValue, setLocationInputValue] = useState("");
+    /*const [locationInputValue, setLocationInputValue] = useState("");
     const [locationInputValueError, setLocationInputValueError] =
         useState(false);
-    const [selectedLocation, setSelectedLocation] = useState({});
-    const [fetchedLocations, setFetchedLocations] = useState([]);
+    const [fetchedLocations, setFetchedLocations] = useState([]);*/
+    const [title, setTitle] = useState(story?.title);
+    const [titleError, setTitleError] = useState(false);
+    const [description, setDescription] = useState(story?.description);
+    const [descriptionError, setDescriptionError] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
+    const [showLocationInput, setShowLocationInput] = useState(
+        story.location ? false : true
+    );
 
     const {
         isLoading: isLoadingAudioStory,
@@ -75,22 +84,14 @@ export default function AudioStoryCard({
         queryKey: "edit_audio_story",
         queryFn: () => {
             return axios.put("/api/audio-stories/" + story._id, {
-                title: titleValue,
-                description: descriptionAreaValue,
-                location: {
-                    value: locationInputValue,
-                    lon: selectedLocation.lon
-                        ? selectedLocation.lon
-                        : "39.476826",
-                    lat: selectedLocation.lat
-                        ? selectedLocation.lat
-                        : "13.496664",
-                },
+                title: title,
+                description: description,
+                location: selectedLocation,
             });
         },
         enabled: false,
         onSuccess: (d) => {
-            console.log("edited", d.data.data);
+            //console.log("edited", d.data.data);
             setEditMode(false);
             setEditStoryNotification(true);
             refetchStories();
@@ -115,7 +116,7 @@ export default function AudioStoryCard({
         },
     });
 
-    const {
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -140,51 +141,75 @@ export default function AudioStoryCard({
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
     const handleSaveEdit = () => {
         if (
-            !selectedLocation.value ||
-            !selectedLocation.lon ||
-            !selectedLocation.lat
+            !selectedLocation ||
+            title === "" ||
+            !title ||
+            !description ||
+            description === ""
         ) {
-            setLocationInputValueError(true);
+            !selectedLocation && setLocationError(true);
+            (title === "" || !title) && setTitleError(true);
+            (!description || description === "") && setDescriptionError(true);
         } else {
             refetch();
         }
+    };
+
+    const handleCancelEdit = () => {
+        setTitle(story?.title);
+        setDescription(story?.description);
+        setSelectedLocation(story?.location);
+        setDeleteStoryNotification(false);
+        setEditMode(false);
+        setTitleError(false);
+        setDescriptionError(false);
+        setLocationError(false);
+        setShowLocationInput(false);
     };
 
     const handleDeleteStory = () => {
         refetchDeleteStory();
     };
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
-    };
+    };*/
 
     useEffect(() => {
         function refetchaudiostoryFun() {
             refetchAudioStory();
         }
+        setTitle(story?.title);
+        setDescription(story?.description);
+        setSelectedLocation(story?.location);
+
         setAudioValue(null);
         refetchaudiostoryFun();
         setStoryDeleted(false);
-        setDescriptionAreaValue(story.description);
-        setTitleValue(story.title);
-        setLocationInputValue("");
+
         setDeleteStoryNotification(false);
+        setEditStoryNotification(false);
         setEditMode(false);
+
+        setTitleError(false);
+        setDescriptionError(false);
+        setLocationError(false);
+        setShowLocationInput(false);
     }, [story, refetchAudioStory]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
     if (storyDeleted) {
         return (
@@ -211,51 +236,114 @@ export default function AudioStoryCard({
     return (
         <Paper withBorder p="md" mih="100vh">
             <Stack justify="center">
-                <Stack spacing={1} justify="center" align="center">
+                <Stack spacing={1}>
                     {editMode ? (
                         <Stack>
                             <TextInput
-                                value={titleValue}
+                                value={title}
+                                label="Title"
                                 onChange={(event) =>
-                                    setTitleValue(event.currentTarget.value)
+                                    setTitle(event.currentTarget.value)
                                 }
-                                size="xl"
+                                error={titleError && "please enter title"}
+                                onFocus={() => setTitleError(false)}
+                                //size="xl"
                             />
-                            <Autocomplete
-                                label="Location"
-                                value={locationInputValue}
-                                onChange={setLocationInputValue}
-                                data={fetchedLocations}
-                                onItemSubmit={handleLocationSelect}
-                                error={locationInputValueError}
-                                onFocus={() =>
-                                    setLocationInputValueError(false)
-                                }
-                            />
+                            {showLocationInput ? (
+                                <div>
+                                    <LocationAutocomplete
+                                        selectedLocation={selectedLocation}
+                                        setSelectedLocation={
+                                            setSelectedLocation
+                                        }
+                                        locationError={locationError}
+                                        setLocationError={setLocationError}
+                                        id="audio-story-card"
+                                    />
+                                    <Text c="dimmed">
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() => {
+                                                setSelectedLocation(
+                                                    story.location
+                                                );
+                                                setShowLocationInput(false);
+                                            }}
+                                        >
+                                            Click here
+                                        </Text>{" "}
+                                        to keep previous location
+                                    </Text>
+                                </div>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        border: "1px solid lightgrey",
+                                        borderRadius: "5px",
+                                        padding: "10px",
+                                    }}
+                                >
+                                    <Text c="dimmed">
+                                        Location previously set to{" "}
+                                        <Text span c="teal.7">
+                                            {story.location?.value}
+                                            {" - "}
+                                        </Text>
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() =>
+                                                setShowLocationInput(true)
+                                            }
+                                        >
+                                            Click here
+                                        </Text>
+                                        <Text span> to edit</Text>
+                                    </Text>
+                                </Box>
+                            )}
                         </Stack>
                     ) : (
-                        <Title
-                            className="storyTitle"
-                            align="center"
-                            color="darkgreen"
-                        >
-                            {titleValue}
-                        </Title>
-                    )}
-                    <Group>
-                        <Title order={6} color="dimmed" fw={450}>
-                            {story.authorName}
-                        </Title>
-                        <Divider orientation="vertical" />
-                        <Title order={6} color="dimmed" fw={450}>
-                            {story.location.value}
-                        </Title>
+                        <Stack align="center">
+                            <Title
+                                className="storyTitle"
+                                align="center"
+                                color="darkgreen"
+                            >
+                                {title}
+                            </Title>
+                            <Group>
+                                <Title order={6} color="dimmed" fw={450}>
+                                    {story?.authorName}
+                                </Title>
+                                <Divider orientation="vertical" />
+                                <Title order={6} color="dimmed" fw={450}>
+                                    {story?.location?.value}
+                                </Title>
 
-                        <Divider orientation="vertical" />
-                        <Title order={6} color="dimmed" fw={450}>
-                            {story.createdAt.split("T")[0]}
-                        </Title>
-                    </Group>
+                                <Divider orientation="vertical" />
+                                <Title order={6} color="dimmed" fw={450}>
+                                    {story?.createdAt?.split("T")[0]}
+                                </Title>
+                            </Group>
+                        </Stack>
+                    )}
+
                     {deleteStoryNotification && (
                         <Notification
                             icon={<IconAlertOctagon size={18} />}
@@ -321,12 +409,7 @@ export default function AudioStoryCard({
                                             color="dark"
                                             radius="xl"
                                             variant="default"
-                                            onClick={() => {
-                                                setDeleteStoryNotification(
-                                                    false
-                                                );
-                                                setEditMode(false);
-                                            }}
+                                            onClick={handleCancelEdit}
                                         >
                                             <IconX size={20} color="blue" />
                                         </ActionIcon>
@@ -386,16 +469,18 @@ export default function AudioStoryCard({
                                 Your browser does not support the audio element.
                             </audio>
                         )}
-                        <Text>{descriptionAreaValue}</Text>
+                        <Text>{description}</Text>
                     </Stack>
                 ) : (
                     <Textarea
                         autosize
                         minRows={10}
-                        value={descriptionAreaValue}
+                        value={description}
                         onChange={(event) =>
-                            setDescriptionAreaValue(event.currentTarget.value)
+                            setDescription(event.currentTarget.value)
                         }
+                        error={descriptionError && "please enter description"}
+                        onFocus={() => setDescriptionError(false)}
                     />
                 )}
                 <Divider

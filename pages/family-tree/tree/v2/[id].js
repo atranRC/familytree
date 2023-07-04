@@ -51,6 +51,7 @@ import axios from "axios";
 import Link from "next/link";
 import { DatePicker } from "@mantine/dates";
 import AddCollabs from "../../../../components/v2/famtree_page_comps/AddCollabs";
+import LocationAutocomplete from "../../../../components/location/LocationAutocomplete";
 
 const BalkanTree = dynamic(
     () => import("../../../../components/tree-page/balkan_tree/BalkanTree"),
@@ -494,6 +495,7 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
                     treeId={asPath.split("/").at(-1)}
                     balkanMemberId={balkanMemberId}
                     setOpened={setOpened}
+                    sessionTreeRelation={sessionTreeRelation}
                 />
             </Modal>
 
@@ -528,7 +530,12 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
     );
 }
 
-function ModalContent({ treeId, balkanMemberId, setOpened }) {
+function ModalContent({
+    treeId,
+    balkanMemberId,
+    setOpened,
+    sessionTreeRelation,
+}) {
     const [activeTab, setActiveTab] = useState("view");
     //const [treeMember, setTreeMember] = useState(null)
 
@@ -541,11 +548,11 @@ function ModalContent({ treeId, balkanMemberId, setOpened }) {
         },
         //enabled: false,
         onSuccess: (d) => {
-            console.log(d.data.data);
+            //console.log(d.data.data);
         },
     });
 
-    if (isLoading || isFetching) {
+    if (isLoading) {
         return <Loader />;
     }
 
@@ -558,7 +565,10 @@ function ModalContent({ treeId, balkanMemberId, setOpened }) {
             <Tabs value={activeTab} onTabChange={setActiveTab}>
                 <Tabs.List>
                     <Tabs.Tab value="view">View Tagged User</Tabs.Tab>
-                    <Tabs.Tab value="add">Tag User</Tabs.Tab>
+                    {(sessionTreeRelation === "owner" ||
+                        sessionTreeRelation === "collab") && (
+                        <Tabs.Tab value="add">Tag User</Tabs.Tab>
+                    )}
                 </Tabs.List>
             </Tabs>
             {activeTab === "view" ? (
@@ -762,14 +772,23 @@ function StepOne({
     setActive,
     setMode,
 }) {
-    const [locationInputValue, setLocationInputValue] = useState("");
+    /*const [locationInputValue, setLocationInputValue] = useState("");
     const [fetchedLocations, setFetchedLocations] = useState([]);
     const [locationInputValue2, setLocationInputValue2] = useState("");
-    const [fetchedLocations2, setFetchedLocations2] = useState([]);
+    const [fetchedLocations2, setFetchedLocations2] = useState([]);*/
+
+    const [locationError, setLocationError] = useState(false);
+    const [locationError2, setLocationError2] = useState(false);
 
     const [memberSexError, setMemberSexError] = useState(false);
 
-    const {
+    /*const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
+
+    const [selectedLocation2, setSelectedLocation2] = useState();
+    const [locationError2, setLocationError2] = useState(false);*/
+
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -794,9 +813,9 @@ function StepOne({
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
-    const {
+    /*const {
         isLoading: isLoadingLocation2,
         isFetching: isFetchingLocations2,
         data: dataLocations2,
@@ -821,35 +840,35 @@ function StepOne({
             });
             setFetchedLocations2(cit);
         },
-    });
+    });*/
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setNewRelativeCurrentResidence(l);
-    };
+    };*/
 
-    const handleLocationSelect2 = (l) => {
+    /*const handleLocationSelect2 = (l) => {
         console.log(l);
         setNewRelativeBirthplace(l);
-    };
+    };*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocations2Fun() {
             refetchLocations2();
         }
         if (locationInputValue2 !== "") {
             refetchLocations2Fun();
         }
-    }, [locationInputValue2, refetchLocations2]);
+    }, [locationInputValue2, refetchLocations2]);*/
 
     const handleFindByEmail = () => {
         /*if (newRelativeSex === "") {
@@ -988,21 +1007,37 @@ function StepOne({
                             }
                         />
 
-                        <Autocomplete
+                        {/*<Autocomplete
                             label="Location"
                             description="City they currently live in"
                             value={locationInputValue}
                             onChange={setLocationInputValue}
                             data={fetchedLocations}
                             onItemSubmit={handleLocationSelect}
+                        />*/}
+                        <LocationAutocomplete
+                            selectedLocation={newRelativeCurrentResidence}
+                            setSelectedLocation={setNewRelativeCurrentResidence}
+                            locationError={locationError}
+                            setLocationError={setLocationError}
+                            label="Current City"
+                            id="tag-user-to-tree-node-1"
                         />
-                        <Autocomplete
+                        {/*<Autocomplete
                             label="Place of birth"
                             description="City they were born in"
                             value={locationInputValue2}
                             onChange={setLocationInputValue2}
                             data={fetchedLocations2}
                             onItemSubmit={handleLocationSelect2}
+                        />*/}
+                        <LocationAutocomplete
+                            selectedLocation={newRelativeBirthplace}
+                            setSelectedLocation={setNewRelativeBirthplace}
+                            locationError={locationError2}
+                            setLocationError={setLocationError2}
+                            label="Place of Birth"
+                            id="tag-user-to-tree-node-2"
                         />
 
                         <DatePicker
@@ -1654,19 +1689,20 @@ function ViewTreeMember({ selectedTreeMemberUserId }) {
     const router = useRouter();
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
-        queryKey: "fetch_user_viewTreeMember",
+        queryKey: ["fetch_user_viewTreeMember", selectedTreeMemberUserId],
         queryFn: () => {
             return axios.get("/api/users/" + selectedTreeMemberUserId);
         },
 
         onSuccess: (d) => {
-            console.log("user ", d.data.data);
+            //console.log("user ", d.data.data);
         },
     });
     const handleGoToProfile = () => {
-        router.push(`/profiles/${selectedTreeMemberUserId}/events`);
+        //router.push(`/profiles/${selectedTreeMemberUserId}/events`);
+        window.open(`/profiles/${selectedTreeMemberUserId}/events`, "_blank");
     };
-    if (isLoading || isFetching || !data) {
+    if (isLoading || !data || isFetching) {
         return <Loader />;
     }
     return (

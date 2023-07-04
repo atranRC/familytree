@@ -87,6 +87,7 @@ export default async function handler(req, res) {
                         //add events instance here
                         const event = await Events.create({
                             userId: ObjectId(doc._id.toString()),
+                            userName: doc.name,
                             authorId: ObjectId(doc._id.toString()),
                             authorName: req.body.name,
                             type: "birth",

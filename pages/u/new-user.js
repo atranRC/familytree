@@ -51,6 +51,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ClaimTargetView } from "../../components/claim_account_components/claimTargetView";
 import { useQuery } from "react-query";
+import LocationAutocomplete from "../../components/location/LocationAutocomplete";
 
 function NoAccounts({ updateNewUserHandler }) {
     const router = useRouter();
@@ -206,10 +207,10 @@ export function StepperUserInfo() {
     const [fathersName, setFathersName] = useState({ value: "", error: false });
     const [grandFathersName, setGrandFathersName] = useState("");
     const [nicknames, setNicknames] = useState("");
-    const [currentResidence, setCurrentResidence] = useState("");
+    /*const [currentResidence, setCurrentResidence] = useState("");
     const [currentResidenceError, setCurrentResidenceError] = useState(false);
     const [birthPlace, setBirthPlace] = useState("");
-    const [birthPlaceError, setBirthPlaceError] = useState("");
+    const [birthPlaceError, setBirthPlaceError] = useState("");*/
     const [birthday, setBirthday] = useState("");
     const [sex, setSex] = useState("");
     const [sexError, setSexError] = useState(false);
@@ -220,13 +221,18 @@ export function StepperUserInfo() {
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(1);
 
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState({});
-    const [fetchedLocations, setFetchedLocations] = useState([]);
+    //const [locationInputValue, setLocationInputValue] = useState("");
+    //const [fetchedLocations, setFetchedLocations] = useState([]);
 
-    const [locationInputValue2, setLocationInputValue2] = useState("");
-    const [selectedLocation2, setSelectedLocation2] = useState({});
-    const [fetchedLocations2, setFetchedLocations2] = useState([]);
+    //const [locationInputValue2, setLocationInputValue2] = useState("");
+    //const [selectedLocation2, setSelectedLocation2] = useState({});
+    //const [fetchedLocations2, setFetchedLocations2] = useState([]);
+
+    const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
+
+    const [selectedLocation2, setSelectedLocation2] = useState();
+    const [locationError2, setLocationError2] = useState(false);
 
     const useStyles = createStyles((theme) => ({
         title: {
@@ -243,7 +249,7 @@ export function StepperUserInfo() {
     }));
     const { classes } = useStyles();
 
-    const {
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -268,9 +274,9 @@ export function StepperUserInfo() {
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
-    const {
+    /*const {
         isLoading: isLoadingLocation2,
         isFetching: isFetchingLocations2,
         data: dataLocations2,
@@ -295,7 +301,7 @@ export function StepperUserInfo() {
             });
             setFetchedLocations2(cit);
         },
-    });
+    });*/
 
     const {
         isLoading: isLoadingAccs,
@@ -320,7 +326,7 @@ export function StepperUserInfo() {
         },
     });
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
     };
@@ -328,25 +334,25 @@ export function StepperUserInfo() {
     const handleLocationSelect2 = (l) => {
         console.log(l);
         setSelectedLocation2(l);
-    };
+    };*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocations2Fun() {
             refetchLocations2();
         }
         if (locationInputValue2 !== "") {
             refetchLocations2Fun();
         }
-    }, [locationInputValue2, refetchLocations2]);
+    }, [locationInputValue2, refetchLocations2]);*/
 
     useEffect(() => {
         function refetchAccsFun() {
@@ -381,7 +387,7 @@ export function StepperUserInfo() {
             .put("/api/users/add-new-user-info/" + session.user.email, {
                 name: name.value,
                 birth_place: {
-                    value: locationInputValue2,
+                    value: selectedLocation2.value,
                     lon: selectedLocation2.lon
                         ? selectedLocation2.lon
                         : "39.476826",
@@ -392,7 +398,7 @@ export function StepperUserInfo() {
                 birthday: birthday,
                 owner: "self",
                 current_residence: {
-                    value: locationInputValue,
+                    value: selectedLocation.value,
                     lon: selectedLocation.lon
                         ? selectedLocation.lon
                         : "39.476826",
@@ -436,20 +442,16 @@ export function StepperUserInfo() {
                 console.log("");
             }
         } else if (active === 1) {
-            if (locationInputValue === "") {
-                setCurrentResidenceError(true);
+            if (!selectedLocation) {
+                setLocationError(true);
             }
-            if (locationInputValue2 === "") {
-                setBirthPlaceError(true);
+            if (!selectedLocation2) {
+                setLocationError2(true);
             }
             if (birthday === "") {
                 setBirthdayError(true);
             }
-            if (
-                birthday !== "" &&
-                locationInputValue2 !== "" &&
-                locationInputValue !== ""
-            ) {
+            if (birthday !== "" && selectedLocation && selectedLocation2) {
                 /*console.log(
                     name,
                     currentResidence,
@@ -617,7 +619,7 @@ export function StepperUserInfo() {
                     labelPosition="center"
                 />
 
-                <Autocomplete
+                {/*<Autocomplete
                     label="Location"
                     description="City you currently live in"
                     value={locationInputValue}
@@ -628,8 +630,16 @@ export function StepperUserInfo() {
                     onFocus={() => {
                         setCurrentResidenceError(false);
                     }}
+                />*/}
+                <LocationAutocomplete
+                    selectedLocation={selectedLocation}
+                    setSelectedLocation={setSelectedLocation}
+                    locationError={locationError}
+                    setLocationError={setLocationError}
+                    label="Current City"
+                    id="new-user-1"
                 />
-                <Autocomplete
+                {/*<Autocomplete
                     label="Place of birth"
                     description="Place you were born in"
                     value={locationInputValue2}
@@ -640,6 +650,14 @@ export function StepperUserInfo() {
                     onFocus={() => {
                         setBirthPlaceError(false);
                     }}
+                />*/}
+                <LocationAutocomplete
+                    selectedLocation={selectedLocation2}
+                    setSelectedLocation={setSelectedLocation2}
+                    locationError={locationError2}
+                    setLocationError={setLocationError2}
+                    label="Place of Birth"
+                    id="new-user-2"
                 />
                 <DatePicker
                     placeholder="Pick date"

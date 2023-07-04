@@ -18,6 +18,7 @@ import {
     Select,
     Avatar,
     Autocomplete,
+    Box,
 } from "@mantine/core";
 import axios from "axios";
 import { forwardRef, useEffect, useState } from "react";
@@ -43,6 +44,7 @@ import {
 } from "../../../lib/static_lists";
 //import { citiesData } from "../../../pages/demo/auth-demo/cities";
 import { DatePicker } from "@mantine/dates";
+import LocationAutocomplete from "../../location/LocationAutocomplete";
 
 export function AddEventCard({
     profileUser,
@@ -59,14 +61,11 @@ export function AddEventCard({
     const [eventDescription, setEventDescription] = useState("");
     const [eventDescError, setEventDescError] = useState(false);
     const [addEventNotification, setAddEventNotification] = useState(false);
-    const [location, setLocation] = useState("");
-    const [locationError, setLocationError] = useState(false);
     const [eventDate, setEventDate] = useState("");
     const [eventDateError, setEventDateError] = useState(false);
 
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState({});
-    const [fetchedLocations, setFetchedLocations] = useState([]);
+    const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "post-event",
@@ -79,7 +78,7 @@ export function AddEventCard({
                 type: eventType,
                 description: eventDescription,
                 location: {
-                    value: locationInputValue,
+                    value: selectedLocation.value,
                     lon: selectedLocation.lon
                         ? selectedLocation.lon
                         : "39.476826",
@@ -101,7 +100,7 @@ export function AddEventCard({
         },
     });
 
-    const {
+    /* const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -126,43 +125,34 @@ export function AddEventCard({
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
-    };
+    };*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
     const handleAddEvent = () => {
         if (
             eventType === "" ||
             eventDescription === "" ||
-            locationInputValue === "" ||
-            eventDate === ""
+            eventDate === "" ||
+            !selectedLocation
         ) {
             eventType === "" && setEventTypeError(true);
             eventDescription === "" && setEventDescError(true);
-            locationInputValue === "" && setLocationError(true);
             eventDate === "" && setEventDateError(true);
+            !selectedLocation && setLocationError(true);
         } else {
-            /*console.log(
-                profileUser._id,
-                sessionUser._id,
-                sessionUser.name,
-                eventType,
-                eventDescription,
-                location,
-                eventDate
-            );*/
             refetch();
         }
     };
@@ -204,9 +194,9 @@ export function AddEventCard({
                     }}
                     placeholder="Tell us about the event..."
                 />
-
+                {/*<div>{JSON.stringify(selectedLocation)}</div>
                 <Autocomplete
-                    label="Location"
+                    label="Locationzz"
                     value={locationInputValue}
                     onChange={setLocationInputValue}
                     data={fetchedLocations}
@@ -215,6 +205,14 @@ export function AddEventCard({
                     onFocus={() => {
                         setLocationError(false);
                     }}
+                />*/}
+
+                <LocationAutocomplete
+                    selectedLocation={selectedLocation}
+                    setSelectedLocation={setSelectedLocation}
+                    locationError={locationError}
+                    setLocationError={setLocationError}
+                    id="events-1"
                 />
 
                 <DatePicker
@@ -388,37 +386,35 @@ export function EventCard({
                 eventDate,
                 factSource,*/
 
-    const [eventTypeValue, setEventTypeValue] = useState("");
-    const [eventDescriptionValue, setEventDescriptionValue] = useState("");
-    const [locationValue, setLocationValue] = useState("");
-    const [eventDateValue, setEventDateValue] = useState("");
-
     const [editMode, setEditMode] = useState(false);
     const [editEventNotification, setEditEventNotification] = useState(false);
     const [deleteEventNotification, setDeleteEventNotification] =
         useState(false);
     const [eventDeleted, setEventDeleted] = useState(false);
 
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState({});
-    const [fetchedLocations, setFetchedLocations] = useState([]);
+    const [eventType, setEventType] = useState(event?.type);
+    const [eventTypeError, setEventTypeError] = useState(false);
+    const [eventDate, setEventDate] = useState(event?.eventDate);
+    const [eventDateError, setEventDateError] = useState(false);
+    const [description, setDescription] = useState(event?.description);
+    const [descriptionError, setDescriptionError] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
+    const [showLocationInput, setShowLocationInput] = useState(
+        event.location ? false : true
+    );
+    const [showDateInput, setShowDateInput] = useState(
+        event?.eventDate ? false : true
+    );
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "edit-event",
         queryFn: () => {
             return axios.put("/api/events/" + event._id, {
-                type: eventTypeValue,
-                description: eventDescriptionValue,
-                location: {
-                    value: locationInputValue,
-                    lon: selectedLocation.lon
-                        ? selectedLocation.lon
-                        : "39.476826",
-                    lat: selectedLocation.lat
-                        ? selectedLocation.lat
-                        : "13.496664",
-                },
-                eventDate: eventDateValue,
+                type: eventType,
+                description: description,
+                location: selectedLocation,
+                eventDate: eventDate,
             });
         },
         enabled: false,
@@ -448,7 +444,7 @@ export function EventCard({
         },
     });
 
-    const {
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -473,39 +469,83 @@ export function EventCard({
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
     const handleSaveEdit = () => {
-        refetch();
+        if (
+            !selectedLocation ||
+            eventType === "" ||
+            !eventType ||
+            !eventDate ||
+            eventDate === "" ||
+            !description ||
+            description === ""
+        ) {
+            !selectedLocation && setLocationError(true);
+            (eventType === "" || !eventType) && setEventTypeError(true);
+            (!description || description === "") && setDescriptionError(true);
+            (!eventDate || eventDate === "") && setEventDateError(true);
+        } else {
+            refetch();
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEventType(event?.type);
+        setEventDateError(false);
+        setEventDate(event?.eventDate);
+        setEventDateError(false);
+        setDescription(event?.description);
+        setDescriptionError(false);
+        setLocationError(false);
+        setEventDeleted(false);
+        setShowDateInput(false);
+        setShowLocationInput(false);
+        //setEventDescriptionValue(event.description);
+        //setEventTypeValue(event.type);
+        //setLocationValue(event.location.value);
+        //setEventDateValue(event.eventDate);
+        setDeleteEventNotification(false);
+        setEditMode(false);
     };
 
     const handleDeleteEvent = () => {
         refetchDeleteEvent();
     };
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
-    };
+    };*/
 
     useEffect(() => {
+        setEventType(event?.type);
+        setEventDateError(false);
+        setEventDate(event?.eventDate);
+        setEventDateError(false);
+        setDescription(event?.description);
+        setDescriptionError(false);
         setEventDeleted(false);
-        setEventDescriptionValue(event.description);
-        setEventTypeValue(event.type);
-        setLocationValue(event.location.value);
-        setEventDateValue(event.eventDate);
+        setLocationError(false);
+        setShowDateInput(false);
+        setShowLocationInput(false);
+        setEditEventNotification(false);
+        //setEventDescriptionValue(event.description);
+        //setEventTypeValue(event.type);
+        //setLocationValue(event.location.value);
+        //setEventDateValue(event.eventDate);
         setDeleteEventNotification(false);
         setEditMode(false);
     }, [event]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
     if (eventDeleted) {
         return (
@@ -536,32 +576,40 @@ export function EventCard({
                         {editMode ? (
                             <Select
                                 label="What's the occasion?"
-                                value={eventTypeValue}
-                                onChange={setEventTypeValue}
+                                value={eventType}
+                                onChange={setEventType}
                                 data={events_list}
+                                error={
+                                    eventTypeError && "please choose event type"
+                                }
+                                onFocus={() => setEventTypeError(false)}
                             />
                         ) : (
-                            <Title
-                                className="storyTitle"
-                                align="center"
-                                color="darkgreen"
-                            >
-                                {get_event_label(eventTypeValue)}
-                            </Title>
+                            <Stack>
+                                <Title
+                                    className="storyTitle"
+                                    align="center"
+                                    color="darkgreen"
+                                >
+                                    {get_event_label(eventType)}
+                                </Title>
+
+                                <Title
+                                    className="autoTitle"
+                                    align="center"
+                                    color="gray"
+                                    order={3}
+                                >
+                                    {get_auto_title(
+                                        eventType,
+                                        profileUser.name,
+                                        event?.location?.value,
+                                        eventDate?.toString().split("T")[0]
+                                    )}
+                                </Title>
+                            </Stack>
                         )}
-                        <Title
-                            className="autoTitle"
-                            align="center"
-                            color="gray"
-                            order={3}
-                        >
-                            {get_auto_title(
-                                eventTypeValue,
-                                profileUser.name,
-                                locationValue,
-                                eventDateValue.toString().split("T")[0]
-                            )}
-                        </Title>
+
                         {deleteEventNotification && (
                             <Notification
                                 icon={<IconAlertOctagon size={18} />}
@@ -636,12 +684,7 @@ export function EventCard({
                                                 color="dark"
                                                 radius="xl"
                                                 variant="default"
-                                                onClick={() => {
-                                                    setDeleteEventNotification(
-                                                        false
-                                                    );
-                                                    setEditMode(false);
-                                                }}
+                                                onClick={handleCancelEdit}
                                             >
                                                 <IconX size={20} color="blue" />
                                             </ActionIcon>
@@ -699,15 +742,18 @@ export function EventCard({
                             <Textarea
                                 autosize
                                 minRows={5}
-                                value={eventDescriptionValue}
+                                value={description}
                                 onChange={(event) =>
-                                    setEventDescriptionValue(
-                                        event.currentTarget.value
-                                    )
+                                    setDescription(event.currentTarget.value)
                                 }
+                                error={
+                                    descriptionError &&
+                                    "please enter description"
+                                }
+                                onFocus={() => setDescriptionError(false)}
                             />
                         ) : (
-                            <Text>{eventDescriptionValue}</Text>
+                            <Text>{description}</Text>
                         )}
                         <Text c="dimmed" fs="italic" td="underline">
                             {event.authorName}
@@ -717,31 +763,173 @@ export function EventCard({
                 <Paper withBorder p="md">
                     {editMode ? (
                         <Stack>
-                            <Autocomplete
+                            {/*<Autocomplete
                                 label="Location"
                                 value={locationInputValue}
                                 onChange={setLocationInputValue}
                                 data={fetchedLocations}
                                 onItemSubmit={handleLocationSelect}
-                            />
-                            <DatePicker
+                            />*/}
+                            {showLocationInput ? (
+                                <div>
+                                    <LocationAutocomplete
+                                        selectedLocation={selectedLocation}
+                                        setSelectedLocation={
+                                            setSelectedLocation
+                                        }
+                                        locationError={locationError}
+                                        setLocationError={setLocationError}
+                                        id="events-2"
+                                    />
+                                    <Text c="dimmed">
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() => {
+                                                setSelectedLocation(
+                                                    event?.location
+                                                );
+                                                setShowLocationInput(false);
+                                            }}
+                                        >
+                                            Click here
+                                        </Text>{" "}
+                                        to keep previous location
+                                    </Text>
+                                </div>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        border: "1px solid lightgrey",
+                                        borderRadius: "5px",
+                                        padding: "10px",
+                                    }}
+                                >
+                                    <Text c="dimmed">
+                                        Location previously set to{" "}
+                                        <Text span c="teal.7">
+                                            {event?.location?.value}
+                                            {" - "}
+                                        </Text>
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() =>
+                                                setShowLocationInput(true)
+                                            }
+                                        >
+                                            Click here
+                                        </Text>
+                                        <Text span> to edit</Text>
+                                    </Text>
+                                </Box>
+                            )}
+                            {/*<DatePicker
                                 placeholder="Pick date of the event"
                                 label="Date"
                                 icon={<IconCalendarEvent size={19} />}
                                 value={eventDateValue}
                                 onChange={setEventDateValue}
-                            />
+                            />*/}
+                            {showDateInput ? (
+                                <div>
+                                    <DatePicker
+                                        placeholder="Pick date of the event"
+                                        label="Date"
+                                        icon={<IconCalendarEvent size={19} />}
+                                        value={eventDate}
+                                        onChange={setEventDate}
+                                        error={
+                                            eventDateError &&
+                                            "please enter date"
+                                        }
+                                        onFocus={() => setEventDateError(false)}
+                                    />
+                                    <Text c="dimmed">
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() => {
+                                                setEventDate(event?.eventDate);
+                                                setShowDateInput(false);
+                                            }}
+                                        >
+                                            Click here
+                                        </Text>{" "}
+                                        to keep previous date
+                                    </Text>
+                                </div>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        border: "1px solid lightgrey",
+                                        borderRadius: "5px",
+                                        padding: "10px",
+                                    }}
+                                >
+                                    <Text c="dimmed">
+                                        Date previously set to{" "}
+                                        <Text span c="teal.7">
+                                            {
+                                                event?.eventDate
+                                                    ?.toString()
+                                                    .split("T")[0]
+                                            }
+                                            {" - "}
+                                        </Text>
+                                        <Text
+                                            span
+                                            c="blue.7"
+                                            sx={{
+                                                "&:hover": {
+                                                    cursor: "pointer",
+                                                },
+                                            }}
+                                            underline
+                                            italic
+                                            onClick={() => {
+                                                setEventDate(null);
+                                                setShowDateInput(true);
+                                            }}
+                                        >
+                                            Click here
+                                        </Text>
+                                        <Text span> to edit</Text>
+                                    </Text>
+                                </Box>
+                            )}
                         </Stack>
                     ) : (
                         <Stack spacing="xs">
                             <Text>
                                 This event happened in:{" "}
                                 <Text span c="darkgreen" fw={700}>
-                                    {locationValue}
+                                    {event?.location?.value}
                                 </Text>
-                            </Text>
-                            <Text c="dimmed" fs="italic">
-                                {eventDateValue.toString().split("T")[0]}
+                                <Text c="dimmed" fs="italic">
+                                    {event?.eventDate?.toString().split("T")[0]}
+                                </Text>
                             </Text>
                         </Stack>
                     )}

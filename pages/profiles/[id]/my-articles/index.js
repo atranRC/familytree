@@ -35,6 +35,7 @@ import { ProfileTitleSection } from "../../../../components/titleSections";
 import dbConnect from "../../../../lib/dbConnect";
 import Users from "../../../../models/Users";
 import { authOptions } from "../../../api/auth/[...nextauth]";
+import LocationAutocomplete from "../../../../components/location/LocationAutocomplete";
 
 export default function MyArticlesPage({ sessionUserJson }) {
     const router = useRouter();
@@ -60,17 +61,20 @@ export default function MyArticlesPage({ sessionUserJson }) {
     const [takeDownModal, setTakeDownModal] = useState(false);
 
     const [title, setTitle] = useState("");
+    const [titleError, setTitleError] = useState(false);
     const [description, setDescription] = useState("");
-    const [location, setLocation] = useState("");
+    const [descriptionError, setDescriptionError] = useState(false);
     const [date, setDate] = useState("");
+    const [dateError, setDateError] = useState(false);
     const [tagValue, setTagValue] = useState("");
+    const [tagValueError, setTagValueError] = useState(false);
     const [coverImgUrl, setCoverImgUrl] = useState(
         "https://static.remove.bg/sample-gallery/graphics/bird-thumbnail.jpg"
     );
+    const [coverImgError, setCoverImageError] = useState(false);
 
-    const [locationInputValue, setLocationInputValue] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState({});
-    const [fetchedLocations, setFetchedLocations] = useState([]);
+    const [selectedLocation, setSelectedLocation] = useState();
+    const [locationError, setLocationError] = useState(false);
 
     //fetch drafts by sessionUserJson._id
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
@@ -127,7 +131,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
                 description: description,
                 content: "Start here...",
                 location: {
-                    value: locationInputValue,
+                    value: selectedLocation.value,
                     lon: selectedLocation.lon
                         ? selectedLocation.lon
                         : "39.476826",
@@ -150,7 +154,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
         },
     });
 
-    const {
+    /*const {
         isLoading: isLoadingLocations,
         isFetching: isFetchingLocations,
         data: dataLocations,
@@ -175,7 +179,7 @@ export default function MyArticlesPage({ sessionUserJson }) {
             });
             setFetchedLocations(cit);
         },
-    });
+    });*/
 
     const rows =
         data &&
@@ -230,14 +234,31 @@ export default function MyArticlesPage({ sessionUserJson }) {
         });
 
     const handleStartNew = () => {
-        refetchStartNew();
+        if (
+            !selectedLocation ||
+            title === "" ||
+            description === "" ||
+            tagValue === "" ||
+            date === "" ||
+            coverImgUrl === ""
+        ) {
+            !selectedLocation && setLocationError(true);
+            title === "" && setTitleError(true);
+            description === "" && setDescriptionError(true);
+            tagValue === "" && setTagValueError(true);
+            date === "" && setDateError(true);
+            coverImgUrl === "" && setCoverImageError(true);
+        } else {
+            refetchStartNew();
+        }
+
         //console.log("start new", title, description, location, date);
     };
 
-    const handleLocationSelect = (l) => {
+    /*const handleLocationSelect = (l) => {
         console.log(l);
         setSelectedLocation(l);
-    };
+    };*/
 
     useEffect(() => {
         if (data) {
@@ -252,14 +273,14 @@ export default function MyArticlesPage({ sessionUserJson }) {
         refetchFun();
     }, [page, refetch]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         function refetchLocationsFun() {
             refetchLocations();
         }
         if (locationInputValue !== "") {
             refetchLocationsFun();
         }
-    }, [locationInputValue, refetchLocations]);
+    }, [locationInputValue, refetchLocations]);*/
 
     if (id !== sessionUserJson._id) {
         return <div>RESTRICTED PAGE</div>;
@@ -348,6 +369,8 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                 onChange={(event) =>
                                     setTitle(event.currentTarget.value)
                                 }
+                                error={titleError && "please enter title"}
+                                onFocus={() => setTitleError(false)}
                             />
                             <Textarea
                                 label="Description"
@@ -355,6 +378,11 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                 onChange={(event) =>
                                     setDescription(event.currentTarget.value)
                                 }
+                                error={
+                                    descriptionError &&
+                                    "please enter description"
+                                }
+                                onFocus={() => setDescriptionError(false)}
                             />
                             <Textarea
                                 label="Cover Image URL"
@@ -362,6 +390,11 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                 onChange={(event) =>
                                     setCoverImgUrl(event.currentTarget.value)
                                 }
+                                error={
+                                    coverImgError &&
+                                    "please enter cover image url"
+                                }
+                                onFocus={() => setCoverImageError(false)}
                             />
                             <NativeSelect
                                 value={tagValue}
@@ -376,13 +409,22 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                 label="Type "
                                 // /description="Select the type of event"
                                 withAsterisk
+                                error={tagValueError && "please enter type"}
+                                onFocus={() => setTagValueError(false)}
                             />
-                            <Autocomplete
+                            {/*<Autocomplete
                                 label="Location"
                                 value={locationInputValue}
                                 onChange={setLocationInputValue}
                                 data={fetchedLocations}
                                 onItemSubmit={handleLocationSelect}
+                            />*/}
+                            <LocationAutocomplete
+                                selectedLocation={selectedLocation}
+                                setSelectedLocation={setSelectedLocation}
+                                locationError={locationError}
+                                setLocationError={setLocationError}
+                                id="new-article"
                             />
                             <DatePicker
                                 placeholder="Pick date of the event"
@@ -390,6 +432,8 @@ export default function MyArticlesPage({ sessionUserJson }) {
                                 icon={<IconCalendarEvent size={19} />}
                                 value={date}
                                 onChange={setDate}
+                                error={dateError && "please enter date"}
+                                onFocus={() => setDateError(false)}
                             />
                             <Button
                                 mt="md"

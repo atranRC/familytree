@@ -15,11 +15,21 @@ function Familytree(props) {
             //lazyLoading: true,
             editForm: {
                 buttons: {
-                    //edit: null,
+                    edit: null,
                     share: null,
                     pdf: null,
-                    //remove: null,
-                    remove: { text: "remove" },
+                    remove: null,
+                    //remove: { text: "remove" },
+                },
+            },
+            nodeMenu: {
+                tagUser: {
+                    text: "Tagged User",
+                    onClick: (d) => {
+                        console.log(d);
+                        props.setBalkanMemberId(d);
+                        props.setOpened(true);
+                    },
                 },
             },
             miniMap: true,
@@ -31,7 +41,7 @@ function Familytree(props) {
                 },
             },*/
             //nodeTreeMenu: false,
-            nodeMouseClick: FamilyTree.none,
+            //nodeMouseClick: FamilyTree.none,
             //mouseScrool: FamilyTree.none,
             nodeBinding: props.nodeBinding,
             nodes: props.nodes,

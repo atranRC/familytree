@@ -248,13 +248,15 @@ export default function WikiDraftEditPage({ sessionUserJson, wikidraftJson }) {
                                 "wordcount",
                                 "anchor",
                                 "preview",
+                                "table",
                             ],
                             toolbar:
                                 "undo redo | blocks | " +
                                 "bold italic forecolor underline | alignleft aligncenter " +
                                 "alignright alignjustify | bullist numlist outdent indent | " +
                                 "removeformat | backcolor | help" +
-                                " link unlink anchor preview image",
+                                " link unlink anchor preview image |" +
+                                " table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol",
                             content_style:
                                 "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                         }}
