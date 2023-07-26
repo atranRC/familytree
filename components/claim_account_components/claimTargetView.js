@@ -19,7 +19,17 @@ import { useQuery } from "react-query";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 
-export function ClaimTargetView({ targetAccountId }) {
+export function ClaimTargetView({
+    targetAccountId,
+    name,
+    fathersName,
+    grandFathersName,
+    nicknames,
+    birthday,
+    sex,
+    selectedLocation,
+    selectedLocation2,
+}) {
     const { data: session } = useSession();
 
     const accountAlbum = [
@@ -85,7 +95,7 @@ export function ClaimTargetView({ targetAccountId }) {
         isError: isErrorCreateRequest,
         error: errorCreateRequest,
     } = useQuery({
-        queryKey: "create-request",
+        queryKey: "create-claim-request",
         queryFn: () => {
             const bod = {
                 userId: dataNewUser.data.data._id.toString(),
@@ -104,8 +114,52 @@ export function ClaimTargetView({ targetAccountId }) {
         enabled: false,
         onSuccess: (d) => {
             setClaimButtonDisabled(true);
-            console.log("target fetched", d.data.data);
-            router.push("/demo/auth-demo");
+            //console.log("target fetched", d.data.data);
+            router.push("/family-tree/tree/my-trees");
+        },
+    });
+
+    const updateUserInfo = useQuery({
+        queryKey: "update-new-user-info",
+        queryFn: () => {
+            return axios.put(
+                "/api/users/add-new-user-info/" + session.user.email,
+                {
+                    name: name.value,
+                    birth_place: {
+                        value: selectedLocation2.value,
+                        lon: selectedLocation2.lon
+                            ? selectedLocation2.lon
+                            : "39.476826",
+                        lat: selectedLocation2.lat
+                            ? selectedLocation2.lat
+                            : "13.496664",
+                    },
+                    birthday: birthday,
+                    owner: "self",
+                    current_residence: {
+                        value: selectedLocation.value,
+                        lon: selectedLocation.lon
+                            ? selectedLocation.lon
+                            : "39.476826",
+                        lat: selectedLocation.lat
+                            ? selectedLocation.lat
+                            : "13.496664",
+                    },
+                    fathers_name: fathersName.value,
+                    last_name: grandFathersName,
+                    nicknames: nicknames,
+                    sex: sex,
+                    isHistorian: false,
+                    isBlocked: false,
+                }
+            );
+        },
+        enabled: false,
+        onSuccess: (d) => {
+            setClaimButtonDisabled(true);
+            refetchCreateRequest();
+            //console.log("target fetched", d.data.data);
         },
     });
 
@@ -113,7 +167,7 @@ export function ClaimTargetView({ targetAccountId }) {
         if (message === "") {
             setMessageError(true);
         } else {
-            refetchCreateRequest();
+            updateUserInfo.refetch();
         }
     };
 
@@ -165,7 +219,7 @@ export function ClaimTargetView({ targetAccountId }) {
                         </div>
                     </Group>
 
-                    <Title order={5} color="dimmed" weight={500}>
+                    {/*<Title order={5} color="dimmed" weight={500}>
                         Photos
                     </Title>
                     <Carousel
@@ -195,7 +249,7 @@ export function ClaimTargetView({ targetAccountId }) {
                                 </Carousel.Slide>
                             );
                         })}
-                    </Carousel>
+                    </Carousel>*/}
                     <TextInput
                         label="Message"
                         placeholder="your short message"

@@ -30,10 +30,12 @@ import {
     IconPlant2,
     IconPlus,
     IconShare,
+    IconTimelineEvent,
     IconTrash,
     IconX,
 } from "@tabler/icons";
 import LocationAutocomplete from "../../location/LocationAutocomplete";
+import LinkStoryToTimeline from "./LinkStoryToTimeline";
 
 export function AddStoryCard({
     profileUser,
@@ -332,6 +334,7 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
     const [deleteStoryNotification, setDeleteStoryNotification] =
         useState(false);
     const [storyDeleted, setStoryDeleted] = useState(false);
+    const [showTimelineLink, setShowTimelineLink] = useState(false);
 
     const [selectedLocation, setSelectedLocation] = useState();
     const [locationError, setLocationError] = useState(false);
@@ -448,6 +451,7 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
         setEditStoryNotification(false);
         setDeleteStoryNotification(false);
         setEditMode(false);
+        setShowTimelineLink(false);
     }, [story]);
 
     /*useEffect(() => {
@@ -692,11 +696,32 @@ export function StoryCard({ story, refetchStories, sessionProfileRelation }) {
                                         >
                                             <IconShare size={20} color="teal" />
                                         </ActionIcon>
+                                        <ActionIcon
+                                            color="dark"
+                                            radius="xl"
+                                            variant="default"
+                                            onClick={() =>
+                                                setShowTimelineLink(
+                                                    !showTimelineLink
+                                                )
+                                            }
+                                        >
+                                            <IconTimelineEvent
+                                                size={20}
+                                                color="#6f32be"
+                                            />
+                                        </ActionIcon>
                                     </>
                                 )}
                             </>
                         )}
                     </Group>
+                    {showTimelineLink && (
+                        <LinkStoryToTimeline
+                            setShowTimelineLink={setShowTimelineLink}
+                            story={story}
+                        />
+                    )}
                     {editStoryNotification && (
                         <Notification
                             icon={<IconCheck size={18} />}

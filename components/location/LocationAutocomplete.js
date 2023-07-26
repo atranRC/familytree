@@ -1,6 +1,6 @@
-import { Box, Loader, ScrollArea, TextInput } from "@mantine/core";
+import { Box, Loader, ScrollArea, TextInput, Text } from "@mantine/core";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "react-query";
 
 export default function LocationAutocomplete({
@@ -15,6 +15,7 @@ export default function LocationAutocomplete({
 }) {
     const [locationInputValue, setLocationInputValue] = useState("");
     const [suggestionOpen, setSuggestionOpen] = useState(false);
+    const textInputRef = useRef(null);
 
     const getLocations = useQuery({
         queryKey: ["get-locations", id],
@@ -81,7 +82,7 @@ export default function LocationAutocomplete({
                 onFocus={() => setLocationError(false)}
             />
 
-            {getLocations.isLoading || getLocations.isFetching ? (
+            {getLocations.isLoading ? (
                 <Loader />
             ) : (
                 <div>
@@ -89,11 +90,18 @@ export default function LocationAutocomplete({
                         <ScrollArea h={250}>
                             <Box
                                 sx={{
+                                    marginTop: "5px",
                                     padding: "10px",
-                                    border: "1px solid teal",
+                                    border: "1px solid lightgray",
                                     borderRadius: "5px",
                                 }}
                             >
+                                {getLocations.isFetching && (
+                                    <Text align="center">⏳</Text>
+                                )}
+                                {!getLocations.isFetching && (
+                                    <Text align="center">📌</Text>
+                                )}
                                 {getLocations.data?.data.map((loc) => {
                                     return (
                                         <Box

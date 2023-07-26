@@ -2,7 +2,6 @@
 // To disable this template go to Settings | MongoDB | Use Default Template For Playground.
 // Make sure you are connected to enable completions and to be able to run a playground.
 // Use Ctrl+Space inside a snippet or a string literal to trigger completions.
-
 // Select the database to use.
 use("famtree");
 //db.users.find({})
@@ -27,9 +26,14 @@ use("famtree");
     { $set: { sex: "male" } },
     { upsert: false, multi: true }
 );*/
-db.events.update(
+/*db.events.update(
     {},
     { $set: { userName: "User" } },
+    { upsert: false, multi: true }
+);*/
+db.featuredtimelinearticles.update(
+    {},
+    { $set: { featureDate: new Date() } },
     { upsert: false, multi: true }
 );
 //db.users.find({})
