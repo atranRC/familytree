@@ -278,7 +278,7 @@ export function Shell({ children }) {
                                             />
                                         </Link>
                                         <Link
-                                            href="/wiki/people/tag/martyr"
+                                            href="/martyrs"
                                             style={{ textDecoration: "none" }}
                                         >
                                             <NavLink

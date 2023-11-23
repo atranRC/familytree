@@ -280,10 +280,10 @@ export function ShellWithAside({ children, page }) {
                                             />
                                         </Link>
                                         <Link
-                                            href="/wiki/people/tag/martyr"
+                                            href="/martyrs"
                                             style={{ textDecoration: "none" }}
-                                            rel="noopener noreferrer"
-                                            target="_blank"
+                                            //rel="noopener noreferrer"
+                                            //target="_blank"
                                         >
                                             <NavLink
                                                 label="Martyrs"
