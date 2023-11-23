@@ -55,7 +55,7 @@ function PreviewCard({ article }) {
                     </Stack>
                 </Grid.Col>
                 <Grid.Col span={4}>
-                    <Image height="10rem" src={article.coverImage} />
+                    <Image height="10rem" src={article.coverImage} alt="img" />
                 </Grid.Col>
             </Grid>
         </Paper>

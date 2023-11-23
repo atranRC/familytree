@@ -18,6 +18,7 @@ export default function MartyrViewer({ mart }) {
                 }
                 height={500}
                 //fit="contain"
+                alt="img"
             />
             <div
                 className={styles.name}

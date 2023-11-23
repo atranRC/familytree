@@ -82,13 +82,14 @@ export default function MartsGrid() {
 
             <div className={styles.cont}>
                 {!docsQuery.isLoading ? (
-                    docsQuery?.data?.pages.map((page) => {
+                    docsQuery?.data?.pages.map((page, i) => {
                         if (page.data.count === 0) {
                             return (
                                 <Stack
                                     spacing={0}
                                     align="center"
                                     justify="center"
+                                    key={i}
                                 >
                                     <IconHourglassEmpty
                                         opacity="0.5"
