@@ -66,6 +66,40 @@ export default function SecondaryNavbar({
                     sessionProfileRelation === "self") && (
                     <Tabs.Tab value="claim-requests">Claim Requests</Tabs.Tab>
                 )}
+                {sessionProfileRelation === "self" && (
+                    <Popover
+                        width={200}
+                        position="bottom"
+                        withArrow
+                        shadow="md"
+                    >
+                        <Popover.Target>
+                            <Tabs.Tab value="#" icon={<IconCaretDown />}>
+                                My Public Content
+                            </Tabs.Tab>
+                        </Popover.Target>
+                        <Popover.Dropdown>
+                            <Box w={180}>
+                                <NavLink
+                                    label="Martyrs"
+                                    onClick={() =>
+                                        router.push(
+                                            `/profiles/${id}/public-content/martyrs`
+                                        )
+                                    }
+                                />
+                                <NavLink
+                                    label="Shared Stories"
+                                    onClick={() =>
+                                        router.push(
+                                            `/profiles/${id}/public-content/shared-stories`
+                                        )
+                                    }
+                                />
+                            </Box>
+                        </Popover.Dropdown>
+                    </Popover>
+                )}
                 {(sessionProfileRelation === "owner" ||
                     sessionProfileRelation === "self") && (
                     <Popover
@@ -91,6 +125,7 @@ export default function SecondaryNavbar({
                         </Popover.Dropdown>
                     </Popover>
                 )}
+
                 {sessionProfileRelation === "self" && (
                     <Popover
                         width={200}
@@ -150,6 +185,7 @@ export default function SecondaryNavbar({
                                         }
                                     />
                                 </NavLink>
+
                                 <NavLink
                                     label="Media"
                                     icon={<IconJpg size={18} />}

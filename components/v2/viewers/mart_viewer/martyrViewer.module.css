@@ -1,0 +1,16 @@
+.tableStyle {
+    opacity: 1;
+}
+
+.tableStyle tr td:first-child {
+    opacity: 0.6;
+    font-weight: 600;
+}
+
+.name {
+    font-family: "Frank Ruhl Libre", serif;
+    font-size: x-large;
+    font-weight: 700;
+    text-align: center;
+    color: goldenrod;
+}

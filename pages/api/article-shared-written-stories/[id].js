@@ -1,5 +1,6 @@
 import dbConnect from "../../../lib/dbConnect";
 import { ObjectId } from "mongodb";
+import ArticleSharedWrittenStories from "../../../models/ArticleSharedWrittenStories";
 
 export default async function handler(req, res) {
     const {
@@ -16,8 +17,21 @@ export default async function handler(req, res) {
                 if (!story) {
                     return res.status(400).json({ success: false });
                 }
-                res.status(200).json({ success: true, data: story });
+                let storyDoc = story;
+                if (story.isAnnon) {
+                    storyDoc = {
+                        articleId: story.articleId,
+                        profileId: story.profileId,
+                        writtenStoryId: story.writtenStoryId,
+                        userName: "Annonymous",
+                        title: story.title,
+                        content: story.content,
+                        isAnnon: story.isAnnon,
+                    };
+                }
+                res.status(200).json({ success: true, data: storyDoc });
             } catch (error) {
+                //console.log(error);
                 res.status(400).json({ success: false });
             }
             break;
@@ -45,9 +59,7 @@ export default async function handler(req, res) {
         case "DELETE" /* Delete a model by its ID */:
             try {
                 const deletedStoryArticle =
-                    await ArticleSharedWrittenStories.deleteOne({
-                        _id: id,
-                    });
+                    await ArticleSharedWrittenStories.findByIdAndDelete(id);
                 if (!deletedStoryArticle) {
                     return res.status(400).json({ success: false });
                 }

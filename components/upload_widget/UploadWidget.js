@@ -3,7 +3,7 @@ import Script from "next/script";
 let cloudinary;
 let widget;
 
-const UploadWidget = ({ children, onUpload, folder }) => {
+const UploadWidget = ({ children, onUpload, folder, handleSuccess }) => {
     /**
      * handleOnLoad
      * @description Stores the Cloudinary window instance to a ref when the widget script loads

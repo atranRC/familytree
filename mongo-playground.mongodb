@@ -31,11 +31,18 @@ use("famtree");
     { $set: { userName: "User" } },
     { upsert: false, multi: true }
 );*/
-db.featuredtimelinearticles.update(
+
+/*db.featuredwikipages.update(
     {},
     { $set: { featureDate: new Date() } },
     { upsert: false, multi: true }
 );
+db.featuredtimelinearticles.update(
+    {},
+    { $set: { featureDate: new Date() } },
+    { upsert: false, multi: true }
+);*/
+
 //db.users.find({})
 //delete all documents
 //db.sessions.deleteMany({});
@@ -51,6 +58,9 @@ db.featuredtimelinearticles.update(
 //db.events.deleteMany({});
 //db.flaggedarticles.deleteMany({});
 //db.treemembers.deleteMany({});
+//db.useruploadmedias.deleteMany({})
+//db.articlesharedwrittenstories.deleteMany({});
+//db.marts.deleteMany({});
 
 // The drop() command destroys all data from a collection.
 // Make sure you run it against the correct database and collection.

@@ -9,6 +9,17 @@ const ArticleSharedWrittenStoriesSchema = mongoose.Schema(
             type: ObjectId,
             required: [true, "Please provide artileId."],
         },
+        articleTitle: {
+            type: String,
+        },
+        uploaderId: {
+            type: ObjectId,
+            required: [true, "Please provide uploader id."],
+        },
+        profileId: {
+            type: ObjectId,
+            required: [true, "Please provide profileId."],
+        },
         writtenStoryId: {
             type: ObjectId,
             required: [true, "Please provide writtenStoryId."],
@@ -16,9 +27,21 @@ const ArticleSharedWrittenStoriesSchema = mongoose.Schema(
         userName: {
             type: String,
         },
-        upvotes: {
+        title: {
+            type: String,
+            required: [true, "Please provide title"],
+        },
+        content: {
+            type: String,
+            required: [true, "Please provide content."],
+        },
+        /*upvotes: {
             type: Number,
             default: generateRandomLikeCount(),
+        },*/
+        isAnnon: {
+            type: Boolean,
+            required: [true, "please provide isAnnon"],
         },
     },
     { timestamps: true }

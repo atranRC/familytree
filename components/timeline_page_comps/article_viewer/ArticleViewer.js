@@ -35,6 +35,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useSession } from "next-auth/react";
 import styles from "./ArticleViewer.module.css";
+import ArticleSharedStoriesGrid from "../../v2/grids/ArticleSharedStoriesGrid/ArticleSharedStoriesGrid";
 
 function FlagArticleComp({
     articleId,
@@ -185,6 +186,7 @@ export function ArticleViewer({ articleId }) {
 
     useEffect(() => {
         function refetchFun() {
+            setViewMode("article");
             refetch();
         }
         refetchFun();
@@ -331,7 +333,7 @@ export function ArticleViewer({ articleId }) {
                                         </Group>
                                         <Divider orientation="vertical" />
                                         <Group position="center">
-                                            {/*<IconChartTreemap
+                                            <IconChartTreemap
                                                 color="teal"
                                                 size={25}
                                                 spacing={0}
@@ -355,8 +357,8 @@ export function ArticleViewer({ articleId }) {
                                                         "black",
                                                 }}
                                             >
-                                                Discussion
-                                            </Text>*/}
+                                                Stories from the People
+                                            </Text>
                                         </Group>
                                     </Group>
                                 </Group>
@@ -414,7 +416,21 @@ export function ArticleViewer({ articleId }) {
                         ></div>
                     </Group>
                 ) : (
-                    <div>Discussion page</div>
+                    <Stack p="lg">
+                        <div
+                            style={{
+                                textAlign: "center",
+                                fontFamily: "'Merriweather', serif",
+                                color: "GrayText",
+                            }}
+                        >
+                            Here are stories of people affected by{" "}
+                            <span style={{ fontStyle: "italic" }}>
+                                {data?.data?.data.title}
+                            </span>
+                        </div>
+                        <ArticleSharedStoriesGrid articleId={articleId} />
+                    </Stack>
                 ))}
         </div>
     );

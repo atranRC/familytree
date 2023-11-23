@@ -92,7 +92,7 @@ export default function WrittenStoriesPage({
         },
         enabled: false,
         onSuccess: (d) => {
-            console.log("edited", d.data.data);
+            //console.log("edited", d.data.data);
         },
     });
 
@@ -228,6 +228,8 @@ export default function WrittenStoriesPage({
                                         sessionProfileRelation={
                                             sessionProfileRelation
                                         }
+                                        profileUser={profileUserJson._id}
+                                        sessionUser={sessionUserJson._id}
                                     />
                                 )}
                             </div>
@@ -288,7 +290,7 @@ export async function getServerSideProps(context) {
             },
         };
     }
-    console.log("contexttt", context.query.id);
+    //console.log("contexttt", context.query.id);
     //get claim requests for context.query.id
     await dbConnect();
 
@@ -350,11 +352,11 @@ export async function getServerSideProps(context) {
         }
     }
 
-    console.log(
+    /*console.log(
         "session profile relation is",
         sessionProfileRelation,
         sessionUserJson._id
-    );
+    );*/
 
     return {
         props: {

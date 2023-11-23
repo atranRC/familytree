@@ -74,6 +74,8 @@ export default function AudioStoriesPage({ asPath }) {
             width: "35%",
             height: "100vh",
             padding: "5px",
+            position: "sticky",
+            top: 0,
         },
         storyView: {
             //border: "1px solid black",
@@ -263,7 +265,9 @@ export default function AudioStoriesPage({ asPath }) {
                                     ) : (
                                         <Stack>
                                             <ScrollArea
-                                                style={{ height: "530px" }}
+                                                style={{
+                                                    height: "530px",
+                                                }}
                                             >
                                                 <Stack spacing="xs">
                                                     {data &&
@@ -333,6 +337,8 @@ export default function AudioStoriesPage({ asPath }) {
                                     />
                                 ) : (
                                     <AudioStoryCard
+                                        profileUser={profileUser?._id.toString()}
+                                        sessionUser={sessionUser?._id.toString()}
                                         story={selectedStory}
                                         refetchStories={refetch}
                                         sessionProfileRelation={

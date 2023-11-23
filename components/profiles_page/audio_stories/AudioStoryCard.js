@@ -32,8 +32,11 @@ import { useEffect, useState } from "react";
 //import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import { useQuery } from "react-query";
 import LocationAutocomplete from "../../location/LocationAutocomplete";
+import EventOrStoryMediaViewer from "../../v2/media_viewers/EventOrStoryMediaViewer";
 
 export default function AudioStoryCard({
+    profileUser,
+    sessionUser,
     story,
     refetchStories,
     sessionProfileRelation,
@@ -234,260 +237,294 @@ export default function AudioStoryCard({
     }
 
     return (
-        <Paper withBorder p="md" mih="100vh">
-            <Stack justify="center">
-                <Stack spacing={1}>
-                    {editMode ? (
-                        <Stack>
-                            <TextInput
-                                value={title}
-                                label="Title"
-                                onChange={(event) =>
-                                    setTitle(event.currentTarget.value)
-                                }
-                                error={titleError && "please enter title"}
-                                onFocus={() => setTitleError(false)}
-                                //size="xl"
-                            />
-                            {showLocationInput ? (
-                                <div>
-                                    <LocationAutocomplete
-                                        selectedLocation={selectedLocation}
-                                        setSelectedLocation={
-                                            setSelectedLocation
-                                        }
-                                        locationError={locationError}
-                                        setLocationError={setLocationError}
-                                        id="audio-story-card"
-                                    />
-                                    <Text c="dimmed">
-                                        <Text
-                                            span
-                                            c="blue.7"
-                                            sx={{
-                                                "&:hover": {
-                                                    cursor: "pointer",
-                                                },
-                                            }}
-                                            underline
-                                            italic
-                                            onClick={() => {
-                                                setSelectedLocation(
-                                                    story.location
-                                                );
-                                                setShowLocationInput(false);
-                                            }}
-                                        >
-                                            Click here
-                                        </Text>{" "}
-                                        to keep previous location
-                                    </Text>
-                                </div>
-                            ) : (
-                                <Box
-                                    sx={{
-                                        border: "1px solid lightgrey",
-                                        borderRadius: "5px",
-                                        padding: "10px",
-                                    }}
-                                >
-                                    <Text c="dimmed">
-                                        Location previously set to{" "}
-                                        <Text span c="teal.7">
-                                            {story.location?.value}
-                                            {" - "}
-                                        </Text>
-                                        <Text
-                                            span
-                                            c="blue.7"
-                                            sx={{
-                                                "&:hover": {
-                                                    cursor: "pointer",
-                                                },
-                                            }}
-                                            underline
-                                            italic
-                                            onClick={() =>
-                                                setShowLocationInput(true)
+        <Stack>
+            <Paper withBorder p="md">
+                <Stack justify="center">
+                    <Stack spacing={1}>
+                        {editMode ? (
+                            <Stack>
+                                <TextInput
+                                    value={title}
+                                    label="Title"
+                                    onChange={(event) =>
+                                        setTitle(event.currentTarget.value)
+                                    }
+                                    error={titleError && "please enter title"}
+                                    onFocus={() => setTitleError(false)}
+                                    //size="xl"
+                                />
+                                {showLocationInput ? (
+                                    <div>
+                                        <LocationAutocomplete
+                                            selectedLocation={selectedLocation}
+                                            setSelectedLocation={
+                                                setSelectedLocation
                                             }
-                                        >
-                                            Click here
+                                            locationError={locationError}
+                                            setLocationError={setLocationError}
+                                            id="audio-story-card"
+                                        />
+                                        <Text c="dimmed">
+                                            <Text
+                                                span
+                                                c="blue.7"
+                                                sx={{
+                                                    "&:hover": {
+                                                        cursor: "pointer",
+                                                    },
+                                                }}
+                                                underline
+                                                italic
+                                                onClick={() => {
+                                                    setSelectedLocation(
+                                                        story.location
+                                                    );
+                                                    setShowLocationInput(false);
+                                                }}
+                                            >
+                                                Click here
+                                            </Text>{" "}
+                                            to keep previous location
                                         </Text>
-                                        <Text span> to edit</Text>
-                                    </Text>
-                                </Box>
+                                    </div>
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            border: "1px solid lightgrey",
+                                            borderRadius: "5px",
+                                            padding: "10px",
+                                        }}
+                                    >
+                                        <Text c="dimmed">
+                                            Location previously set to{" "}
+                                            <Text span c="teal.7">
+                                                {story.location?.value}
+                                                {" - "}
+                                            </Text>
+                                            <Text
+                                                span
+                                                c="blue.7"
+                                                sx={{
+                                                    "&:hover": {
+                                                        cursor: "pointer",
+                                                    },
+                                                }}
+                                                underline
+                                                italic
+                                                onClick={() =>
+                                                    setShowLocationInput(true)
+                                                }
+                                            >
+                                                Click here
+                                            </Text>
+                                            <Text span> to edit</Text>
+                                        </Text>
+                                    </Box>
+                                )}
+                            </Stack>
+                        ) : (
+                            <Stack align="center" spacing="sm">
+                                <Title
+                                    className="storyTitle"
+                                    align="center"
+                                    color="darkgreen"
+                                >
+                                    {title}
+                                </Title>
+                                <Group>
+                                    <Title order={6} color="dimmed" fw={450}>
+                                        {story?.authorName}
+                                    </Title>
+                                    <Divider orientation="vertical" />
+                                    <Title order={6} color="dimmed" fw={450}>
+                                        {story?.location?.value}
+                                    </Title>
+
+                                    <Divider orientation="vertical" />
+                                    <Title order={6} color="dimmed" fw={450}>
+                                        {story?.createdAt?.split("T")[0]}
+                                    </Title>
+                                </Group>
+                            </Stack>
+                        )}
+
+                        {deleteStoryNotification && (
+                            <Notification
+                                icon={<IconAlertOctagon size={18} />}
+                                color="red"
+                                title="Delete Story?"
+                                onClose={() =>
+                                    setDeleteStoryNotification(false)
+                                }
+                            >
+                                <Group>
+                                    <Button
+                                        size="sm"
+                                        color="red"
+                                        compact
+                                        loading={
+                                            isLoadingDeleteStory ||
+                                            isFetchingDeleteStory
+                                        }
+                                        onClick={handleDeleteStory}
+                                    >
+                                        Delete{" "}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        compact
+                                        onClick={() => {
+                                            setDeleteStoryNotification(false);
+                                            setEditMode(false);
+                                        }}
+                                    >
+                                        Cancel{" "}
+                                    </Button>
+                                </Group>
+                            </Notification>
+                        )}
+                        <Group mt="sm" spacing="xs">
+                            {editMode ? (
+                                <>
+                                    {(sessionProfileRelation === "self" ||
+                                        sessionProfileRelation === "owner") && (
+                                        <>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                                onClick={handleSaveEdit}
+                                                loading={
+                                                    isLoading || isFetching
+                                                }
+                                            >
+                                                <IconCheck
+                                                    size={20}
+                                                    color="green"
+                                                />
+                                            </ActionIcon>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                                onClick={() =>
+                                                    setDeleteStoryNotification(
+                                                        true
+                                                    )
+                                                }
+                                            >
+                                                <IconTrash
+                                                    size={20}
+                                                    color="red"
+                                                />
+                                            </ActionIcon>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                                onClick={handleCancelEdit}
+                                            >
+                                                <IconX size={20} color="blue" />
+                                            </ActionIcon>
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    {(sessionProfileRelation === "self" ||
+                                        sessionProfileRelation === "owner") && (
+                                        <>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                                onClick={() =>
+                                                    setEditMode(true)
+                                                }
+                                            >
+                                                <IconPencil
+                                                    size={20}
+                                                    color="green"
+                                                />
+                                            </ActionIcon>
+                                            <ActionIcon
+                                                color="dark"
+                                                radius="xl"
+                                                variant="default"
+                                            >
+                                                <IconShare
+                                                    size={20}
+                                                    color="teal"
+                                                />
+                                            </ActionIcon>
+                                        </>
+                                    )}
+                                </>
                             )}
+                        </Group>
+                        {editStoryNotification && (
+                            <Notification
+                                icon={<IconCheck size={18} />}
+                                color="teal"
+                                title="Story updated!"
+                                onClose={() => setEditStoryNotification(false)}
+                            >
+                                Story has been edited!
+                            </Notification>
+                        )}
+                    </Stack>
+
+                    <Divider
+                        label={<IconPlant2 color="green" />}
+                        labelPosition="center"
+                    />
+                    {!editMode ? (
+                        <Stack align="center" justify="center">
+                            {audioValue && (
+                                <audio controls preload="none">
+                                    <source
+                                        src={audioValue}
+                                        type="audio/webm"
+                                    />
+                                    <source src={audioValue} type="audio/ogg" />
+                                    Your browser does not support the audio
+                                    element.
+                                </audio>
+                            )}
+                            <Text>{description}</Text>
                         </Stack>
                     ) : (
-                        <Stack align="center">
-                            <Title
-                                className="storyTitle"
-                                align="center"
-                                color="darkgreen"
-                            >
-                                {title}
-                            </Title>
-                            <Group>
-                                <Title order={6} color="dimmed" fw={450}>
-                                    {story?.authorName}
-                                </Title>
-                                <Divider orientation="vertical" />
-                                <Title order={6} color="dimmed" fw={450}>
-                                    {story?.location?.value}
-                                </Title>
-
-                                <Divider orientation="vertical" />
-                                <Title order={6} color="dimmed" fw={450}>
-                                    {story?.createdAt?.split("T")[0]}
-                                </Title>
-                            </Group>
-                        </Stack>
+                        <Textarea
+                            autosize
+                            minRows={10}
+                            value={description}
+                            onChange={(event) =>
+                                setDescription(event.currentTarget.value)
+                            }
+                            error={
+                                descriptionError && "please enter description"
+                            }
+                            onFocus={() => setDescriptionError(false)}
+                        />
                     )}
 
-                    {deleteStoryNotification && (
-                        <Notification
-                            icon={<IconAlertOctagon size={18} />}
-                            color="red"
-                            title="Delete Story?"
-                            onClose={() => setDeleteStoryNotification(false)}
-                        >
-                            <Group>
-                                <Button
-                                    size="sm"
-                                    color="red"
-                                    compact
-                                    loading={
-                                        isLoadingDeleteStory ||
-                                        isFetchingDeleteStory
-                                    }
-                                    onClick={handleDeleteStory}
-                                >
-                                    Delete{" "}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    compact
-                                    onClick={() => {
-                                        setDeleteStoryNotification(false);
-                                        setEditMode(false);
-                                    }}
-                                >
-                                    Cancel{" "}
-                                </Button>
-                            </Group>
-                        </Notification>
-                    )}
-                    <Group mt="sm" spacing="xs">
-                        {editMode ? (
-                            <>
-                                {(sessionProfileRelation === "self" ||
-                                    sessionProfileRelation === "owner") && (
-                                    <>
-                                        <ActionIcon
-                                            color="dark"
-                                            radius="xl"
-                                            variant="default"
-                                            onClick={handleSaveEdit}
-                                            loading={isLoading || isFetching}
-                                        >
-                                            <IconCheck
-                                                size={20}
-                                                color="green"
-                                            />
-                                        </ActionIcon>
-                                        <ActionIcon
-                                            color="dark"
-                                            radius="xl"
-                                            variant="default"
-                                            onClick={() =>
-                                                setDeleteStoryNotification(true)
-                                            }
-                                        >
-                                            <IconTrash size={20} color="red" />
-                                        </ActionIcon>
-                                        <ActionIcon
-                                            color="dark"
-                                            radius="xl"
-                                            variant="default"
-                                            onClick={handleCancelEdit}
-                                        >
-                                            <IconX size={20} color="blue" />
-                                        </ActionIcon>
-                                    </>
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                {(sessionProfileRelation === "self" ||
-                                    sessionProfileRelation === "owner") && (
-                                    <>
-                                        <ActionIcon
-                                            color="dark"
-                                            radius="xl"
-                                            variant="default"
-                                            onClick={() => setEditMode(true)}
-                                        >
-                                            <IconPencil
-                                                size={20}
-                                                color="green"
-                                            />
-                                        </ActionIcon>
-                                        <ActionIcon
-                                            color="dark"
-                                            radius="xl"
-                                            variant="default"
-                                        >
-                                            <IconShare size={20} color="teal" />
-                                        </ActionIcon>
-                                    </>
-                                )}
-                            </>
-                        )}
-                    </Group>
-                    {editStoryNotification && (
-                        <Notification
-                            icon={<IconCheck size={18} />}
-                            color="teal"
-                            title="Story updated!"
-                            onClose={() => setEditStoryNotification(false)}
-                        >
-                            Story has been edited!
-                        </Notification>
-                    )}
+                    <Divider
+                        label={<IconAnchor color="green" />}
+                        labelPosition="center"
+                    />
                 </Stack>
-
-                <Divider
-                    label={<IconPlant2 color="green" />}
-                    labelPosition="center"
-                />
-                {!editMode ? (
-                    <Stack>
-                        {audioValue && (
-                            <audio controls preload="none">
-                                <source src={audioValue} type="audio/webm" />
-                                <source src={audioValue} type="audio/ogg" />
-                                Your browser does not support the audio element.
-                            </audio>
-                        )}
-                        <Text>{description}</Text>
-                    </Stack>
-                ) : (
-                    <Textarea
-                        autosize
-                        minRows={10}
-                        value={description}
-                        onChange={(event) =>
-                            setDescription(event.currentTarget.value)
-                        }
-                        error={descriptionError && "please enter description"}
-                        onFocus={() => setDescriptionError(false)}
+            </Paper>
+            <Paper withBorder p="md">
+                {!editMode && (
+                    <EventOrStoryMediaViewer
+                        sessionProfileRelation={sessionProfileRelation}
+                        profileUser={profileUser}
+                        sessionUser={sessionUser}
+                        eventOrStoryId={story._id}
+                        eventOrStory="audioStory"
                     />
                 )}
-                <Divider
-                    label={<IconAnchor color="green" />}
-                    labelPosition="center"
-                />
-            </Stack>
-        </Paper>
+            </Paper>
+        </Stack>
     );
 }

@@ -1,4 +1,12 @@
-import { Alert, Button, Group, Paper, Stack, TextInput } from "@mantine/core";
+import {
+    Alert,
+    Button,
+    Checkbox,
+    Group,
+    Paper,
+    Stack,
+    TextInput,
+} from "@mantine/core";
 import { IconAlertCircle, IconCheck } from "@tabler/icons";
 import axios from "axios";
 import { useState } from "react";
@@ -15,20 +23,30 @@ const checkObjectId = (id) => {
     return false;
 };
 
-export default function LinkStoryToTimeline({ setShowTimelineLink, story }) {
+export default function LinkStoryToTimeline({
+    setShowTimelineLink,
+    story,
+    sessionUserId,
+}) {
     const [inputUrl, setInputUrl] = useState("");
     const [inputUrlError, setInputUrlError] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [annonChecked, setAnnonChecked] = useState(false);
 
     const addLinkMutate = useMutation({
         mutationFn: async (id) => {
-            console.log("this be id", id);
+            console.log("this be id", id, sessionUserId);
             const url = "/api/article-shared-written-stories";
             const body = {
                 articleId: id,
+                uploaderId: sessionUserId,
+                profileId: story.userId,
                 writtenStoryId: story._id,
                 userName: story.userName,
+                title: story.title,
+                content: story.content,
+                isAnnon: annonChecked,
             };
             return axios.post(url, body);
         },
@@ -94,6 +112,13 @@ export default function LinkStoryToTimeline({ setShowTimelineLink, story }) {
                     error={inputUrlError && "please enter article url"}
                     onFocus={() => setInputUrlError(false)}
                     withAsterisk
+                />
+                <Checkbox
+                    checked={annonChecked}
+                    onChange={(event) =>
+                        setAnnonChecked(event.currentTarget.checked)
+                    }
+                    label="Post annonymously"
                 />
                 <Group grow>
                     <Button

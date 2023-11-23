@@ -1,0 +1,102 @@
+.contBackground {
+    /*background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background: linear-gradient(-45deg, #6ea4fa, #faa0ec, #f7e1f4, #23d5ab);*/
+    min-height: 100vh;
+    background-image: rgb(255, 255, 255);
+    background-image: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 1) 0%,
+        #fabc3c 100%
+    );
+    background-attachment: fixed;
+    /*background-image: radial-gradient(
+            ellipse farthest-corner at right bottom,
+            #fedb37 0%,
+            #fdb931 8%,
+            #9f7928 30%,
+            #8a6e2f 40%,
+            transparent 80%
+        ),
+        radial-gradient(
+            ellipse farthest-corner at left top,
+            #ffffff 0%,
+            #ffffac 8%,
+            #d1b464 25%,
+            #5d4a1f 62.5%,
+            #5d4a1f 100%
+        );*/
+    /*background-size: 400% 400%;*/
+    /*animation: gradient 15s ease infinite;*/
+}
+
+.cont {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.navBar {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.searchBar {
+    background: rgba(0, 0, 0, 0);
+    border: 2px solid burlywood;
+    border-radius: 3rem;
+    padding: 1rem;
+    outline: none;
+    text-align: center;
+    height: 3rem;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: xx-large;
+    transition: 0.1s ease-in-out;
+}
+.searchBar::-webkit-input-placeholder {
+    color: black; /*Change the placeholder color*/
+    opacity: 0.3; /*Change the opacity between 0 and 1*/
+    font-size: x-large;
+}
+
+.searchBar:focus {
+    border-width: 3px;
+    transition: 0.1s ease-in-out;
+}
+
+.menuItem {
+    opacity: 0.5;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    transition: 0.2s ease-in-out;
+}
+.menuItem:hover {
+    opacity: 1;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+@media (max-width: 700px) {
+    .searchBar {
+        width: 100vw;
+        height: 1rem;
+    }
+}
+
+/*@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}*/

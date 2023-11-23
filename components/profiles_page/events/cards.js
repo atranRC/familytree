@@ -45,6 +45,7 @@ import {
 //import { citiesData } from "../../../pages/demo/auth-demo/cities";
 import { DatePicker } from "@mantine/dates";
 import LocationAutocomplete from "../../location/LocationAutocomplete";
+import EventOrStoryMediaViewer from "../../v2/media_viewers/EventOrStoryMediaViewer";
 
 export function AddEventCard({
     profileUser,
@@ -378,6 +379,7 @@ export function EventCard({
     refetchEvents,
     profileUser,
     sessionProfileRelation,
+    sessionUser,
 }) {
     /*authorName: sessionUser.name,
                 type,
@@ -932,6 +934,17 @@ export function EventCard({
                                 </Text>
                             </Text>
                         </Stack>
+                    )}
+                </Paper>
+                <Paper withBorder p="md">
+                    {!editMode && (
+                        <EventOrStoryMediaViewer
+                            sessionProfileRelation={sessionProfileRelation}
+                            profileUser={profileUser}
+                            sessionUser={sessionUser}
+                            eventOrStoryId={event._id}
+                            eventOrStory="event"
+                        />
                     )}
                 </Paper>
             </Stack>
