@@ -149,7 +149,11 @@ export default function UploadedMarts({ sessionUserId }) {
                 />
             </Stack>
 
-            <Modal opened={modalOpened} onClose={() => setModalOpened(false)}>
+            <Modal
+                opened={modalOpened}
+                onClose={() => setModalOpened(false)}
+                size="lg"
+            >
                 {modalMode === "delete" && (
                     <Stack align="center">
                         <Text>Are you sure you want to proceed</Text>

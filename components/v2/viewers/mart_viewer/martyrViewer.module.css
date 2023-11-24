@@ -5,6 +5,7 @@
 .tableStyle tr td:first-child {
     opacity: 0.6;
     font-weight: 600;
+    width: 25%;
 }
 
 .name {

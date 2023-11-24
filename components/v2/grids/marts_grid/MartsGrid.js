@@ -125,7 +125,7 @@ export default function MartsGrid() {
             <Modal
                 opened={modalOpened}
                 onClose={() => setModalOpened(false)}
-                size="auto"
+                size="lg"
             >
                 <Box
                     sx={{
