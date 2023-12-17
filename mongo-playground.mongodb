@@ -42,7 +42,6 @@ db.featuredtimelinearticles.update(
     { $set: { featureDate: new Date() } },
     { upsert: false, multi: true }
 );*/
-
 //db.users.find({})
 //delete all documents
 //db.sessions.deleteMany({});

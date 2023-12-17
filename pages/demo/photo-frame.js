@@ -1,6 +1,6 @@
 import MartsGrid from "../../components/v2/grids/marts_grid/MartsGrid";
 import MartPhotoFrame from "../../components/v2/media_viewers/photo_viewers/mart_photo_frame/MartPhotoFrame";
-
+import toast, { Toaster } from "react-hot-toast";
 export default function PhotoFramePage() {
     const url1 =
         "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
@@ -25,5 +25,13 @@ export default function PhotoFramePage() {
             ))}
             </div>*/
     }
-    return <MartsGrid />;
+    //const successToast = toast.success('Successfully created')
+    const notify = () => toast.success("Here is your toast.");
+    //return <MartsGrid />;
+    return (
+        <div>
+            <button onClick={notify}>Make me a toast</button>
+            <Toaster />
+        </div>
+    );
 }

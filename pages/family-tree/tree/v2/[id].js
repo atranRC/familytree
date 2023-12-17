@@ -46,12 +46,16 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import axios from "axios";
 import Link from "next/link";
 import { DatePicker } from "@mantine/dates";
 import AddCollabs from "../../../../components/v2/famtree_page_comps/AddCollabs";
 import LocationAutocomplete from "../../../../components/location/LocationAutocomplete";
+import NoDataToShow from "../../../../components/v2/empty_data_comps/NoDataToShow";
+import moment from "moment";
+import { createContext, useContext } from "react";
+import EmailNotFoundWithInvite from "../../../../components/v2/empty_data_comps/email_not_found_w_invite/EmailNotFoundWithInvite";
 
 const BalkanTree = dynamic(
     () => import("../../../../components/tree-page/balkan_tree/BalkanTree"),
@@ -103,6 +107,8 @@ const StoriesMap = dynamic(
         ssr: false,
     }
 );
+
+const TreeContext = createContext(null);
 
 export default function FamTreeTwoPage({ asPath, pathname }) {
     //const { asPath, pathname } = useRouter();
@@ -262,7 +268,7 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
         return <Link href="/api/auth/signin">Sign in</Link>;
     }
     if (status === "loading" || !sessionTreeRelation || !fetchedFamilyTree) {
-        console.log(status);
+        console.log(status, sessionTreeRelation, fetchedFamilyTree);
         return (
             <AppShellContainer>
                 <p>loading...</p>
@@ -279,254 +285,268 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
     //if session user is member
 
     return (
-        <AppShellContainer>
-            <TitleSection>
-                <Group spacing="xs">
-                    {fetchedFamilyTree && (
-                        <Stack spacing={0} align="left" justify="center">
-                            <Title order={3} fw={500}>
-                                {fetchedFamilyTree.tree_name}
-                            </Title>
-                            <Title order={6} color="dimmed" fw={500}>
-                                {fetchedFamilyTree.description}
-                            </Title>
-                            <Title order={6} color="dimmed" fw={500}>
-                                {sessionTreeRelation}
-                            </Title>
-                        </Stack>
-                    )}
-                    <Menu shadow="md" width={200}>
-                        <Menu.Target>
-                            <Button
-                                compact
-                                rightIcon={<IconCaretDown size={14} />}
-                            >
-                                Change View
-                            </Button>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                            <Menu.Label>Trees</Menu.Label>
-                            <Menu.Item
-                                icon={<IconGrowth size={18} color="blue" />}
-                                onClick={() => window.location.reload()}
-                            >
-                                {fetchedFamilyTree.tree_name}
-                            </Menu.Item>
-                            <Menu.Label>Family Timelines</Menu.Label>
-                            <Menu.Item
-                                icon={
-                                    <IconCalendarEvent
-                                        size={18}
-                                        color="darkgreen"
-                                    />
-                                }
-                                onClick={() => setViewMode("events_timeline")}
-                            >
-                                Events Timeline
-                            </Menu.Item>
-                            <Menu.Item
-                                icon={<IconPencil size={18} color="blue" />}
-                                onClick={() =>
-                                    setViewMode("written_stories_timeline")
-                                }
-                            >
-                                Written Stories Timeline
-                            </Menu.Item>
-                            <Menu.Item
-                                icon={
-                                    <IconMicrophone size={18} color="brown" />
-                                }
-                                onClick={() =>
-                                    setViewMode("audio_stories_timeline")
-                                }
-                            >
-                                Audio Stories Timeline
-                            </Menu.Item>
-                            <Menu.Label>Maps</Menu.Label>
-                            <Menu.Item
-                                icon={<IconMap2 size={18} color="teal" />}
-                                onClick={() => setViewMode("events_map")}
-                            >
-                                Events Map
-                            </Menu.Item>
-                            <Menu.Item
-                                icon={<IconMap2 size={18} color="purple" />}
-                                onClick={() => setViewMode("stories_map")}
-                            >
-                                Stories Map
-                            </Menu.Item>
-                        </Menu.Dropdown>
-                    </Menu>
-                    <CopyButton value={asPath}>
-                        {({ copied, copy }) => (
-                            <Button
-                                color={copied ? "teal" : "blue"}
-                                onClick={copy}
-                                leftIcon={<IconShare size={20} />}
-                                variant="subtle"
-                                compact
-                            >
-                                {copied ? "Copied url" : "Share"}
-                            </Button>
+        <TreeContext.Provider value={fetchedFamilyTree}>
+            <AppShellContainer>
+                <TitleSection>
+                    <Group spacing="xs">
+                        {fetchedFamilyTree && (
+                            <Stack spacing={0} align="left" justify="center">
+                                <Title order={3} fw={500}>
+                                    {fetchedFamilyTree.tree_name}
+                                </Title>
+                                <Title order={6} color="dimmed" fw={500}>
+                                    {fetchedFamilyTree.description}
+                                </Title>
+                                <Title order={6} color="dimmed" fw={500}>
+                                    {sessionTreeRelation}
+                                </Title>
+                            </Stack>
                         )}
-                    </CopyButton>
-                    <Button
-                        variant="subtle"
-                        compact
-                        leftIcon={<IconPencil size={20} />}
-                        onClick={() => setEditModalOpened(true)}
-                        disabled={sessionTreeRelation !== "owner"}
-                    >
-                        Edit
-                    </Button>
-                    <Button
-                        variant="subtle"
-                        compact
-                        leftIcon={<IconPlus size={20} />}
-                        onClick={() => setCollabModalOpened(true)}
-                        disabled={sessionTreeRelation !== "owner"}
-                    >
-                        Collaborators
-                    </Button>
-                    <Button
-                        variant="subtle"
-                        compact
-                        color="red"
-                        leftIcon={<IconTrash size={20} />}
-                        onClick={() => setConfirmDeleteOpened(true)}
-                        disabled={sessionTreeRelation !== "owner"}
-                    >
-                        Delete
-                    </Button>
-                </Group>
-            </TitleSection>
+                        <Menu shadow="md" width={200}>
+                            <Menu.Target>
+                                <Button
+                                    compact
+                                    rightIcon={<IconCaretDown size={14} />}
+                                >
+                                    Change View
+                                </Button>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                <Menu.Label>Trees</Menu.Label>
+                                <Menu.Item
+                                    icon={<IconGrowth size={18} color="blue" />}
+                                    onClick={() => window.location.reload()}
+                                >
+                                    {fetchedFamilyTree.tree_name}
+                                </Menu.Item>
+                                <Menu.Label>Family Timelines</Menu.Label>
+                                <Menu.Item
+                                    icon={
+                                        <IconCalendarEvent
+                                            size={18}
+                                            color="darkgreen"
+                                        />
+                                    }
+                                    onClick={() =>
+                                        setViewMode("events_timeline")
+                                    }
+                                >
+                                    Events Timeline
+                                </Menu.Item>
+                                <Menu.Item
+                                    icon={<IconPencil size={18} color="blue" />}
+                                    onClick={() =>
+                                        setViewMode("written_stories_timeline")
+                                    }
+                                >
+                                    Written Stories Timeline
+                                </Menu.Item>
+                                <Menu.Item
+                                    icon={
+                                        <IconMicrophone
+                                            size={18}
+                                            color="brown"
+                                        />
+                                    }
+                                    onClick={() =>
+                                        setViewMode("audio_stories_timeline")
+                                    }
+                                >
+                                    Audio Stories Timeline
+                                </Menu.Item>
+                                <Menu.Label>Maps</Menu.Label>
+                                <Menu.Item
+                                    icon={<IconMap2 size={18} color="teal" />}
+                                    onClick={() => setViewMode("events_map")}
+                                >
+                                    Events Map
+                                </Menu.Item>
+                                <Menu.Item
+                                    icon={<IconMap2 size={18} color="purple" />}
+                                    onClick={() => setViewMode("stories_map")}
+                                >
+                                    Stories Map
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
+                        <CopyButton value={asPath}>
+                            {({ copied, copy }) => (
+                                <Button
+                                    color={copied ? "teal" : "blue"}
+                                    onClick={copy}
+                                    leftIcon={<IconShare size={20} />}
+                                    variant="subtle"
+                                    compact
+                                >
+                                    {copied ? "Copied url" : "Share"}
+                                </Button>
+                            )}
+                        </CopyButton>
+                        <Button
+                            variant="subtle"
+                            compact
+                            leftIcon={<IconPencil size={20} />}
+                            onClick={() => setEditModalOpened(true)}
+                            disabled={sessionTreeRelation !== "owner"}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="subtle"
+                            compact
+                            leftIcon={<IconPlus size={20} />}
+                            onClick={() => setCollabModalOpened(true)}
+                            disabled={sessionTreeRelation !== "owner"}
+                        >
+                            Collaborators
+                        </Button>
+                        <Button
+                            variant="subtle"
+                            compact
+                            color="red"
+                            leftIcon={<IconTrash size={20} />}
+                            onClick={() => setConfirmDeleteOpened(true)}
+                            disabled={sessionTreeRelation !== "owner"}
+                        >
+                            Delete
+                        </Button>
+                    </Group>
+                </TitleSection>
 
-            {viewMode === "tree" && (
-                <div
-                    style={{
-                        height: "100vh",
-                        border: "1px solid lightblue",
-                        background: "white",
+                {viewMode === "tree" && (
+                    <div
+                        style={{
+                            height: "100vh",
+                            border: "1px solid lightblue",
+                            background: "white",
+                        }}
+                    >
+                        <div id="tree_balkan"></div>
+                        {fetchedFamilyTree.privacy === "private" &&
+                        sessionTreeRelation === "none" ? (
+                            <div>tree is private</div>
+                        ) : (
+                            <BalkanTree
+                                treeIdProp={asPath.split("/").at(-1)}
+                                sessionTreeRelation={sessionTreeRelation}
+                                setBalkanMemberId={setBalkanMemberId}
+                                setOpened={setOpened}
+                            />
+                        )}
+                    </div>
+                )}
+                {viewMode === "events_timeline" && (
+                    <div>
+                        <h1 style={{ color: "grey" }}>
+                            Family Events Timeline
+                        </h1>
+                        <div
+                            style={{
+                                height: "100%",
+                                border: "1px solid lightblue",
+                            }}
+                        >
+                            <FamilyEventsTimeline
+                                treeId={asPath.split("/").at(-1)}
+                            />
+                        </div>
+                    </div>
+                )}
+                {viewMode === "written_stories_timeline" && (
+                    <div>
+                        <h1 style={{ color: "grey" }}>
+                            Written Stories Timeline
+                        </h1>
+                        <div
+                            style={{
+                                height: "100%",
+                                border: "1px solid lightblue",
+                            }}
+                        >
+                            <WrittenStoriesTimeline
+                                treeId={asPath.split("/").at(-1)}
+                            />
+                        </div>
+                    </div>
+                )}
+                {viewMode === "audio_stories_timeline" && (
+                    <div>
+                        <h1 style={{ color: "grey" }}>
+                            Audio Stories Timeline
+                        </h1>
+                        <div
+                            style={{
+                                height: "100%",
+                                border: "1px solid lightblue",
+                            }}
+                        >
+                            <AudioStoriesTimeline
+                                treeId={asPath.split("/").at(-1)}
+                            />
+                        </div>
+                    </div>
+                )}
+                {viewMode === "events_map" && (
+                    <div>
+                        <h1 style={{ color: "grey" }}>Family Events Map</h1>
+                        <EventsMap treeId={asPath.split("/").at(-1)} />
+                    </div>
+                )}
+                {viewMode === "stories_map" && (
+                    <div>
+                        <h1 style={{ color: "grey" }}>Family Stories Map</h1>
+                        <StoriesMap treeId={asPath.split("/").at(-1)} />
+                    </div>
+                )}
+
+                <Modal
+                    opened={opened}
+                    onClose={() => {
+                        setOpened(false);
+                        //setActiveStep(0);
                     }}
+                    title="Tagged User"
+                    size="lg"
+                    overflow="inside"
                 >
-                    <div id="tree_balkan"></div>
-                    {fetchedFamilyTree.privacy === "private" &&
-                    sessionTreeRelation === "none" ? (
-                        <div>tree is private</div>
-                    ) : (
-                        <BalkanTree
-                            treeIdProp={asPath.split("/").at(-1)}
-                            sessionTreeRelation={sessionTreeRelation}
-                            setBalkanMemberId={setBalkanMemberId}
-                            setOpened={setOpened}
-                        />
-                    )}
-                </div>
-            )}
-            {viewMode === "events_timeline" && (
-                <div>
-                    <h1 style={{ color: "grey" }}>Family Events Timeline</h1>
-                    <div
-                        style={{
-                            height: "100%",
-                            border: "1px solid lightblue",
-                        }}
-                    >
-                        <FamilyEventsTimeline
-                            treeId={asPath.split("/").at(-1)}
-                        />
-                    </div>
-                </div>
-            )}
-            {viewMode === "written_stories_timeline" && (
-                <div>
-                    <h1 style={{ color: "grey" }}>Written Stories Timeline</h1>
-                    <div
-                        style={{
-                            height: "100%",
-                            border: "1px solid lightblue",
-                        }}
-                    >
-                        <WrittenStoriesTimeline
-                            treeId={asPath.split("/").at(-1)}
-                        />
-                    </div>
-                </div>
-            )}
-            {viewMode === "audio_stories_timeline" && (
-                <div>
-                    <h1 style={{ color: "grey" }}>Audio Stories Timeline</h1>
-                    <div
-                        style={{
-                            height: "100%",
-                            border: "1px solid lightblue",
-                        }}
-                    >
-                        <AudioStoriesTimeline
-                            treeId={asPath.split("/").at(-1)}
-                        />
-                    </div>
-                </div>
-            )}
-            {viewMode === "events_map" && (
-                <div>
-                    <h1 style={{ color: "grey" }}>Family Events Map</h1>
-                    <EventsMap treeId={asPath.split("/").at(-1)} />
-                </div>
-            )}
-            {viewMode === "stories_map" && (
-                <div>
-                    <h1 style={{ color: "grey" }}>Family Stories Map</h1>
-                    <StoriesMap treeId={asPath.split("/").at(-1)} />
-                </div>
-            )}
+                    <ModalContent
+                        treeId={asPath.split("/").at(-1)}
+                        balkanMemberId={balkanMemberId}
+                        setOpened={setOpened}
+                        sessionTreeRelation={sessionTreeRelation}
+                    />
+                </Modal>
 
-            <Modal
-                opened={opened}
-                onClose={() => {
-                    setOpened(false);
-                    //setActiveStep(0);
-                }}
-                title="Tagged User"
-                size="lg"
-                overflow="inside"
-            >
-                <ModalContent
-                    treeId={asPath.split("/").at(-1)}
-                    balkanMemberId={balkanMemberId}
-                    setOpened={setOpened}
-                    sessionTreeRelation={sessionTreeRelation}
-                />
-            </Modal>
-
-            <Modal
-                opened={collabModalOpened}
-                onClose={() => setCollabModalOpened(false)}
-                title="Manage Collaborators"
-                size="lg"
-                overflow="inside"
-            >
-                <AddCollabs treeId={asPath.split("/").at(-1)} />
-            </Modal>
-            <Modal
-                opened={editModalOpened}
-                onClose={() => setEditModalOpened(false)}
-                title="Edit tree"
-            >
-                <EditTree treeId={asPath.split("/").at(-1)} />
-            </Modal>
-            <Modal
-                opened={confirmDeleteOpened}
-                onClose={() => setConfirmDeleteOpened(false)}
-                title="Confirm delete?"
-            >
-                <DeleteTree
-                    treeId={asPath.split("/").at(-1)}
-                    setConfirmDeleteOpened={setConfirmDeleteOpened}
-                    treeName={fetchedFamilyTree.tree_name}
-                />
-            </Modal>
-        </AppShellContainer>
+                <Modal
+                    opened={collabModalOpened}
+                    onClose={() => setCollabModalOpened(false)}
+                    title="Manage Collaborators"
+                    size="lg"
+                    overflow="inside"
+                >
+                    {/*<AddCollabs treeId={asPath.split("/").at(-1)} />*/}
+                    <AddCollabs tree={fetchedFamilyTree} />
+                </Modal>
+                <Modal
+                    opened={editModalOpened}
+                    onClose={() => setEditModalOpened(false)}
+                    title="Edit tree"
+                >
+                    <EditTree treeId={asPath.split("/").at(-1)} />
+                </Modal>
+                <Modal
+                    opened={confirmDeleteOpened}
+                    onClose={() => setConfirmDeleteOpened(false)}
+                    title="Confirm delete?"
+                >
+                    <DeleteTree
+                        treeId={asPath.split("/").at(-1)}
+                        setConfirmDeleteOpened={setConfirmDeleteOpened}
+                        treeName={fetchedFamilyTree.tree_name}
+                    />
+                </Modal>
+            </AppShellContainer>
+        </TreeContext.Provider>
     );
 }
 
@@ -572,16 +592,16 @@ function ModalContent({
                 </Tabs.List>
             </Tabs>
             {activeTab === "view" ? (
-                data && data.data.data.taggedUser ? (
+                data && data?.data?.data?.taggedUser ? (
                     <ViewTreeMember
-                        selectedTreeMemberUserId={data.data.data.taggedUser}
+                        selectedTreeMemberUserId={data?.data?.data?.taggedUser}
                     />
                 ) : (
-                    <div>This member has no user tagged.</div>
+                    <NoDataToShow message="This member has no tagged user" />
                 )
             ) : (
                 <AddMemberStepper
-                    treeMemberDocumentId={data.data.data._id.toString()}
+                    treeMemberDocumentId={data?.data?.data?._id.toString()}
                     setOpened={setOpened}
                 />
             )}
@@ -693,6 +713,7 @@ function AddMemberStepper({ treeMemberDocumentId, setOpened }) {
                     allowStepSelect={false}
                 >
                     <StepTwo
+                        treeMemberDocumentId={treeMemberDocumentId}
                         newRelativeFirstName={newRelativeFirstName}
                         email={newRelativeEmail}
                         mode={mode}
@@ -1062,6 +1083,7 @@ function StepOne({
 }
 
 function StepTwo({
+    treeMemberDocumentId,
     newRelativeFirstName,
     email,
     mode,
@@ -1073,6 +1095,7 @@ function StepTwo({
         <div>
             {mode === "email" ? (
                 <EmailSearchResult
+                    treeMemberDocumentId={treeMemberDocumentId}
                     email={email}
                     setMemberAddMode={setMemberAddMode}
                     setActive={setActive}
@@ -1271,6 +1294,7 @@ function InfoSearchResult({
 }
 
 function EmailSearchResult({
+    treeMemberDocumentId,
     email,
     setActive,
     setSelectedSearchResultCard,
@@ -1290,19 +1314,28 @@ function EmailSearchResult({
                 transition: "0.5s",
             },
         },
+        inviteLink: {
+            color: "blue",
+            textDecoration: "underline",
+            "&:hover": {
+                cursor: "pointer",
+            },
+        },
     }));
 
     const { classes } = useStyles();
+    const tree = useContext(TreeContext);
 
     const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
         queryKey: "similar-users-with-email",
+        refetchOnWindowFocus: false,
         queryFn: () => {
             const uri = `/api/users/users-mongoose/${email}`;
 
             return axios.get(uri);
         },
         onSuccess: () => {
-            console.log("hello");
+            //console.log("hello");
         },
     });
 
@@ -1320,10 +1353,26 @@ function EmailSearchResult({
         return <div>error</div>;
     }
 
+    if (!data?.data?.data)
+        return (
+            <EmailNotFoundWithInvite
+                treeMemberDocumentId={treeMemberDocumentId}
+                tree={tree}
+                email={email}
+                invitationType="member"
+            />
+        );
+
     return (
         <Stack spacing="sm">
             <Paper withBorder p="md">
                 <Stack>
+                    <EmailNotFoundWithInvite
+                        treeMemberDocumentId={treeMemberDocumentId}
+                        tree={tree}
+                        email={email}
+                        invitationType="member"
+                    />
                     <Title order={4} color="skyblue" fw={500} align="center">
                         We found the following people in our database:
                     </Title>
@@ -1346,10 +1395,9 @@ function EmailSearchResult({
                                 </Title>
                                 <Text size="sm" c="dimmed" fw={500} order={6}>
                                     Born:{" "}
-                                    {data.data.data.birthday &&
-                                        data.data.data.birthday
-                                            .toString()
-                                            .split("T")[0]}
+                                    {moment(data?.data?.data?.birthday).format(
+                                        "YYYY-MM-DD"
+                                    )}
                                 </Text>
                                 <Text size="sm" c="dimmed" fw={500} order={6}>
                                     Location:{" "}

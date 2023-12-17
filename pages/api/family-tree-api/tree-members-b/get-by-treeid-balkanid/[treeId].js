@@ -12,15 +12,15 @@ export default async function handler(req, res) {
 
     switch (method) {
         case "GET":
-            console.log(treeId, balkanId);
             try {
                 const treeMembers = await TreeMembersB.findOne({
                     treeId: treeId,
                     id: balkanId,
                 });
-                if (!treeMembers) {
+                /*if (!treeMembers) {
                     return res.status(400).json({ success: false });
                 }
+                res.status(200).json({ success: true, data: treeMembers });*/
                 res.status(200).json({ success: true, data: treeMembers });
             } catch (error) {
                 console.log(error);

@@ -81,13 +81,13 @@ export default function MyTreesPage({ ownerData, treesData }) {
                 description: newTreeDescription,
                 privacy: newTreePrivacyValue,
             };
-            console.log(bod);
+            //console.log(bod);
             return axios.post(uri, bod);
         },
         enabled: false,
 
         onSuccess: (d) => {
-            console.log(d.data.data._id.toString());
+            //console.log(d.data.data._id.toString());
         },
     });
     const {
@@ -127,7 +127,7 @@ export default function MyTreesPage({ ownerData, treesData }) {
                 },
                 taggedUser: ownerData._id,
             };
-            console.log(bod);
+            //console.log(bod);
             return axios.post(uri, bod);
         },
         enabled: data ? true : false,

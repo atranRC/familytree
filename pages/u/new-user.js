@@ -338,7 +338,7 @@ export function StepperUserInfo() {
                 //console.log(res.data.data);
                 setUpdatedUser(res.data.data);
                 setUpdatingUserInfo(false);
-                router.push("/family-tree/tree/my-trees");
+                router.push("/u/invite-onboarding");
             })
             .catch((err) => {
                 console.log(err);

@@ -12,40 +12,41 @@ import {
 import { IconAt, IconCheck, IconX } from "@tabler/icons";
 import axios from "axios";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
+import { useSession } from "next-auth/react";
+import toast, { Toaster } from "react-hot-toast";
+import { createStyles } from "@mantine/core";
+import EmailNotFoundWithInvite from "../empty_data_comps/email_not_found_w_invite/EmailNotFoundWithInvite";
 
-function AddWithEmail({ treeId }) {
+function AddWithEmail({ tree }) {
+    const { data: session, status } = useSession();
     const [collabEmail, setCollabEmail] = useState("");
-    const [showSuccessNotification, setShowSuccessNotification] =
-        useState(false);
     const [showErrorNotification, setShowErrorNotification] = useState(false);
 
-    const { isLoading, isFetching, data, refetch, isError, error } = useQuery({
-        queryKey: "add_collaborator",
-        queryFn: () => {
+    const notifyAddSuccess = () => toast.success("Collaborator Added");
+    const notifyGmailOnly = () =>
+        toast.error("We currently support gmail authentication only");
+
+    const addCollabMutation = useMutation({
+        mutationFn: () => {
             const bod = {
                 email: collabEmail,
-                treeId: treeId,
+                treeId: tree._id,
             };
+
             return axios.post(
                 `/api/family-tree-api/tree-members-b/add-collab`,
                 bod
             );
         },
-        enabled: false,
-        onSuccess: (d) => {
+        onSuccess: (data) => {
             setCollabEmail("");
-            setShowSuccessNotification(true);
+            notifyAddSuccess();
         },
         onError: (err) => {
-            setCollabEmail("");
             setShowErrorNotification(true);
         },
     });
-
-    const handleAddCollab = () => {
-        refetch();
-    };
 
     return (
         <Paper withBorder p="md">
@@ -54,6 +55,7 @@ function AddWithEmail({ treeId }) {
                     Enter the email of the user you would like to add as a
                     collaborator for this tree
                 </Text>
+
                 <TextInput
                     label="Email"
                     value={collabEmail}
@@ -63,38 +65,38 @@ function AddWithEmail({ treeId }) {
                     onChange={(e) => setCollabEmail(e.target.value)}
                     onFocus={() => {
                         setShowErrorNotification(false);
-                        setShowSuccessNotification(false);
                     }}
                 />
-                {showSuccessNotification && (
-                    <Notification
-                        icon={<IconCheck size="1.1rem" />}
-                        color="teal"
-                        title="Success"
-                    >
-                        Collaborator added
-                    </Notification>
-                )}
                 {showErrorNotification && (
-                    <Notification icon={<IconX size="1.1rem" />} color="red">
-                        Failed to add collaborator
-                    </Notification>
+                    <EmailNotFoundWithInvite
+                        email={collabEmail}
+                        tree={tree}
+                        invitationType="collab"
+                    />
                 )}
                 <Button
                     mt="sm"
                     variant="outline"
-                    onClick={handleAddCollab}
-                    disabled={collabEmail === ""}
-                    loading={isLoading || isFetching}
+                    onClick={() => {
+                        const regex = new RegExp("^[a-zA-Z0-9-_.]+@gmail.com$");
+                        if (regex.test(collabEmail)) {
+                            addCollabMutation.mutate();
+                        } else {
+                            notifyGmailOnly();
+                        }
+                    }}
+                    disabled={collabEmail === "" || addCollabMutation.isLoading}
+                    loading={addCollabMutation.isLoading}
                 >
                     Add Collaborator
                 </Button>
             </Stack>
+            <Toaster />
         </Paper>
     );
 }
 
-function ManageCollabs({ treeId }) {
+function ManageCollabs({ tree }) {
     const [existingCollabs, setExistingCollabs] = useState(null);
     const [showSuccessNotification, setShowSuccessNotification] =
         useState(false);
@@ -105,7 +107,7 @@ function ManageCollabs({ treeId }) {
         queryKey: "get_existing_collaborators",
         queryFn: () => {
             return axios.get(
-                `/api/family-tree-api/tree-members-b/get-collabs/${treeId}`
+                `/api/family-tree-api/tree-members-b/get-collabs/${tree._id}`
             );
         },
         //enabled: false,
@@ -203,7 +205,7 @@ function ManageCollabs({ treeId }) {
     );
 }
 
-export default function AddCollabs({ treeId }) {
+export default function AddCollabs({ tree }) {
     const [activeTab, setActiveTab] = useState("existing");
     return (
         <Paper style={{ backgroundColor: "#f8f8f8" }} p="md">
@@ -214,9 +216,9 @@ export default function AddCollabs({ treeId }) {
                 </Tabs.List>
             </Tabs>
             {activeTab === "existing" ? (
-                <ManageCollabs treeId={treeId} />
+                <ManageCollabs tree={tree} />
             ) : (
-                <AddWithEmail treeId={treeId} />
+                <AddWithEmail tree={tree} />
             )}
         </Paper>
     );
