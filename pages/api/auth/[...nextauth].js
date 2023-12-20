@@ -29,6 +29,7 @@ export const authOptions = {
         },
     },
     pages: {
+        signIn: "/u/signin",
         newUser: "/u/new-user",
     },
     adapter: MongoDBAdapter(clientPromise, {

@@ -56,6 +56,7 @@ import LocationAutocomplete from "../../components/location/LocationAutocomplete
 import IntroductionModal from "../../components/v2/help/NewUserIntroductionModal";
 import NewUserIntroductionModal from "../../components/v2/help/NewUserIntroductionModal";
 import HelpModalContent from "../../components/v2/help/HelpModalContent";
+import LocationAutocompleteV2 from "../../components/v2/location/location_autocomplete/LocationAutoCompleteV2";
 
 function NoAccounts({ updateNewUserHandler }) {
     const router = useRouter();
@@ -135,6 +136,24 @@ function UnclaimedAccountsList({
     ];
     return (
         <>
+            {dataAccs && unclaimedAccounts.length > 0 && (
+                <Stack align="center">
+                    <Text fz="sm" c="dimmed" className={classes.goToAccount}>
+                        Cant find any match?{" "}
+                        <Link href={"#"} onClick={updateNewUserHandler}>
+                            Go to your Account
+                        </Link>
+                    </Text>
+                    <Pagination
+                        page={page}
+                        onChange={setPage}
+                        total={dataAccs.data.data.pagination.pageCount}
+                        siblings={1}
+                        initialPage={1}
+                        position="center"
+                    />
+                </Stack>
+            )}
             <ScrollArea style={{ height: "60vh" }}>
                 {unclaimedAccounts.length > 0 ? (
                     <SimpleGrid
@@ -200,24 +219,6 @@ function UnclaimedAccountsList({
                     <NoAccounts updateNewUserHandler={updateNewUserHandler} />
                 )}
             </ScrollArea>
-            {dataAccs && unclaimedAccounts.length > 0 && (
-                <Stack>
-                    <Text fz="sm" c="dimmed" className={classes.goToAccount}>
-                        Cant find any match?{" "}
-                        <Link href={"#"} onClick={updateNewUserHandler}>
-                            Go to your Account
-                        </Link>
-                    </Text>
-                    <Pagination
-                        page={page}
-                        onChange={setPage}
-                        total={dataAccs.data.data.pagination.pageCount}
-                        siblings={1}
-                        initialPage={1}
-                        position="center"
-                    />
-                </Stack>
-            )}
         </>
     );
 }
@@ -226,6 +227,7 @@ export function StepperUserInfo() {
     const { data: session } = useSession();
 
     const [active, setActive] = useState(0);
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     const [name, setName] = useState({ value: "", error: false });
     const [fathersName, setFathersName] = useState({ value: "", error: false });
@@ -338,6 +340,7 @@ export function StepperUserInfo() {
                 //console.log(res.data.data);
                 setUpdatedUser(res.data.data);
                 setUpdatingUserInfo(false);
+                setIsRedirecting(true);
                 router.push("/u/invite-onboarding");
             })
             .catch((err) => {
@@ -380,6 +383,15 @@ export function StepperUserInfo() {
             }
         }
     };
+
+    if (isRedirecting) {
+        return (
+            <Stack justify="center" align="center">
+                <Loader variant="dots" c="teal" />
+                <Text c="gray">redirecting</Text>
+            </Stack>
+        );
+    }
 
     return (
         <Box>
@@ -515,21 +527,41 @@ export function StepperUserInfo() {
                         label="Tell us about yourself"
                         labelPosition="center"
                     />
-                    <LocationAutocomplete
+                    {/*<LocationAutocomplete
                         selectedLocation={selectedLocation}
                         setSelectedLocation={setSelectedLocation}
                         locationError={locationError}
                         setLocationError={setLocationError}
                         label="Current City"
                         id="new-user-1"
+                    />*/}
+                    {JSON.stringify(selectedLocation, locationError)}
+                    <LocationAutocompleteV2
+                        setSelectedLocation={setSelectedLocation}
+                        locationError={locationError}
+                        setLocationError={setLocationError}
+                        id="new-user-1"
+                        label="Current City"
+                        placeholder="Enter location name"
+                        desc="Select location from the dropdown suggestions"
                     />
-                    <LocationAutocomplete
+                    {/*<LocationAutocomplete
                         selectedLocation={selectedLocation2}
                         setSelectedLocation={setSelectedLocation2}
                         locationError={locationError2}
                         setLocationError={setLocationError2}
                         label="Place of Birth"
                         id="new-user-2"
+                    />*/}
+                    {JSON.stringify(selectedLocation2, locationError2)}
+                    <LocationAutocompleteV2
+                        setSelectedLocation={setSelectedLocation2}
+                        locationError={locationError2}
+                        setLocationError={setLocationError2}
+                        id="new-user-2"
+                        label="Place of Birth"
+                        placeholder="Enter location name"
+                        desc="Select location from the dropdown suggestions"
                     />
                     <DatePicker
                         placeholder="Pick date"
@@ -564,9 +596,8 @@ export function StepperUserInfo() {
                         Unclaimed Profiles that match your info
                     </Title>
                     <Title c="dimmed" fw={500} order={6} align="center" mb="sm">
-                        A relative of yours may have added you to their family
-                        tree with one of the following Unclaimed Profiles.
-                        Select the one that you think is you and send them a
+                        Any Unclaimed Profiles created in your name will show up
+                        below. Select the one that you think is you and send a
                         Claim Request. We will automatically link the contents
                         to your account on approval.{" "}
                         <Text
