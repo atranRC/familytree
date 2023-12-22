@@ -22,6 +22,7 @@ import {
     Menu,
     Avatar,
     Grid,
+    Flex,
 } from "@mantine/core";
 import {
     IconAbc,
@@ -52,6 +53,7 @@ import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { AvatarMenuContent, AvatarWithMenu } from "../navBar";
 import { useRouter } from "next/router";
+import TigrayWikiLogo from "../TigrayWikiLogo";
 
 export function Shell({ children }) {
     const useStyles = createStyles((theme) => ({
@@ -352,8 +354,25 @@ export function Shell({ children }) {
                                 mr={20}
                             />
                         </MediaQuery>
-                        <Group grow w="100%">
-                            <h1>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                height: "100%",
+                                width: "100%",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    flexGrow: 1,
+                                    display: "flex",
+                                }}
+                            >
+                                <TigrayWikiLogo />
+                            </div>
+
+                            {/*<h1>
                                 <span
                                     style={{
                                         color: "red",
@@ -375,13 +394,14 @@ export function Shell({ children }) {
                                 >
                                     Wiki
                                 </span>
-                            </h1>
+                            </h1>*/}
 
                             <MediaQuery
                                 smallerThan="sm"
                                 styles={{ display: "none" }}
                             >
                                 <TextInput
+                                    sx={{ flexGrow: 1.5 }}
                                     placeholder="Search TigrayWiki"
                                     value={searchTerm}
                                     onChange={(e) =>
@@ -423,6 +443,7 @@ export function Shell({ children }) {
                                 >
                                     <div
                                         style={{
+                                            flexGrow: 1,
                                             display: "flex",
                                             flexDirection: "row-reverse",
                                         }}
@@ -437,6 +458,7 @@ export function Shell({ children }) {
                                 >
                                     <div
                                         style={{
+                                            flexGrow: 1,
                                             display: "flex",
                                             flexDirection: "row-reverse",
                                         }}
@@ -451,7 +473,7 @@ export function Shell({ children }) {
                                     </div>
                                 </MediaQuery>
                             )}
-                        </Group>
+                        </div>
                     </div>
                 </Header>
             }

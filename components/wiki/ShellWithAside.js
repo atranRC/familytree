@@ -54,6 +54,7 @@ import {
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { AvatarMenuContent, AvatarWithMenu } from "../navBar";
+import TigrayWikiLogo from "../TigrayWikiLogo";
 
 export function ShellWithAside({ children, page }) {
     const useStyles = createStyles((theme) => ({
@@ -373,8 +374,25 @@ export function ShellWithAside({ children, page }) {
                                 mr={20}
                             />
                         </MediaQuery>
-                        <Group grow w="100%">
-                            <h1>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                height: "100%",
+                                width: "100%",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    flexGrow: 1,
+                                    display: "flex",
+                                }}
+                            >
+                                <TigrayWikiLogo />
+                            </div>
+
+                            {/*<h1>
                                 <span
                                     style={{
                                         color: "red",
@@ -396,12 +414,14 @@ export function ShellWithAside({ children, page }) {
                                 >
                                     Wiki
                                 </span>
-                            </h1>
+                            </h1>*/}
+
                             <MediaQuery
                                 smallerThan="sm"
                                 styles={{ display: "none" }}
                             >
                                 <TextInput
+                                    sx={{ flexGrow: 1.5 }}
                                     placeholder="Search TigrayWiki"
                                     value={searchTerm}
                                     onChange={(e) =>
@@ -416,8 +436,9 @@ export function ShellWithAside({ children, page }) {
                                     }}
                                     rightSection={
                                         <ActionIcon
-                                            //variant="filled"
+                                            variant="outline"
                                             radius="xl"
+                                            color="blue"
                                             disabled={searchTerm.length < 1}
                                             onClick={() => {
                                                 window.location.replace(
@@ -428,9 +449,10 @@ export function ShellWithAside({ children, page }) {
                                             <IconSearch size={18} />{" "}
                                         </ActionIcon>
                                     }
-                                    c="blue"
+                                    color="blue"
                                 />
                             </MediaQuery>
+
                             {session ? (
                                 <MediaQuery
                                     smallerThan="sm"
@@ -441,6 +463,7 @@ export function ShellWithAside({ children, page }) {
                                 >
                                     <div
                                         style={{
+                                            flexGrow: 1,
                                             display: "flex",
                                             flexDirection: "row-reverse",
                                         }}
@@ -455,6 +478,7 @@ export function ShellWithAside({ children, page }) {
                                 >
                                     <div
                                         style={{
+                                            flexGrow: 1,
                                             display: "flex",
                                             flexDirection: "row-reverse",
                                         }}
@@ -469,7 +493,7 @@ export function ShellWithAside({ children, page }) {
                                     </div>
                                 </MediaQuery>
                             )}
-                        </Group>
+                        </div>
                     </div>
                 </Header>
             }
