@@ -97,6 +97,7 @@ function Familytree(props) {
                 console.log("added node", args);
                 const bod = {
                     treeId: props.treeIdProp,
+                    treeName: props.treeNameProp,
                     updateData: {
                         nodesAdded: args.addNodesData,
                         nodesRemoved: args.removeNodeId,
@@ -118,6 +119,7 @@ function Familytree(props) {
                 console.log("edited info", args);
                 const bod = {
                     treeId: props.treeIdProp,
+                    treeName: props.treeNameProp,
                     updateData: {
                         nodesUpdated: args.updateNodesData,
                     },
@@ -184,6 +186,7 @@ var nodeBinding = {
 
 export default function BalkanTree({
     treeIdProp,
+    treeNameProp = "",
     sessionTreeRelation,
     setBalkanMemberId,
     setOpened,
@@ -218,6 +221,7 @@ export default function BalkanTree({
             nodes={fetchedTreeMembers}
             nodeBinding={nodeBinding}
             treeIdProp={treeIdProp}
+            treeNameProp={treeNameProp}
             sessionTreeRelation={sessionTreeRelation}
             setBalkanMemberId={setBalkanMemberId}
             setOpened={setOpened}

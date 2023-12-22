@@ -428,6 +428,7 @@ export default function FamTreeTwoPage({ asPath, pathname }) {
                         ) : (
                             <BalkanTree
                                 treeIdProp={asPath.split("/").at(-1)}
+                                treeNameProp={fetchedFamilyTree.tree_name}
                                 sessionTreeRelation={sessionTreeRelation}
                                 setBalkanMemberId={setBalkanMemberId}
                                 setOpened={setOpened}

@@ -61,13 +61,14 @@ export default async function handler(req, res) {
                     }
                     return {
                         treeId: req.body.treeId,
+                        treeName: req.body.treeName,
                         id: n.id,
                         nodeInfo: n,
                         taggedUser: tUser,
                         canPost: false,
                     };
                 });
-                console.log("nodes to add", nodesToAdd);
+                //console.log("nodes to add", nodesToAdd);
                 const treeMembers = await TreeMembersB.insertMany(nodesToAdd);
 
                 let nodesToUpdate = null;
@@ -90,7 +91,7 @@ export default async function handler(req, res) {
                             };
                         }
                     );
-                    console.log("nodes to update", nodesToUpdate);
+                    //console.log("nodes to update", nodesToUpdate);
                     const updatedTreeMembers = await TreeMembersB.bulkWrite(
                         nodesToUpdate
                     );
@@ -103,7 +104,7 @@ export default async function handler(req, res) {
                     data: { nToAdd: nodesToAdd, nToUp: nodesToUpdate },
                 });
             } catch (error) {
-                console.log(error);
+                //console.log(error);
                 res.status(400).json({ success: false });
             }
             break;
