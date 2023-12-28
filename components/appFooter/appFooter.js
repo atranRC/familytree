@@ -13,6 +13,7 @@ import {
     IconBrandInstagram,
     IconAppWindow,
 } from "@tabler/icons";
+import TigrayWikiLogo from "../TigrayWikiLogo";
 
 const useStyles = createStyles((theme) => ({
     footer: {
@@ -60,7 +61,7 @@ export function FooterCentered({ links }) {
     return (
         <div className={classes.footer}>
             <div className={classes.inner}>
-                <IconAppWindow size={28} />
+                <TigrayWikiLogo />
                 <Stack align="center" spacing={6}>
                     <Group className={classes.links}>{items}</Group>
                     <Title order={6} fw={500} c="dimmed">

@@ -18,7 +18,7 @@ export default function NoDataToShow({ message }) {
     return (
         <div className={classes.cont}>
             <Stack align="center" spacing={3}>
-                <IconMoodEmpty color="gray" size={32} />
+                <IconMoodEmpty color="gray" size={64} />
                 <Text c="gray">{message}</Text>
             </Stack>
         </div>
