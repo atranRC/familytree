@@ -1,4 +1,4 @@
-import {
+/*import {
     Badge,
     Button,
     createStyles,
@@ -65,6 +65,7 @@ export default function UnclaimedProfilesPage({
                     Profiles that you have created in your family tree
                 </Title>
             </TreePageTitleSection>
+
             <MediaQuery smallerThan="sm" styles={{ padding: "0px" }}>
                 <Paper withBorder p="md" bg="white">
                     <TreesNav activePage={"unclaimed"} />
@@ -110,7 +111,7 @@ export async function getServerSideProps(context) {
     const unclaimedProfiles = await Users.find({
         owner: user._id.toString(),
     });
-    console.log("unclaimed profilesss", unclaimedProfiles);
+    //console.log("unclaimed profilesss", unclaimedProfiles);
 
     const unclaimedProfiles2 = JSON.parse(JSON.stringify(unclaimedProfiles));
     const ownerData = JSON.parse(JSON.stringify(user));
@@ -122,4 +123,138 @@ export async function getServerSideProps(context) {
             unclaimedProfiles2,
         },
     };
+}
+*/
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
+import AppShellContainer from "../../../components/appShell";
+import { ProfileTitleSection } from "../../../components/titleSections";
+import {
+    ActionIcon,
+    Box,
+    Button,
+    Container,
+    Group,
+    MediaQuery,
+    Modal,
+    Paper,
+    Stack,
+    Text,
+    Title,
+} from "@mantine/core";
+import ProfileLoadingScreen from "../../../components/v2/loading_screens/profile_loading/ProfileLoadingScreen";
+import TreesNav from "../../../components/tree-page/modals/navigation/treePageNav";
+import MyUnclaimedProfilesTable from "../../../components/v2/tables/unclaimed_profiles/MyUnclaimedProfilesTable";
+import UserViewerV2 from "../../../components/v2/viewers/user_viewer/UserViewer";
+
+export default function UnclaimedProfilesPage() {
+    const { data: session, status } = useSession();
+
+    const [modalOpened, setModalOpened] = useState(false);
+    const [modalViewMode, setModalViewMode] = useState("");
+    const [selectedRow, setSelectedRow] = useState(null);
+
+    const router = useRouter();
+
+    const handleOnRowClick = (row, action = "") => {
+        action === "view"
+            ? setModalViewMode("view")
+            : setModalViewMode("delete");
+        setSelectedRow(row);
+        setModalOpened(true);
+    };
+
+    if (status === "unauthenticated") return <div>Not logged in</div>;
+    /*if (status === "loading")
+        return <ProfileLoadingScreen>loading session...</ProfileLoadingScreen>;*/
+    if (status === "loading")
+        return <ProfileLoadingScreen>loading</ProfileLoadingScreen>;
+
+    return (
+        <AppShellContainer>
+            <ProfileTitleSection picUrl={""}>
+                <Title order={2} fw={600}>
+                    {session.user.name}
+                </Title>
+                <Title order={5} fw={500}>
+                    Unclaimed Profiles
+                </Title>
+            </ProfileTitleSection>
+
+            <Paper withBorder p="md" bg="white">
+                <TreesNav activePage={"unclaimed"} />
+            </Paper>
+
+            <MediaQuery
+                smallerThan="sm"
+                styles={{ padding: "0px", paddingTop: "10px" }}
+            >
+                <Container pt="md">
+                    <Stack spacing="sm">
+                        <Title color="gray" mt="md">
+                            Unclaimed Profiles you&apos;ve created:
+                        </Title>
+                        <MyUnclaimedProfilesTable
+                            onRowClick={handleOnRowClick}
+                        />
+                    </Stack>
+                </Container>
+            </MediaQuery>
+            <Modal
+                opened={modalOpened}
+                onClose={() => setModalOpened(false)}
+                padding={modalViewMode === "delete" ? 0 : "sm"}
+                radius="1.5rem"
+                withCloseButton={modalViewMode === "delete" ? false : true}
+            >
+                {modalViewMode === "view" && (
+                    <UserViewerV2 user={selectedRow} />
+                )}
+                {modalViewMode === "delete" && (
+                    <Box
+                        sx={{
+                            backgroundColor: "#FF7F7F",
+
+                            borderRadius: "1.5rem",
+                        }}
+                        p="sm"
+                    >
+                        <Paper withBorder p="sm" radius="1.5rem">
+                            <Stack>
+                                <Stack
+                                    spacing={0}
+                                    justify="center"
+                                    align="center"
+                                >
+                                    <Title order={4} align="center" color="red">
+                                        {selectedRow?.name}
+                                    </Title>
+                                    <Title order={5} align="center">
+                                        Are you sure you want to delete this
+                                        Unclaimed Profile?
+                                    </Title>
+                                    <Text fz="xs" color="gray" align="center">
+                                        All Events, Written Stories, and Audio
+                                        Stories will be deleted forever
+                                    </Text>
+                                </Stack>
+                                <Group position="center">
+                                    <Button color="red">Delete</Button>
+                                    <Button
+                                        color="gray"
+                                        onClick={() => setModalOpened(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </Group>
+                            </Stack>
+                        </Paper>
+                    </Box>
+                )}
+            </Modal>
+        </AppShellContainer>
+    );
 }
