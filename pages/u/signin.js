@@ -8,6 +8,7 @@ import {
 } from "@mantine/core";
 import { IconBrandGoogle } from "@tabler/icons";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
     cont: {
@@ -81,6 +82,7 @@ const useStyles = createStyles((theme) => ({
 
 export default function CustomSigninPage() {
     const { data: session, status } = useSession();
+    const router = useRouter();
     const { classes } = useStyles();
 
     if (status === "loading")
@@ -110,7 +112,10 @@ export default function CustomSigninPage() {
                                 variant="gradient"
                                 gradient={{ from: "teal", to: "blue", deg: 60 }}
                                 onClick={() =>
-                                    signIn("google", { callbackUrl: "/" })
+                                    signIn("google", {
+                                        callbackUrl:
+                                            router.query["callBackUrl"] || "/",
+                                    })
                                 }
                             >
                                 <Group>
