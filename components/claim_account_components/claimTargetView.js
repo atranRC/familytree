@@ -15,9 +15,11 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import moment from "moment";
+import toast, { Toaster } from "react-hot-toast";
 
 export function ClaimTargetView({
     targetAccountId,
@@ -32,13 +34,8 @@ export function ClaimTargetView({
 }) {
     const { data: session } = useSession();
 
-    const accountAlbum = [
-        "https://images.unsplash.com/photo-1672327114747-261be18f4907?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=449&q=80",
-        "https://images.unsplash.com/photo-1671826638399-54ac6a5447ba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-        "https://images.unsplash.com/photo-1664575602807-e002fc20892c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-        "https://plus.unsplash.com/premium_photo-1668127296901-0e01aab056f0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=435&q=80",
-        "https://images.unsplash.com/photo-1672259391793-84ea24f38810?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=869&q=80",
-    ];
+    const notifyError = () => toast.error("Something went wrong");
+
     const useStyles = createStyles((theme) => ({
         stack: {
             backgroundColor:
@@ -87,7 +84,7 @@ export function ClaimTargetView({
         },
     });
 
-    const {
+    /*const {
         isLoading: isLoadingCreateRequest,
         isFetching: isFetchingCreateRequest,
         data: dataCreateRequest,
@@ -108,7 +105,7 @@ export function ClaimTargetView({
                 message: message,
                 status: "pending",
             };
-            console.log(bod);
+            
             return axios.post("/api/claim-requests-api/", bod);
         },
         enabled: false,
@@ -116,6 +113,31 @@ export function ClaimTargetView({
             setClaimButtonDisabled(true);
             //console.log("target fetched", d.data.data);
             router.push("/family-tree/tree/my-trees");
+        },
+    });*/
+
+    const createClaimMutation = useMutation({
+        mutationFn: () => {
+            const bod = {
+                userId: dataNewUser.data.data._id.toString(),
+                targetId: dataTargetAccount.data.data._id.toString(),
+                targetOwnerId: dataTargetAccount.data.data.owner
+                    ? dataTargetAccount.data.data.owner
+                    : "none",
+                name: dataTargetAccount.data.data.name,
+                claimerName: dataNewUser.data.data.name,
+                message: message,
+                status: "pending",
+            };
+
+            return axios.post("/api/claim-requests-api/v2", bod);
+        },
+        onSuccess: (res) => {
+            setClaimButtonDisabled(true);
+            router.push("/family-tree/tree/my-trees");
+        },
+        onError: () => {
+            notifyError();
         },
     });
 
@@ -158,7 +180,7 @@ export function ClaimTargetView({
         enabled: false,
         onSuccess: (d) => {
             setClaimButtonDisabled(true);
-            refetchCreateRequest();
+            createClaimMutation.mutate();
             //console.log("target fetched", d.data.data);
         },
     });
@@ -175,81 +197,96 @@ export function ClaimTargetView({
         <>
             {dataTargetAccount ? (
                 <Stack
-                    width="100%"
-                    spacing={10}
-                    align={"center"}
-                    className={classes.stack}
-                    p="md"
+                    sx={{
+                        backgroundColor: "#F8F9FA",
+
+                        borderRadius: "1.5rem",
+                    }}
+                    p="sm"
                 >
-                    <Avatar size="xl" src={dataTargetAccount.data.data.image} />
-                    <Title order={2}>
-                        {dataTargetAccount.data.data.name}{" "}
-                        {dataTargetAccount.data.data.fathers_name}{" "}
-                        {dataTargetAccount.data.data.last_name}
-                    </Title>
-                    <Title c="dimmed" fw={500} order={6} align="center" mb="sm">
-                        {dataTargetAccount.data.data.current_residence.value}
-                    </Title>
+                    <Stack justify="center" align="center">
+                        <Avatar
+                            src={dataTargetAccount.data?.data?.image}
+                            alt="it's me"
+                            size="xl"
+                            color="teal"
+                            radius="xl"
+                        />
+                    </Stack>
 
-                    <Group spacing="xl">
-                        <div>
-                            <Title order={5} color="dimmed" weight={500}>
-                                Born
-                            </Title>
+                    <Stack justify="center" align="center">
+                        <h1
+                            style={{ color: "darkgreen", textAlign: "center" }}
+                        >{`${dataTargetAccount.data?.data?.name} ${dataTargetAccount.data?.data?.fathers_name} ${dataTargetAccount.data?.data?.last_name}`}</h1>
+                    </Stack>
 
-                            {dataTargetAccount.data.data.birthday && (
-                                <Text fw={500}>
+                    <Paper withBorder p="sm" radius="1.5rem">
+                        <Stack>
+                            <Stack justify="center" align="center" spacing={1}>
+                                <Title order={4}>
+                                    {moment(
+                                        dataTargetAccount.data?.data?.birthday
+                                    ).format("YYYY-MM-DD")}
+                                </Title>
+                                <Text color="teal">Born</Text>
+                            </Stack>
+                            <Stack justify="center" align="center" spacing={1}>
+                                <Title order={4}>
                                     {
-                                        dataTargetAccount.data.data.birthday
-                                            .toString()
-                                            .split("T")[0]
+                                        dataTargetAccount.data?.data
+                                            ?.birth_place?.value
                                     }
-                                </Text>
+                                </Title>
+                                <Text color="teal">Birthplace</Text>
+                            </Stack>
+                            {dataTargetAccount.data?.data
+                                ?.current_residence && (
+                                <Stack
+                                    justify="center"
+                                    align="center"
+                                    spacing={1}
+                                >
+                                    <Title order={4}>
+                                        {
+                                            dataTargetAccount.data?.data
+                                                ?.current_residence?.value
+                                        }
+                                    </Title>
+                                    <Text color="teal">Current residence</Text>
+                                </Stack>
                             )}
-                        </div>
-
-                        <div>
-                            <Title order={5} color="dimmed" weight={500}>
-                                Nicknames
-                            </Title>
-
-                            <Text fw={500}>
-                                {dataTargetAccount.data.data.nicknames}
-                            </Text>
-                        </div>
-                    </Group>
-
-                    {/*<Title order={5} color="dimmed" weight={500}>
-                        Photos
-                    </Title>
-                    <Carousel
-                        withIndicators
-                        height={200}
-                        slideSize="33.333333%"
-                        slideGap="md"
-                        speed={20}
-                        align="start"
-                        loop
-                        breakpoints={[
-                            {
-                                maxWidth: "md",
-                                slideSize: "50%",
-                            },
-                            {
-                                maxWidth: "sm",
-                                slideSize: "100%",
-                                slideGap: 0,
-                            },
-                        ]}
+                            <Stack></Stack>
+                            {dataTargetAccount.data?.data?.nicknames && (
+                                <Stack
+                                    justify="center"
+                                    align="center"
+                                    spacing={1}
+                                >
+                                    <Title order={4}>
+                                        {
+                                            dataTargetAccount.data?.data
+                                                ?.nicknames
+                                        }
+                                    </Title>
+                                    <Text color="teal">Nicknames</Text>
+                                </Stack>
+                            )}
+                        </Stack>
+                    </Paper>
+                    {/*<Button
+                        variant="outline"
+                        radius="1.5rem"
+                        onClick={() =>
+                            window.open(
+                                `/profiles/${dataTargetAccount.data?.data?._id.toString()}/events`,
+                                "_blank",
+                                "noopener noreferrer"
+                            )
+                        }
                     >
-                        {accountAlbum.map((accAl) => {
-                            return (
-                                <Carousel.Slide key={accAl}>
-                                    <Image src={accAl} alt="image" />
-                                </Carousel.Slide>
-                            );
-                        })}
-                    </Carousel>*/}
+                        view profile
+                    </Button>*/}
+
                     <TextInput
                         label="Message"
                         placeholder="your short message"
@@ -270,13 +307,12 @@ export function ClaimTargetView({
                         mt="xl"
                         size="md"
                         onClick={createClaimRequestHandler}
-                        loading={
-                            isFetchingCreateRequest || isLoadingCreateRequest
-                        }
+                        loading={createClaimMutation.isLoading}
                         disabled={claimButtonDisabled}
                     >
                         Claim Account
                     </Button>
+                    <Toaster />
                 </Stack>
             ) : (
                 <Loader />
