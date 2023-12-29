@@ -1,261 +1,139 @@
-import {
-    Badge,
-    Container,
-    createStyles,
-    Modal,
-    Paper,
-    Table,
-    Title,
-} from "@mantine/core";
-import { useRouter } from "next/router";
-import { MediaQuery } from "@mantine/core";
-import AppShellContainer from "../../../components/appShell";
-import SecondaryNavbar from "../../../components/profiles_page/SecondaryNavbar";
-import {
-    ProfileTitleSection,
-    TitleSection,
-} from "../../../components/titleSections";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "../../api/auth/[...nextauth]";
-//import dbConnect from "../../../lib/dbConnect";
 import axios from "axios";
-import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { useState } from "react";
-import { ClaimRequestModalContent } from "../../../components/profiles_page/modals/ClaimRequestModals";
-import dbConnect from "../../../lib/dbConnect";
-import Users from "../../../models/Users";
+import { useQuery } from "react-query";
+import AppShellContainer from "../../../components/appShell";
+import { ProfileTitleSection } from "../../../components/titleSections";
+import { Container, MediaQuery, Modal, Stack, Title } from "@mantine/core";
+import SecondaryNavbar from "../../../components/profiles_page/SecondaryNavbar";
+import ProfileLoadingScreen from "../../../components/v2/loading_screens/profile_loading/ProfileLoadingScreen";
+import ClaimRequestsTable from "../../../components/v2/tables/claim_requests_table/ClaimRequestsTable";
+import ClaimRequestApproveOrDecline from "../../../components/v2/decision_comps/ClaimRequestApproveOrDecline";
+import toast, { Toaster } from "react-hot-toast";
 
-export default function ClaimRequestsPage({
-    allReqs2,
-    profileData,
-    sessionProfileRelation,
-}) {
-    const useStyles = createStyles((theme) => ({
-        treeLink: {
-            textDecoration: "none",
-            cursor: "pointer",
-            "&:hover": {
-                //border: "1px solid",
-                textDecoration: "underline",
-                transition: "0.5s",
-            },
-        },
-    }));
-    const { classes } = useStyles();
+export default function ClaimReqsPage() {
+    const { data: session, status } = useSession();
     const router = useRouter();
-    const id = router.query.id;
+    const [sessionProfileRelation, setSessionProfileRelation] = useState(null);
 
-    const [requestModalOpened, setRequestModalOpened] = useState(false);
-    const [requestToView, setRequestToView] = useState(null);
-    const picUrl =
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80";
+    const notifyApproveSuccess = () => toast.success("Request Approved");
+    const notifyDeclinedSuccess = () => toast.success("Request declined");
+    const notifyError = () => toast.error("Something went wrong");
 
-    const rows = allReqs2.map((r) => {
-        let color = "yellow";
-        if (r.status === "approved") {
-            color = "green";
-        }
-        if (r.status === "declined") {
-            color = "red";
-        }
+    const [modalOpened, setModalOpened] = useState(false);
+    const [claimReqToView, setClaimReqToView] = useState(null);
 
-        return (
-            <tr key={r._id.toString()}>
-                <td>
-                    <div
-                        onClick={() => {
-                            setRequestToView(r);
-                            setRequestModalOpened(true);
-                        }}
-                        className={classes.treeLink}
-                    >
-                        {r.claimerName}
-                    </div>
-                </td>
-                <td>{r.name}</td>
-                <td>{r.message}</td>
-                <td>
-                    <Badge color={color}>{r.status}</Badge>
-                </td>
-            </tr>
-        );
+    const docsSessionProfileRelation = useQuery({
+        queryKey: ["get_session_profile_relation", router.query.id],
+        refetchOnWindowFocus: false,
+        queryFn: async () => {
+            return axios.get(
+                `/api/v2/user-authorization/get-session-profile-relation?profileId=${router.query.id}`
+            );
+        },
+        enabled: !!session && !!router.query.id,
+        onSuccess: (res) => {
+            //console.log("result", res.data);
+            setSessionProfileRelation(res.data.sessionProfileRelation);
+        },
     });
 
-    if (sessionProfileRelation === "none") {
-        return <div>RESTRICTED PAGE</div>;
-    }
+    const docsSessionCanPost = useQuery({
+        //add profile id to query key
+        queryKey: ["get_session_can_post", router.query.id],
+        refetchOnWindowFocus: false,
+        queryFn: async () => {
+            return axios.get(
+                `/api/v2/user-authorization/get-session-can-post?profileId=${router.query.id}`
+            );
+        },
+        enabled: sessionProfileRelation === "none",
+        onSuccess: (res) => {
+            console.log("sessioncanpost", res.data);
+            setSessionProfileRelation(res.data ? "canPost" : "noPost");
+        },
+    });
+
+    if (status === "unauthenticated") return <div>Not logged in</div>;
+    /*if (status === "loading")
+        return <ProfileLoadingScreen>loading session...</ProfileLoadingScreen>;*/
+    if (
+        status === "loading" ||
+        docsSessionProfileRelation.isLoading ||
+        docsSessionCanPost.isLoading
+    )
+        return <ProfileLoadingScreen>loading relation...</ProfileLoadingScreen>;
+
+    if (
+        sessionProfileRelation === "none" ||
+        sessionProfileRelation === "noPost"
+    )
+        return <div>UNAUTHORISED</div>;
 
     return (
         <AppShellContainer>
-            <ProfileTitleSection
-                picUrl={profileData.image ? profileData.image : ""}
-            >
+            <ProfileTitleSection picUrl={""}>
                 <Title order={2} fw={600}>
-                    {profileData.name}
+                    {docsSessionProfileRelation.data.data.profile.name}
                 </Title>
-                <Title order={5} fw={400} color="dimmed">
-                    {profileData.current_residence.value}
+                <Title order={5} fw={500}>
+                    Claim Requests
                 </Title>
+                <div>{sessionProfileRelation}</div>
             </ProfileTitleSection>
             <SecondaryNavbar
                 activePage={"claim-requests"}
-                id={id}
+                id={router.query.id}
                 sessionProfileRelation={sessionProfileRelation}
             />
-            <MediaQuery smallerThan="sm" styles={{ padding: "0px" }}>
-                <Container mt="mt">
-                    {allReqs2 && allReqs2.length} {id}
-                    <Paper withBorder p="md" bg="#f7f9fc">
-                        <Table striped highlightOnHover withBorder bg="white">
-                            <thead>
-                                <tr>
-                                    <th>Requested By</th>
-                                    <th>Requested Profile</th>
-                                    <th>Message</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>{rows}</tbody>
-                        </Table>
-                    </Paper>
+            <MediaQuery
+                smallerThan="sm"
+                styles={{ padding: "0px", paddingTop: "10px" }}
+            >
+                <Container pt="md">
+                    <Stack spacing="sm">
+                        <MediaQuery
+                            smallerThan="sm"
+                            styles={{ fontSize: "1.5rem", padding: "0px" }}
+                        >
+                            <Title color="gray" mt="md">
+                                {`Claim Requests for ${docsSessionProfileRelation.data.data.profile.name}'s profile:`}
+                            </Title>
+                        </MediaQuery>
+                        <ClaimRequestsTable
+                            profileId={router.query.id}
+                            onRowClick={(d) => {
+                                setClaimReqToView(d);
+                                setModalOpened(true);
+                            }}
+                        />
+                    </Stack>
                 </Container>
             </MediaQuery>
             <Modal
-                opened={requestModalOpened}
-                onClose={() => setRequestModalOpened(false)}
-                title="Claim Request"
+                opened={modalOpened}
+                onClose={() => setModalOpened(false)}
+                radius="xl"
+                padding="xs"
+                withCloseButton={false}
+                closeOnClickOutside={false}
             >
-                <ClaimRequestModalContent claimRequest={requestToView} />
+                <ClaimRequestApproveOrDecline
+                    claimRequest={claimReqToView}
+                    onClose={() => setModalOpened(false)}
+                    onApproveSuccess={() => {
+                        notifyApproveSuccess();
+                        setModalOpened(false);
+                    }}
+                    onDeclineSuccess={() => {
+                        notifyDeclinedSuccess();
+                        setModalOpened(false);
+                    }}
+                    onError={() => notifyError()}
+                />
             </Modal>
+            <Toaster />
         </AppShellContainer>
     );
-}
-
-export async function getServerSideProps(context) {
-    const session = await unstable_getServerSession(
-        context.req,
-        context.res,
-        authOptions
-    );
-
-    if (!session) {
-        return {
-            redirect: {
-                destination: "/",
-                permanent: false,
-            },
-        };
-    }
-
-    await dbConnect();
-
-    //fetch session user and profile user
-    const sessionUserPromise = Users.findOne({ email: session.user.email });
-    const profileUserPromise = Users.findById(context.query.id);
-    const [sessionUser, profileUser] = await Promise.all([
-        sessionUserPromise,
-        profileUserPromise,
-    ]);
-    const sessionUserJson = JSON.parse(JSON.stringify(sessionUser));
-    const profileUserJson = JSON.parse(JSON.stringify(profileUser));
-
-    //check sessionProfileRelation
-    let sessionProfileRelation = "none";
-    //session mode = 'self', 'owner', or 'relative'
-    //if profile not session user's or session user not owner of profile
-    if (sessionUser._id.toString() === context.query.id) {
-        sessionProfileRelation = "self";
-    } else {
-        if (profileUser.owner === sessionUser._id.toString()) {
-            sessionProfileRelation = "owner";
-        }
-    }
-
-    console.log(
-        "session profile relation is",
-        sessionProfileRelation,
-        sessionUserJson._id
-    );
-
-    const fetchAll = await Promise.all([
-        axios.get(
-            process.env.API_BASE_URL +
-                "/api/claim-requests-api/requests-for/" +
-                context.query.id
-        ),
-        axios.get(process.env.API_BASE_URL + "/api/users/" + context.query.id),
-    ]).catch((error) => {
-        console.log(error);
-    });
-
-    const allReqs2 = JSON.parse(JSON.stringify(await fetchAll[0].data.data));
-    const profileData = JSON.parse(JSON.stringify(await fetchAll[1].data.data));
-
-    /* const requestsFor = await axios.get(
-        "/api/claim-requests-api/requests-for/" +
-            context.query.id
-    );
-    const allReqs = await requestsFor.data;
-    const allReqs2 = JSON.parse(JSON.stringify(allReqs.data));*/
-
-    /*const userByEmail = await axios.get(
-        "/api/users/users-mongoose/" + session.user.email
-    );
-    const ownerData = await userByEmail.data.data;*/
-    //await dbConnect();
-    //let trees = [];
-
-    /*Users.findOne({ email: session.user.email }, function (err, user) {
-        FamilyTrees.find(
-            { owner: user._id.toString() },
-            async function (err, docs) {
-                trees = await docs;
-            }
-        );
-    });*/
-    /*const user = await Users.findOne({ email: session.user.email });
-    const trees = await FamilyTrees.find({ owner: user._id.toString() });
-
-    //trees i'm in
-    const treesImIn = await TreeMembers.find({ id: user._id.toString() });
-    const treesImInIds = treesImIn.map((t) => {
-        return ObjectId(t.treeId);
-    });
-    const treesImInData = await FamilyTrees.find({
-        _id: { $in: treesImInIds },
-    });*/
-    //console.log("trees im in", treesImInData);
-
-    //collaborations
-    /* const myCollabs = await Collabs.find({ userId: user._id.toString() });
-    const myCollabsIds = myCollabs.map((c) => {
-        return ObjectId(c.treeId);
-    });
-    const myCollabsTrees = await FamilyTrees.find({
-        _id: { $in: myCollabsIds },
-    });
-    console.log("my collabs", myCollabsTrees);
-
-    const treesData = JSON.parse(JSON.stringify(trees));
-    const ownerData = JSON.parse(JSON.stringify(user));
-    const treesImInData2 = JSON.parse(JSON.stringify(treesImInData));
-    const myCollabsTrees2 = JSON.parse(JSON.stringify(myCollabsTrees));*/
-    //console.log(trees);
-    //console.log(ownerData);
-
-    //console.log("these be the trees", trees);
-
-    return {
-        props: {
-            session,
-            allReqs2,
-            profileData,
-            sessionProfileRelation,
-            //allUsersData,
-            //ownerData,
-            //treesData,
-            //treesImInData2,
-            //myCollabsTrees2,
-        },
-    };
 }
