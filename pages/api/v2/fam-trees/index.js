@@ -1,3 +1,4 @@
+import { unstable_getServerSession } from "next-auth";
 import dbConnect from "../../../../lib/dbConnect";
 import Collabs from "../../../../models/Collabs";
 import FamilyTrees from "../../../../models/FamilyTrees";
@@ -189,6 +190,31 @@ export default async function handler(req, res) {
                 }
             } catch (error) {
                 //console.log(error);
+                res.status(400).json({ success: false });
+            }
+            break;
+        case "POST":
+            try {
+                const session = await unstable_getServerSession(
+                    req,
+                    res,
+                    authOptions
+                );
+                if (!session) {
+                    res.status(401).json({ message: "You must be logged in." });
+                    return;
+                }
+
+                const tree = await FamilyTrees.create({
+                    owner: session.user.id,
+                    tree_name: req.body.tree_name,
+                    description: req.body.description,
+                    privacy: req.body.privacy,
+                });
+
+                res.status(200).json(tree);
+            } catch (error) {
+                console.log(error);
                 res.status(400).json({ success: false });
             }
             break;

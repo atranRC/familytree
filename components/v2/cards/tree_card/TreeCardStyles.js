@@ -22,8 +22,6 @@ export const useStyles = createStyles((theme) => ({
             cursor: "pointer",
             //boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px",
             transition: ".2s ease-in-out",
-            boxShadow:
-                "rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px",
         },
         display: "flex",
         flexDirection: "column",
@@ -41,14 +39,16 @@ export const useStyles = createStyles((theme) => ({
         padding: "1rem",
         borderBottomLeftRadius: "10px",
         borderBottomRightRadius: "10px",
-        transition: ".2s fade-in-out",
+        transition: ".2s ease-in-out",
         backgroundColor:
             BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)],
         "&:hover": {
             //boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px;",
             //boxShadow:
             // "rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px",
-            transition: ".2s  fade-in-out",
+            transition: ".2s  ease-in-out",
+            boxShadow:
+                "rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px",
         },
         display: "flex",
         flexDirection: "column",
@@ -57,5 +57,9 @@ export const useStyles = createStyles((theme) => ({
 
     titleSection: {},
 
-    cardFooter: {},
+    cardFooter: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
 }));

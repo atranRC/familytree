@@ -2,6 +2,8 @@ import {
     ActionIcon,
     Badge,
     Button,
+    Modal,
+    Pagination,
     Stack,
     TextInput,
     Title,
@@ -11,11 +13,13 @@ import { useState } from "react";
 import TreeCard from "../../cards/tree_card/TreeCard";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import axios from "axios";
 import { getMyTreesPageTitle } from "../../../../utils/utils";
 import CardGridLoading from "../../loading_screens/card_grid_loading/CardGridLoading";
 import NoDataToShow from "../../empty_data_comps/NoDataToShow";
+import AddTree from "../../forms/add_tree/AddTree";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function MyTreesGrid() {
     const { data: session, status } = useSession();
@@ -23,6 +27,13 @@ export default function MyTreesGrid() {
     const { classes } = useStyles();
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
+    const [modalOpened, setModalOpened] = useState(false);
+
+    const queryClient = useQueryClient();
+
+    const notifyTreeCreateSuccess = () =>
+        toast.success("Tree Created Successfully");
+    const notifyTreeCreateError = () => toast.error("Something went wrong");
 
     const treesQuery = useQuery({
         queryKey: ["get-my-trees", router.query, searchTerm, page],
@@ -37,9 +48,21 @@ export default function MyTreesGrid() {
             );
         },
         onSuccess: (res) => {
-            console.log("result2", res?.data[0]?.data);
+            //console.log("result2", res?.data[0]?.data);
         },
     });
+
+    const onCreateTreeSuccess = () => {
+        notifyTreeCreateSuccess();
+        queryClient.invalidateQueries({
+            queryKey: ["get-my-trees"],
+        });
+        setModalOpened(false);
+    };
+
+    const onCreateTreeError = () => {
+        notifyTreeCreateError();
+    };
 
     if (status === "loading") return <div>loading</div>;
     if (treesQuery.isError) return <div>error</div>;
@@ -66,7 +89,9 @@ export default function MyTreesGrid() {
                         radius="xl"
                         size="md"
                     />
-                    <Button radius="lg">+ New Tree</Button>
+                    <Button radius="lg" onClick={() => setModalOpened(true)}>
+                        + New Tree
+                    </Button>
                 </div>
                 <div className={classes.pillsCont}>
                     <Title order={6} c="dimmed">
@@ -152,15 +177,45 @@ export default function MyTreesGrid() {
             {treesQuery.isLoading ? (
                 <CardGridLoading size={5} />
             ) : (
-                <div className={classes.cardsSection}>
-                    {treesQuery.data.data[0]?.data.map((tree) => (
-                        <TreeCard key={tree._id} tree={tree} />
-                    ))}
-                    {!treesQuery.data.data[0]?.data && (
-                        <NoDataToShow message={"No Trees Found"} />
-                    )}
-                </div>
+                <Stack align="center" spacing="xl">
+                    <div className={classes.cardsSection}>
+                        {treesQuery.data.data[0]?.data.map((tree) => (
+                            <TreeCard key={tree._id} tree={tree} />
+                        ))}
+                        {!treesQuery.data.data[0]?.data && (
+                            <NoDataToShow message={"No Trees Found"} />
+                        )}
+                    </div>
+                    <Pagination
+                        page={page}
+                        onChange={setPage}
+                        total={
+                            parseInt(
+                                treesQuery.data?.data[0]?.metadata[0]
+                                    ?.totalCount / 10
+                            ) + 1
+                        }
+                        radius="md"
+                        withEdges
+                    />
+                </Stack>
             )}
+
+            <Modal
+                opened={modalOpened}
+                onClose={() => setModalOpened(false)}
+                //padding={modalViewMode === "delete" ? 0 : "sm"}
+                radius="1.5rem"
+                withCloseButton={false}
+                padding={0}
+            >
+                <AddTree
+                    onCancel={() => setModalOpened(false)}
+                    onSuccess={onCreateTreeSuccess}
+                    onError={onCreateTreeError}
+                />
+            </Modal>
+            <Toaster />
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import { Divider, Title } from "@mantine/core";
+import { Badge, Divider, Title } from "@mantine/core";
 import { useStyles } from "./TreeCardStyles";
 import { truncateWord } from "../../../../utils/utils";
 import moment from "moment";
@@ -9,7 +9,17 @@ const dummy =
 export default function TreeCard({ tree }) {
     const { classes } = useStyles();
     return (
-        <div className={classes.cont}>
+        <div
+            className={classes.cont}
+            onClick={() => {
+                window
+                    .open(
+                        `/family-tree/tree/v2/${tree._id.toString()}`,
+                        "_blank"
+                    )
+                    .focus();
+            }}
+        >
             <div className={classes.imgSection}></div>
             <div className={classes.contentSection}>
                 <div className={classes.titleSection}>
@@ -23,8 +33,11 @@ export default function TreeCard({ tree }) {
                     {tree.createdAt ? (
                         moment(tree.createdAt).format("YYYY-MM-DD")
                     ) : (
-                        <>-</>
+                        <>Date Unavailable</>
                     )}
+                    <Badge color={tree?.privacy === "public" && "green"}>
+                        {tree?.privacy}
+                    </Badge>
                 </div>
             </div>
         </div>
