@@ -16,12 +16,11 @@ import {
 import { ResponsiveNav } from "./navBar";
 import { FooterCentered } from "./appFooter/appFooter";
 import { mockData } from "./appFooter/mockData";
+import { ProfileNavBar } from "./v2/nav/profile_navbar/ProfileNavBar";
 
-export default function AppShellContainer({ children }) {
+export default function AppShellContainer({ children, activePage = "" }) {
     const theme = useMantineTheme();
     const [opened, setOpened] = useState(false);
-    const path = useRouter().asPath;
-    console.log("hello", path);
     return (
         <AppShell
             styles={{
@@ -34,7 +33,7 @@ export default function AppShellContainer({ children }) {
                 },
             }}
             footer={<FooterCentered links={mockData.links} />}
-            header={<ResponsiveNav activeLink={path} />}
+            header={<ProfileNavBar activeLink={activePage} />}
         >
             <MediaQuery
                 smallerThan="sm"
@@ -42,8 +41,8 @@ export default function AppShellContainer({ children }) {
             >
                 <Container
                     size="lg"
-                    mt="60px"
                     mb="md"
+                    mt="sm"
                     style={{ minHeight: "100vh" }}
                 >
                     {children}
