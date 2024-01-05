@@ -10,10 +10,9 @@ import { useState } from "react";
 export default function EmailNotFoundWithInvite({
     treeMemberDocumentId = null,
     email,
-    tree,
+    treeId,
     invitationType,
 }) {
-    const { data: session, status } = useSession();
     //
     const [sent, setSent] = useState(false);
     const { classes } = useStyles();
@@ -24,15 +23,15 @@ export default function EmailNotFoundWithInvite({
     const inviteMutation = useMutation({
         mutationFn: () => {
             const bod = {
-                inviterId: session.user.id,
-                inviterName: session.user.name,
+                /*inviterId: session.user.id,
+                inviterName: session.user.name,*/
                 inviteeEmail: email,
                 invitationType: invitationType,
-                treeId: tree._id,
-                treeName: tree.tree_name,
+                /*treeId: tree._id,
+                treeName: tree.tree_name,*/
                 treeMemberDocumentId: treeMemberDocumentId,
             };
-            return axios.post("/api/invitations", bod);
+            return axios.post(`/api/invitations?treeId=${treeId}`, bod);
         },
         onSuccess: () => {
             setSent(true);
@@ -44,13 +43,13 @@ export default function EmailNotFoundWithInvite({
         },
     });
 
-    if (status === "loading") {
+    /*if (status === "loading") {
         return (
             <Stack justify="center" align="center">
                 ⌛️
             </Stack>
         );
-    }
+    }*/
 
     return (
         <div className={classes.cont}>

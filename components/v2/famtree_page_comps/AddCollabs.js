@@ -70,7 +70,7 @@ function AddWithEmail({ tree }) {
                 {showErrorNotification && (
                     <EmailNotFoundWithInvite
                         email={collabEmail}
-                        tree={tree}
+                        treeId={tree._id}
                         invitationType="collab"
                     />
                 )}
