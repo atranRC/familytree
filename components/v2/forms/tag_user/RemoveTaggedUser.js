@@ -33,7 +33,7 @@ export default function RemoveTaggedUser({ treeMember, onSuccess, onError }) {
     return (
         <Paper p="md">
             <Stack align="center" justify="center">
-                <Image width={100} src="/statics/delete.gif" />
+                <Image width={100} src="/statics/delete.gif" alt="delete_gif" />
                 <Title order={2} align="center">
                     Remove Tagged Profile from Tree?
                 </Title>

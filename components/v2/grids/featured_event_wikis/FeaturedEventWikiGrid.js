@@ -160,7 +160,7 @@ export default function FeaturedEventWikisGrid({ type }) {
                     .slice(1)
                     .map((article, i) => {
                         return (
-                            <div>
+                            <div key={article._id}>
                                 <div
                                     className={classes.smallArticleCard}
                                     onClick={() =>

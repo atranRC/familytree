@@ -396,6 +396,7 @@ export default function WikiArticleViewer({ id }) {
                                                 maxWidth: "100%",
                                             },
                                         }}
+                                        alt="wiki_image"
                                     />
                                     <Text size="sm" italic color="dimmed">
                                         {node.attribs?.alt}

@@ -248,6 +248,7 @@ export default function WikiHome() {
                                 onClick={() =>
                                     router.push(`/wiki/${article._id}`)
                                 }
+                                key={article._id}
                             >
                                 <Stack align="left">
                                     <Title

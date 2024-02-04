@@ -54,7 +54,13 @@ export default function EmailNotFoundWithInvite({
     return (
         <div className={classes.cont}>
             <Stack align="center" spacing={3}>
-                {!sent && <Image width={100} src="/statics/pyramids.gif" />}
+                {!sent && (
+                    <Image
+                        width={100}
+                        src="/statics/pyramids.gif"
+                        alt="no_data"
+                    />
+                )}
                 {sent && <IconMoodHappy color="teal" size={32} />}
                 <Text c="gray">
                     {!sent && (

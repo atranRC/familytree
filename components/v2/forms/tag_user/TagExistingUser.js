@@ -183,7 +183,11 @@ export default function TagExistingUser({ treeMember, onSuccess, onError }) {
 
             {searchUserQuery.isLoading || searchUserQuery.isFetching ? (
                 <Stack align="center" spacing={2}>
-                    <Image width={100} src="/statics/home_smoke.gif" />
+                    <Image
+                        width={100}
+                        src="/statics/home_smoke.gif"
+                        alt="searching"
+                    />
                     <Text size="sm" color="dimmed">
                         Searching...
                     </Text>
@@ -203,6 +207,7 @@ export default function TagExistingUser({ treeMember, onSuccess, onError }) {
                                                 radius="xl"
                                                 size="md"
                                                 src={user?.image}
+                                                alt="avatar"
                                             />
                                             <Text>
                                                 {truncateWord(
@@ -328,6 +333,7 @@ export default function TagExistingUser({ treeMember, onSuccess, onError }) {
                             width={64}
                             color="dimmed"
                             src="/statics/emailgif.gif"
+                            alt="email_gif"
                         />
                         <Text c="dimmed" size="sm">
                             Look for registred users using their email
@@ -339,6 +345,7 @@ export default function TagExistingUser({ treeMember, onSuccess, onError }) {
                             width={64}
                             color="dimmed"
                             src="/statics/persongif.gif"
+                            alt="person_gif"
                         />
                         <Text c="dimmed" size="sm">
                             Look for profiles using their name

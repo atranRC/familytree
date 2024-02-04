@@ -178,7 +178,7 @@ export default function WikiNavBar({ activeLink, searchPage = "wiki" }) {
         /*const shouldBeVisible = scroll <= 100;
         if (shouldBeVisible === isVisible) return;
         setIsVisible(shouldBeVisible);*/
-    }, [isVisible, prevScrollPos]);
+    }, [prevScrollPos]);
 
     useEffect(() => {
         window.addEventListener("scroll", handleScroll);

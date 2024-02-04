@@ -47,7 +47,7 @@ export default function DeleteUnclaimedProfilePageComp() {
     return (
         <Paper p="xl" w="100%" withBorder radius="1.5em">
             <Stack align="center" p="xl" w="100%" justify="center">
-                <Image width={100} src="/statics/delete.gif" />
+                <Image width={100} src="/statics/delete.gif" alt="delete" />
                 <Title order={2} align="center">
                     {`Delete ${profile.data.name}'s Profile?`}
                 </Title>

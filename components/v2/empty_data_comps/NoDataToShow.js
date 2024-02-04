@@ -23,7 +23,7 @@ export default function NoDataToShow({ children, message = "" }) {
     return (
         <div className={classes.cont}>
             <Stack align="center" spacing={3}>
-                <Image width={100} src="/statics/pyramids.gif" />
+                <Image width={100} src="/statics/pyramids.gif" alt="no_data" />
                 <Text c="gray">{message}</Text>
                 {children}
             </Stack>
