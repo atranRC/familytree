@@ -45,8 +45,15 @@ export default function EventsMap({ treeId }) {
                         type: "event",
                         profileId: event.userId.toString(),
                         geoloc: [
-                            event?.location?.lat || 0,
+                            /*                            event?.location?.lat || 0,
                             event?.location?.lon || 0,
+*/
+                            event?.location?.lat.$numberDecimal ||
+                                event?.location?.lat ||
+                                0,
+                            event?.location?.lon.$numberDecimal ||
+                                event?.location?.lon ||
+                                0,
                         ],
                         popup: (
                             <Stack>

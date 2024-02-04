@@ -48,8 +48,15 @@ export default function StoriesMap({ treeId }) {
                         id: story._id,
                         type: "audioStory",
                         geoloc: [
-                            story?.location?.lat || 0,
+                            /*                           story?.location?.lat || 0,
                             story?.location?.lon || 0,
+*/
+                            story?.location?.lat.$numberDecimal ||
+                                story?.location?.lat ||
+                                0,
+                            story?.location?.lon.$numberDecimal ||
+                                story?.location?.lon ||
+                                0,
                         ],
                         popup: (
                             <Stack>
