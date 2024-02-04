@@ -45,10 +45,10 @@ export default function InvitationCard({ invitation, onSuccess, onErr }) {
 
     return (
         <div className={classes.cont}>
-            <Group position="center">
+            <Group position="center" grow>
                 <Stack align="left" spacing={0}>
                     <Text fw={600}>
-                        {truncateWord(invitation?.treeName, 10)}
+                        {truncateWord(invitation?.treeName, 100)}
                     </Text>
                     <Text c="gray" size="sm">
                         {invitation?.invitationType}
@@ -56,7 +56,7 @@ export default function InvitationCard({ invitation, onSuccess, onErr }) {
                 </Stack>
                 <Stack align="left" spacing={0}>
                     <Text c="gray">
-                        {truncateWord(invitation?.inviterName, 10)}
+                        {truncateWord(invitation?.inviterName, 20)}
                     </Text>
                     <Text c="gray" size="sm">
                         {moment(invitation?.updatedAt).format("YYYY-MM-DD")}

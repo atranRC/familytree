@@ -14,6 +14,7 @@ const BG_IMGS = [
 
 export const useStyles = createStyles((theme) => ({
     cont: {
+        flexShrink: "0",
         width: "300px",
         borderRadius: "10px",
         padding: "5px",

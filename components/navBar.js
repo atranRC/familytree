@@ -199,36 +199,36 @@ export const AvatarWithMenu = ({
     const { data: session, status } = useSession();
     const [opened, setOpened] = useState(false);
 
-    if (session) {
-        return (
-            <Menu
-                shadow="md"
-                width={200}
-                opened={opened}
-                onChange={setOpened}
-                styles={{ zIndex: 100 }}
-            >
-                <Menu.Target>
-                    <Avatar
-                        radius="xl"
-                        size="md"
-                        color="blue"
-                        src={session.user.image}
-                    />
-                </Menu.Target>
+    if (status === "loading")
+        return <Loader variant="bars" size="xs" color="lightgray" />;
+    if (status === "unauthenticated")
+        return <Link href={"/u/signin"}>Login</Link>;
+    return (
+        <Menu
+            shadow="md"
+            width={200}
+            opened={opened}
+            onChange={setOpened}
+            styles={{ zIndex: 100 }}
+        >
+            <Menu.Target>
+                <Avatar
+                    radius="xl"
+                    size="md"
+                    color="blue"
+                    src={session.user.image}
+                />
+            </Menu.Target>
 
-                {opened && (
-                    <Menu.Dropdown>
-                        <Menu.Label>Application</Menu.Label>
-                        <AvatarMenuContent
-                            sessionUserEmail={session.user.email}
-                        />
-                    </Menu.Dropdown>
-                )}
-                <Menu.Divider />
-            </Menu>
-        );
-    }
+            {opened && (
+                <Menu.Dropdown>
+                    <Menu.Label>Application</Menu.Label>
+                    <AvatarMenuContent sessionUserEmail={session.user.email} />
+                </Menu.Dropdown>
+            )}
+            <Menu.Divider />
+        </Menu>
+    );
 };
 
 export const ResponsiveNav = ({ links = linksMock.links, activeLink }) => {

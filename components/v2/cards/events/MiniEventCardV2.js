@@ -50,10 +50,10 @@ export default function MiniEventCardV2({ event, index = 0, onClick }) {
             <Stack spacing={2}>
                 <Text size="sm" c="dimmed">
                     {get_auto_title(
-                        event.type,
-                        event.userName,
-                        event.location.value,
-                        event.eventDate.toString().split("T")[0]
+                        event?.type,
+                        event?.userName,
+                        event?.location?.value,
+                        event?.eventDate?.toString().split("T")[0]
                     )}
                 </Text>
                 <Group>

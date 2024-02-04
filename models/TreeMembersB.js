@@ -24,6 +24,10 @@ const TreeMembersBSchema = mongoose.Schema(
             type: ObjectId,
         },
         canPost: { type: Boolean },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

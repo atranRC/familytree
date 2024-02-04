@@ -29,7 +29,7 @@ export default function UploadedMarts({ sessionUserId }) {
 
     const docsQuery = useQuery({
         queryKey: ["user-uploaded-marts", page],
-        //enabled: false,
+        enabled: !!sessionUserId,
         refetchOnWindowFocus: false,
         queryFn: async () => {
             return axios.get(`/api/marts/get-marts/${sessionUserId}?p=${page}`);

@@ -24,6 +24,7 @@ export const authOptions = {
         session: async ({ session, user }) => {
             if (session?.user) {
                 session.user.id = user.id;
+                session.user.isHistorian = user.isHistorian;
             }
             return session;
         },

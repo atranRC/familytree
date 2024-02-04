@@ -1,5 +1,7 @@
 export function getThumbUrl(cloudinaryParams) {
     //https://res.cloudinary.com/<cloud_name>/<asset_type>/<delivery_type>/<transformations>/<version>/<public_id>.<extension>
+    if (!cloudinaryParams) return "";
+
     const transformations = "c_scale,w_150";
     return `${process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL}/${cloudinaryParams.cloud_name}/${cloudinaryParams.resource_type}/${cloudinaryParams.type}/${transformations}/${cloudinaryParams.public_id}.${cloudinaryParams.format}`;
 }
@@ -7,6 +9,8 @@ export function getThumbUrl(cloudinaryParams) {
 export function getSecUrl(cloudinaryParams) {
     //https://res.cloudinary.com/dcgnu3a5s/image/upload/v1698910681/user_uploads/wrxeyfanxyn7tfebl2oa.png
     //baseUrl + cloud_name + resource_type + type + version + public_id + format
+    if (!cloudinaryParams) return "";
+
     return `${process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL}/${cloudinaryParams.cloud_name}/${cloudinaryParams.resource_type}/${cloudinaryParams.type}/v${cloudinaryParams.version}/${cloudinaryParams.public_id}.${cloudinaryParams.format}`;
 }
 

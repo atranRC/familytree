@@ -11,98 +11,61 @@ import {
     Paper,
     Stack,
     Text,
+    Title,
+    createStyles,
 } from "@mantine/core";
 import { NewsHorizontalScroll } from "../components/wiki/NewsHorizontalScroll";
 import ArtefactBanner from "../components/wiki/ArtefactBanner";
+import WikiNavBar from "../components/v2/nav/wiki_navbar/WikiNavbar";
+import WelcomeGrid from "../components/v2/grids/welcome_grid/WelcomeGrid";
+import FeaturedEventWikisGrid from "../components/v2/grids/featured_event_wikis/FeaturedEventWikiGrid";
+import FeaturedStoriesFromPeopleGrid from "../components/v2/grids/stories_from_people/FeaturedStoriesFromPeopleGrid";
+import FeaturedPeopleGrid from "../components/v2/grids/featured_people/FeaturedPeopleGrid";
+import { FooterCentered } from "../components/appFooter/appFooter";
+import { mockData } from "../components/appFooter/mockData";
 
-export default function Home() {
+const useStyles = createStyles((theme) => ({
+    //#F7F7F7 -gray
+}));
+
+export default function HomeV2() {
+    const { classes } = useStyles();
     return (
-        <Shell>
-            <MediaQuery smallerThan="md" styles={{ padding: "0px" }}>
-                <Container size="lg" mih="100vh">
-                    <Stack>
-                        <Paper
-                            w="100%"
-                            p="md"
-                            mb="sm"
-                            style={{
-                                backgroundImage:
-                                    "url(https://img.freepik.com/free-vector/full-color-pattern-with-ethnic-ornaments_1110-455.jpg?w=740&t=st=1683551599~exp=1683552199~hmac=5e2c500be64f3dce1f5308910aacd91cf2e86c171fb9e828f5e2535545a88953)",
-                            }}
-                        >
-                            <Stack
-                                spacing={0}
-                                style={{
-                                    backgroundColor: "rgba(0, 0, 0, .4)",
-                                }}
-                                p="md"
-                                m="sm"
-                            >
-                                <Group position="center">
-                                    <h1 style={{ color: "#F5F5F5" }}>
-                                        Welcome to{" "}
-                                        <span
-                                            style={{
-                                                color: "white",
-                                                textDecoration: "underline",
-                                            }}
-                                        >
-                                            TigrayWiki
-                                        </span>
-                                    </h1>
-                                </Group>
-
-                                <Group position="center">
-                                    <Text c="white" fs="italic" fz="lg">
-                                        - the encyclopedia for everything Tigray
-                                        -
-                                    </Text>
-                                </Group>
-                            </Stack>
-                        </Paper>
-                        <Paper
-                            w="100%"
-                            withBorder
-                            mih="50vh"
-                            bg="#f9fcfe"
-                            p="md"
-                            mb="md"
-                        >
-                            <Divider
-                                label={<h1>Featured Today</h1>}
-                                px="xl"
-                                //py="xl"
-                                pb="md"
-                                labelPosition="center"
-                                c="cyan"
-                            />
-                            <FeaturedCards />
-                        </Paper>
-                        <Paper w="100%" withBorder p="md" bg="#f9fcfe">
-                            <Divider
-                                label={<h1>Artefacts</h1>}
-                                px="xl"
-                                //pt="xl"
-                                pb="md"
-                                labelPosition="center"
-                                c="cyan"
-                            />
-                            <ArtefactBanner />
-                        </Paper>
-
-                        {/*<Paper w="100%" withBorder p="md" bg="#f9fcfe">
-                            <Divider
-                                label={<h1>Current Events</h1>}
-                                px="xl"
-                                //pt="xl"
-                                labelPosition="center"
-                                c="cyan"
-                            />
-                            <NewsHorizontalScroll />
-                        </Paper>*/}
-                    </Stack>
-                </Container>
-            </MediaQuery>
-        </Shell>
+        <div>
+            <WikiNavBar />
+            <Container
+                size="lg"
+                mt={60}
+                //w="100%"
+                p={0}
+            >
+                <Stack spacing="xl">
+                    <WelcomeGrid />
+                    <Divider />
+                    <Title
+                        mt="xl"
+                        pl={10}
+                        order={2}
+                        sx={{
+                            //minWidth: "300px",
+                            //maxWidth: "300px",
+                            fontFamily: "Lora, serif",
+                            fontWeight: "200",
+                        }}
+                    >
+                        Featured Events From the Tigray Timeline
+                    </Title>
+                    <FeaturedEventWikisGrid type="gen" />
+                    <Divider />
+                    <FeaturedStoriesFromPeopleGrid />
+                    <Divider />
+                    <FeaturedPeopleGrid
+                        header="Meet the Heroes of Tigray"
+                        withFilters={true}
+                    />
+                </Stack>
+            </Container>
+            <FooterCentered links={mockData.links} />
+        </div>
     );
 }

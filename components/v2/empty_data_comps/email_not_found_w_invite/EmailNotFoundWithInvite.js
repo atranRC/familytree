@@ -1,4 +1,4 @@
-import { Loader, Stack, Text } from "@mantine/core";
+import { Image, Loader, Stack, Text } from "@mantine/core";
 import { IconMoodEmpty, IconMoodHappy } from "@tabler/icons";
 import { useStyles } from "./EmailNotFoundWithInviteStyles";
 import { useMutation } from "react-query";
@@ -54,7 +54,7 @@ export default function EmailNotFoundWithInvite({
     return (
         <div className={classes.cont}>
             <Stack align="center" spacing={3}>
-                {!sent && <IconMoodEmpty color="gray" size={32} />}
+                {!sent && <Image width={100} src="/statics/pyramids.gif" />}
                 {sent && <IconMoodHappy color="teal" size={32} />}
                 <Text c="gray">
                     {!sent && (

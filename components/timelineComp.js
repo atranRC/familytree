@@ -11,6 +11,7 @@ import Timeline from "react-visjs-timeline";
     { id: 6, content: "item 6", start: "2014-01-26" },
 ];*/
 
+//https://visjs.github.io/vis-timeline/docs/timeline/#Configuration_Options
 const tlOptions = {
     orientation: { axis: "bottom" },
     height: 250,
@@ -37,24 +38,29 @@ class Tl extends Component {
 
         const timeline = this.tl.$el;
 
-        /*timeline.on(
-      "rangechanged",
-      function (properties) {
-        fetch("https://mocki.io/v1/7c3f8734-6e97-4eb8-863a-f271d9e5f6fd")
+        //timeline.focus(this.props.focusItemId);
+
+        timeline.on(
+            "rangechanged",
+            function (properties) {
+                /*fetch("https://mocki.io/v1/7c3f8734-6e97-4eb8-863a-f271d9e5f6fd")
           .then((response) => response.json())
           .then((data) => this.setState({ items: data.data }));
-        console.log("range changed", properties);
-        //this.logEvent("rangechanged", properties);
-      }.bind(this)
-    );*/
+        console.log("range changed", properties);*/
+                //this.logEvent("rangechanged", properties);
+                console.log("range changed", properties);
+                this.props.setRange([properties.start, properties.end]);
+            }.bind(this)
+        );
 
         timeline.on(
             "select",
             function (properties) {
-                console.log("select ", properties.items);
+                console.log("select ", properties);
                 //this.props.setSelectedItem(properties.items);
                 //this.logEvent("select", properties);ss
-                this.props.setSelectedArticle(properties.items[0]);
+                //this.props.setSelectedArticle(properties.items[0]);
+                this.props.onItemSelect(properties.items[0]);
             }.bind(this)
         );
     }

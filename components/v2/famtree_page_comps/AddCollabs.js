@@ -49,7 +49,7 @@ function AddWithEmail({ tree }) {
     });
 
     return (
-        <Paper withBorder p="md">
+        <Paper withBorder p="md" radius="1.5em">
             <Stack spacing={1}>
                 <Text align="center" size="sm" fw={500} c="dimmed">
                     Enter the email of the user you would like to add as a
@@ -87,6 +87,7 @@ function AddWithEmail({ tree }) {
                     }}
                     disabled={collabEmail === "" || addCollabMutation.isLoading}
                     loading={addCollabMutation.isLoading}
+                    radius="1.5em"
                 >
                     Add Collaborator
                 </Button>
@@ -158,7 +159,7 @@ function ManageCollabs({ tree }) {
     }
 
     return (
-        <Paper withBorder p="md">
+        <Paper withBorder p="md" radius="1.5em">
             <Stack spacing={1}>
                 <Text align="center" size="sm" fw={500} c="dimmed">
                     This tree has the following collaborators
@@ -197,6 +198,7 @@ function ManageCollabs({ tree }) {
                     loading={isLoadingDelete || isFetchingDelete}
                     disabled={selectedCollabs.length < 1}
                     onClick={handleDeleteCollabs}
+                    radius="1.5em"
                 >
                     Remove Collaborator
                 </Button>
@@ -208,18 +210,22 @@ function ManageCollabs({ tree }) {
 export default function AddCollabs({ tree }) {
     const [activeTab, setActiveTab] = useState("existing");
     return (
-        <Paper style={{ backgroundColor: "#f8f8f8" }} p="md">
-            <Tabs value={activeTab} onTabChange={setActiveTab}>
-                <Tabs.List>
-                    <Tabs.Tab value="existing">Manage Collaborators</Tabs.Tab>
-                    <Tabs.Tab value="add">Add Collaborator</Tabs.Tab>
-                </Tabs.List>
-            </Tabs>
-            {activeTab === "existing" ? (
-                <ManageCollabs tree={tree} />
-            ) : (
-                <AddWithEmail tree={tree} />
-            )}
+        <Paper style={{ backgroundColor: "#f8f8f8" }} p="md" radius="1.5em">
+            <Stack>
+                <Tabs value={activeTab} onTabChange={setActiveTab}>
+                    <Tabs.List grow>
+                        <Tabs.Tab value="existing">
+                            Manage Collaborators
+                        </Tabs.Tab>
+                        <Tabs.Tab value="add">Add Collaborator</Tabs.Tab>
+                    </Tabs.List>
+                </Tabs>
+                {activeTab === "existing" ? (
+                    <ManageCollabs tree={tree} />
+                ) : (
+                    <AddWithEmail tree={tree} />
+                )}
+            </Stack>
         </Paper>
     );
 }

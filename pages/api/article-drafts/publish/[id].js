@@ -2,12 +2,20 @@ import dbConnect from "../../../../lib/dbConnect";
 import { ObjectId } from "mongodb";
 import Articledrafts from "../../../../models/Articledrafts";
 import Articles from "../../../../models/Articles";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]";
 
 export default async function handler(req, res) {
     const {
         query: { id },
         method,
     } = req;
+
+    const session = await unstable_getServerSession(req, res, authOptions);
+    if (!session) {
+        res.status(401).json({ message: "You must be logged in." });
+        return;
+    }
 
     await dbConnect();
 
@@ -18,9 +26,16 @@ export default async function handler(req, res) {
                 //if articledraft has articleId
                 if (articledraft.articleId !== null) {
                     //edit existing article
+                    console.log("editing existing article");
                     const updatedArticle = await Articles.findByIdAndUpdate(
                         articledraft.articleId,
-                        req.body,
+                        {
+                            ...req.body,
+                            authorId: session.user.id,
+                            authorName: session.user.name,
+                            //isPublished: true,
+                            articleId: null,
+                        },
                         {
                             new: true,
                             runValidators: true,
@@ -35,11 +50,16 @@ export default async function handler(req, res) {
                     });
                 } else if (articledraft.articleId === null) {
                     //create new article
-                    const article = await Articles.create(
-                        req.body
-                    ); /* create a new model in the database */
+                    console.log("creating a new article");
+                    const article = await Articles.create({
+                        ...req.body,
+                        authorId: session.user.id,
+                        authorName: session.user.name,
+                        //isPublished: true,
+                    }); /* create a new model in the database */
 
                     //update articledraft's articleId field
+                    console.log("updating articledraft");
                     const updatedArticledraft =
                         await Articledrafts.findByIdAndUpdate(
                             id,
@@ -64,6 +84,7 @@ export default async function handler(req, res) {
                     res.status(200).json({ success: true, data: articledraft });
                 }
             } catch (error) {
+                console.log(error);
                 res.status(400).json({ success: false });
             }
             break;

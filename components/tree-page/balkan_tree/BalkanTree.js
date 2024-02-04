@@ -202,6 +202,7 @@ export default function BalkanTree({
             );
         },
         // enabled: false,
+        refetchOnWindowFocus: false,
         onSuccess: (d) => {
             console.log("members of", d.data.data);
             const memInfo = d.data.data.map((m) => {

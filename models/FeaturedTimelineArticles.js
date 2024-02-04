@@ -16,6 +16,10 @@ const FeaturedTimelineArticlesSchema = mongoose.Schema(
             type: String,
             required: [true, "please provide tag"],
         },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

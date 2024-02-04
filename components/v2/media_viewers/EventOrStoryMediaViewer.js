@@ -23,6 +23,7 @@ import { IconCheck, IconTrash } from "@tabler/icons";
 //import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import dynamic from "next/dynamic";
+import NoDataToShow from "../empty_data_comps/NoDataToShow";
 
 const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
     ssr: false,
@@ -48,6 +49,7 @@ export default function EventOrStoryMediaViewer({
     const docsQuery = useQuery({
         queryKey: ["user-uploaded-media", eventOrStoryId, page],
         //enabled: false,
+
         queryFn: async () => {
             return axios.get(
                 `/api/user-upload-media/attached-media/${eventOrStoryId}?p=${page}&eventOrStory=${eventOrStory}`
@@ -57,8 +59,8 @@ export default function EventOrStoryMediaViewer({
             const fetchedImages = result.data?.data?.media.map((m) => {
                 return {
                     src: getThumbUrl(m.cloudinaryParams),
-                    width: 320,
-                    height: 212,
+                    width: 150, //320,
+                    height: 100, //212,
                     cloudinaryParams: m.cloudinaryParams,
                     dbId: m._id,
                     //caption: "Boats (Jeshu John - designerspics.com)",
@@ -110,58 +112,68 @@ export default function EventOrStoryMediaViewer({
             setDeletedAlert(true);
             setDeleteModalOpened(false);
             queryClient.invalidateQueries({
-                queryKey: ["user-uploaded-media", eventOrStoryId],
+                queryKey: ["user-uploaded-media" /*eventOrStoryId*/],
             });
+            docsQuery.refetch();
         },
     });
 
-    if (docsQuery.isLoading) return <div>loading...</div>;
-    if (docsQuery.isError) return <div>ERROR</div>;
+    if (docsQuery.isLoading)
+        return (
+            <div>
+                {profileUser} {sessionUser} {eventOrStoryId} {eventOrStory}{" "}
+                loading...
+            </div>
+        );
+    if (docsQuery.isError)
+        return (
+            <div>
+                {profileUser} {sessionUser} {eventOrStoryId} {eventOrStory}{" "}
+                ERROR
+            </div>
+        );
 
     return (
         <Stack>
-            <Title className="storyTitle" align="center" color="darkgreen">
-                Photos
-            </Title>
             {docsQuery.data?.data?.result === "NO_DATA" && (
-                <Stack align="center" justify="center">
-                    <ThemeIcon
-                        variant="default"
-                        radius="xl"
-                        size="xl"
-                        color="gray"
-                    >
-                        🙁
-                    </ThemeIcon>
-                    <Text c="dimmed">No photos posted</Text>
-                </Stack>
+                <NoDataToShow message="No Photos posted to this event" />
             )}
-            {images && (
-                <Button.Group>
-                    <Button
-                        compact
-                        color="green"
-                        onClick={handleSelectAllClick}
-                    >
-                        {images?.some((image) => image.isSelected)
-                            ? "Clear"
-                            : "Select all"}
-                    </Button>
-                    <Button
-                        compact
-                        color="red"
-                        leftIcon={<IconTrash size={18} />}
-                        disabled={!images?.some((image) => image.isSelected)}
-                        onClick={() => setDeleteModalOpened(true)}
-                    >
-                        Delete
-                    </Button>
-                </Button.Group>
-            )}
+            {images &&
+                (sessionProfileRelation.isSelf ||
+                    sessionProfileRelation.isOwner ||
+                    sessionProfileRelation.isRelativeWithPost) && (
+                    <Button.Group>
+                        <Button
+                            compact
+                            color="green"
+                            onClick={handleSelectAllClick}
+                        >
+                            {images?.some((image) => image.isSelected)
+                                ? "Clear"
+                                : "Select all"}
+                        </Button>
+                        <Button
+                            compact
+                            color="red"
+                            leftIcon={<IconTrash size={18} />}
+                            disabled={
+                                !images?.some((image) => image.isSelected)
+                            }
+                            onClick={() => setDeleteModalOpened(true)}
+                        >
+                            Delete
+                        </Button>
+                    </Button.Group>
+                )}
             <Gallery
                 images={images}
                 onSelect={handleSelect}
                 onClick={handleImageClick}
+                enableImageSelection={
+                    sessionProfileRelation.isSelf ||
+                    sessionProfileRelation.isOwner ||
+                    sessionProfileRelation.isRelativeWithPost
+                }
             />
             {images && (
                 <Pagination
@@ -183,12 +195,17 @@ export default function EventOrStoryMediaViewer({
                     Photos deleted successfully
                 </Notification>
             )}
-            <UserMediaUploader
-                uploaderId={sessionUser}
-                profileId={profileUser}
-                eventOrStory={eventOrStory}
-                eventOrStoryId={eventOrStoryId}
-            />
+            {(sessionProfileRelation.isSelf ||
+                sessionProfileRelation.isOwner ||
+                sessionProfileRelation.isRelativeWithPost) && (
+                <UserMediaUploader
+                    uploaderId={sessionUser}
+                    profileId={profileUser}
+                    eventOrStory={eventOrStory}
+                    eventOrStoryId={eventOrStoryId}
+                    onUploadSuccess={() => docsQuery.refetch()}
+                />
+            )}
 
             {/*<Modal
                 opened={imageModalOpened}

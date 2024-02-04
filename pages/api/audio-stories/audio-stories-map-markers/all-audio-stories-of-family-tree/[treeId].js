@@ -41,7 +41,7 @@ export default async function handler(req, res) {
                     {
                         userId: { $in: taggedUsersObjectIds },
                     },
-                    "_id title audioUrl userName location"
+                    "_id title cloudinaryParams userName location"
                 ).sort({ eventDate: sortOption });
 
                 if (!audioStories) {

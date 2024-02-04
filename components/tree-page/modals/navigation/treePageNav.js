@@ -7,6 +7,7 @@ export default function TreesNav({ activePage }) {
         <Tabs
             value={activePage}
             onTabChange={(value) => router.push(`/family-tree/tree/${value}`)}
+            variant="outline"
         >
             <Tabs.List position="center">
                 <Tabs.Tab value="my-trees">My Trees</Tabs.Tab>

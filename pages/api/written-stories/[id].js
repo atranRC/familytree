@@ -1,6 +1,12 @@
 import dbConnect from "../../../lib/dbConnect";
 import { ObjectId } from "mongodb";
 import WrittenStories from "../../../models/WrittenStories";
+import { unstable_getServerSession } from "next-auth";
+import {
+    getSessionEventOrStoryRelation,
+    getSessionProfileRelationUtil,
+} from "../../../utils/dbUtils";
+import { authOptions } from "../auth/[...nextauth]";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -9,25 +15,41 @@ export default async function handler(req, res) {
         query: { id },
         method,
     } = req;
-
+    const session = await unstable_getServerSession(req, res, authOptions);
+    if (!session) {
+        res.status(401).json({ message: "You must be logged in." });
+        return;
+    }
     await dbConnect();
 
     switch (method) {
-        case "GET" /* Get a model by its ID */:
+        case "GET":
             try {
-                const writtenStory = await WrittenStories.findById(id);
-                if (!writtenStory) {
-                    return res.status(400).json({ success: false });
-                }
-                res.status(200).json({ success: true, data: writtenStory });
+                const story = await WrittenStories.findById(id);
+                res.status(200).json(story);
             } catch (error) {
                 res.status(400).json({ success: false });
             }
             break;
 
-        case "PUT" /* Edit a model by its ID */:
+        case "PUT":
             try {
-                const writtenStory = await WrittenStories.findByIdAndUpdate(
+                //allow edit for author or subject only
+                const sessionStoryRelation =
+                    await getSessionEventOrStoryRelation(
+                        session,
+                        id,
+                        "written_story"
+                    );
+
+                if (
+                    sessionStoryRelation.isSubject === false &&
+                    sessionStoryRelation.isAuthor === false
+                ) {
+                    res.status(400).json({ message: "UNAUTHORIZED" });
+                    return;
+                }
+                const story = await WrittenStories.findByIdAndUpdate(
                     id,
                     req.body,
                     {
@@ -35,25 +57,35 @@ export default async function handler(req, res) {
                         runValidators: true,
                     }
                 );
-                if (!writtenStory) {
-                    return res.status(400).json({ success: false });
-                }
-                res.status(200).json({ success: true, data: writtenStory });
+                res.status(200).json(story);
             } catch (error) {
+                console.log(error);
                 res.status(400).json({ success: false });
             }
             break;
 
-        case "DELETE" /* Delete a model by its ID */:
+        case "DELETE":
             try {
-                const deletedWrittenStory = await WrittenStories.deleteOne({
-                    _id: id,
-                });
-                if (!deletedWrittenStory) {
-                    return res.status(400).json({ success: false });
+                const sessionStoryRelation =
+                    await getSessionEventOrStoryRelation(
+                        session,
+                        id,
+                        "written_story"
+                    );
+
+                if (
+                    sessionStoryRelation.isSubject === false &&
+                    sessionStoryRelation.isAuthor === false
+                ) {
+                    res.status(400).json({ message: "UNAUTHORIZED" });
+                    return;
                 }
-                res.status(200).json({ success: true, data: {} });
+
+                const story = await WrittenStories.findByIdAndDelete(id);
+
+                res.status(200).json(story);
             } catch (error) {
+                console.log(error);
                 res.status(400).json({ success: false });
             }
             break;

@@ -13,6 +13,7 @@ import { signIn, useSession } from "next-auth/react";
 import AuthLoading from "../../components/v2/loading_screens/auth_loading/AuthLoading";
 import { createStyles } from "@mantine/core";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
     cont: {
@@ -56,13 +57,16 @@ const useStyles = createStyles((theme) => ({
 
 export default function InviteOnboardingPage() {
     const { data: session, status } = useSession();
+    const router = useRouter();
     const { classes } = useStyles();
 
     if (status === "loading") return <AuthLoading />;
-    if (status === "unauthenticated") signIn();
+    //if (status === "unauthenticated") signIn();
+    if (status === "unauthenticated") router.push("/u/signin");
     return (
         <div className={classes.cont}>
-            <div className={classes.imgSec}></div>
+            <div>redirecting...</div>
+            {/*<div className={classes.imgSec}></div>
             <div className={classes.welcomeSec}>
                 <Stack
                     sx={{ minHeight: "100vh" }}
@@ -103,7 +107,7 @@ export default function InviteOnboardingPage() {
                         type="member"
                     />
                 </Stack>
-            </div>
+            </div>*/}
         </div>
     );
 }

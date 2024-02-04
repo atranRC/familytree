@@ -26,7 +26,7 @@ const EventsSchema = mongoose.Schema(
             required: [true, "please provide description"],
         },
         location: {
-            value: {
+            /*value: {
                 type: String,
                 required: [true, "please provide name"],
             },
@@ -35,14 +35,20 @@ const EventsSchema = mongoose.Schema(
             },
             lat: {
                 type: mongoose.Types.Decimal128,
-            },
+            },*/
+            type: Object,
         },
         eventDate: {
             type: Date,
-            required: [true, "please provide date"],
+            //required: [true, "please provide date"],
+            default: Date.now(),
         },
         factSource: {
             type: ObjectId,
+        },
+        deletedAt: {
+            type: Date,
+            default: null,
         },
     },
     { timestamps: true }

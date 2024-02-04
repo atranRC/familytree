@@ -54,6 +54,10 @@ const UserUploadMediaSchema = mongoose.Schema(
             },
             tags: { type: Array },
         },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

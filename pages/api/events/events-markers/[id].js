@@ -17,7 +17,7 @@ export default async function handler(req, res) {
                     { userId: ObjectId(id) },
                     "_id description location"
                 ); /* find all the data in our database */
-                res.status(200).json({ success: true, data: events });
+                res.status(200).json(events);
             } catch (error) {
                 res.status(400).json({ success: false });
             }

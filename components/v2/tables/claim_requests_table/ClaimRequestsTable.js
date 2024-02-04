@@ -38,7 +38,7 @@ export default function ClaimRequestsTable({ profileId, onRowClick }) {
 
     if (docsQuery.isLoading) {
         return (
-            <Paper withBorder p="md">
+            <Paper withBorder p="md" sx={{ overflowX: "auto", width: "100%" }}>
                 <Stack justify="center" align="center" spacing="sm">
                     {Array.from({ length: 10 }).map((_, index) => {
                         return (
@@ -51,74 +51,58 @@ export default function ClaimRequestsTable({ profileId, onRowClick }) {
     }
 
     if (docsQuery.isError) return <div>error fetching...</div>;
-    if (docsQuery.data.data[0].data.length === 0)
+    /*  if (docsQuery.data.data[0].data.length === 0)
         return <NoDataToShow message={"No claim requests yet"} />;
-
+*/
     return (
-        <Stack spacing="sm">
-            <ScrollArea style={{ width: "100%" }}>
-                <MediaQuery
-                    smallerThan="md"
-                    styles={{ paddingRight: "0px", paddingLeft: "0px" }}
-                >
-                    <Paper p="md" withBorder>
-                        <Table
-                            striped
-                            highlightOnHover
-                            withBorder
-                            horizontalSpacing="lg"
-                            verticalSpacing="sm"
-                            fontSize="md"
-                        >
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Date</th>
-                                    <th>Message</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {docsQuery.data.data[0].data.map((doc) => {
-                                    return (
-                                        <tr
-                                            key={doc._id}
-                                            onClick={() => onRowClick(doc)}
-                                        >
-                                            <td>{doc?.claimerName}</td>
-                                            <td>
-                                                {doc.createdAt ? (
-                                                    moment(
-                                                        doc.createdAt
-                                                    ).format("YYYY-MM-DD")
-                                                ) : (
-                                                    <>-</>
-                                                )}
-                                            </td>
+        <Stack spacing="xl" sx={{ width: "100%", overflowX: "auto" }}>
+            <Table
+                striped
+                highlightOnHover
+                withBorder
+                horizontalSpacing="lg"
+                verticalSpacing="sm"
+                fontSize="md"
+            >
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {docsQuery.data.data[0].data.map((doc) => {
+                        return (
+                            <tr key={doc._id} onClick={() => onRowClick(doc)}>
+                                <td>{doc?.claimerName}</td>
+                                <td>
+                                    {doc.createdAt ? (
+                                        moment(doc.createdAt).format(
+                                            "YYYY-MM-DD"
+                                        )
+                                    ) : (
+                                        <>-</>
+                                    )}
+                                </td>
 
-                                            <td>
-                                                {truncateWord(
-                                                    doc?.message,
-                                                    100
-                                                )}
-                                            </td>
-                                            <td>
-                                                <Badge
-                                                    color={getPillColorClaimReq(
-                                                        doc?.status
-                                                    )}
-                                                >
-                                                    {doc?.status}
-                                                </Badge>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </Table>
-                    </Paper>
-                </MediaQuery>
-            </ScrollArea>
+                                <td>{truncateWord(doc?.message, 100)}</td>
+                                <td>
+                                    <Badge
+                                        color={getPillColorClaimReq(
+                                            doc?.status
+                                        )}
+                                    >
+                                        {doc?.status}
+                                    </Badge>
+                                </td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </Table>
+
             <Pagination
                 page={page}
                 onChange={setPage}

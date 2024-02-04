@@ -20,6 +20,10 @@ const FamilyTreesSchema = mongoose.Schema(
             type: String,
             required: [true, "tree privacy can not be empty"],
         },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

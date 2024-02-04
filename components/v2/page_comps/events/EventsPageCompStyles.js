@@ -12,9 +12,13 @@ export const useStyles = createStyles((theme) => ({
         /*position: "-webkit-sticky" ,
         position: "sticky",
         top: "0px",*/
+        "@media (max-width: 800px)": {
+            paddingLeft: "0px",
+            paddingRight: "0px",
+        },
     },
     miniCardsCont: {
-        // border: "1px solid #E8E8E8",
+        //border: "1px solid #E8E8E8",
         // minHeight: "100vh",
 
         flexGrow: "1",
@@ -25,10 +29,21 @@ export const useStyles = createStyles((theme) => ({
         flexDirection: "column",
         gap: "2em",
         flexBasis: "40%",
+        "@media (max-width: 800px)": {
+            flexBasis: "100%",
+            padding: "5px",
+        },
 
         //flexBasis: "3em",
         //flexShrink: "0",
     },
+    pillsCont: {
+        display: "flex",
+        justifyContent: "center",
+        gap: "5px",
+        flexWrap: "wrap",
+    },
+
     viewerCont: {
         //border: "1px solid #E8E8E8",
         //minHeight: "100vh",
@@ -36,5 +51,8 @@ export const useStyles = createStyles((theme) => ({
         flexBasis: "60%",
         maxHeight: "90vh",
         overflowY: "auto",
+        "@media (max-width: 800px)": {
+            display: "none",
+        },
     },
 }));

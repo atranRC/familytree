@@ -36,6 +36,10 @@ const WikisSchema = mongoose.Schema(
         coverImage: {
             type: String,
         },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

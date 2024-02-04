@@ -41,7 +41,7 @@ export default async function handler(req, res) {
                     {
                         userId: { $in: taggedUsersObjectIds },
                     },
-                    "_id title userName location"
+                    "_id title userName content location"
                 ).sort({ eventDate: sortOption });
 
                 if (!writtenStories) {

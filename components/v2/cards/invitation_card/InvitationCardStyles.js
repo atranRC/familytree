@@ -3,7 +3,7 @@ import { createStyles } from "@mantine/core";
 export const useStyles = createStyles((theme) => ({
     cont: {
         padding: "10px",
-
+        width: "100%",
         //border: "0px",
         //transition: ".2s ease-in-out",
         transition: ".2s ease-in-out",

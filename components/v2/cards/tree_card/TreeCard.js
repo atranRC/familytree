@@ -14,7 +14,7 @@ export default function TreeCard({ tree }) {
             onClick={() => {
                 window
                     .open(
-                        `/family-tree/tree/v2/${tree._id.toString()}`,
+                        `/family-tree/tree/v3/${tree._id.toString()}`,
                         "_blank"
                     )
                     .focus();

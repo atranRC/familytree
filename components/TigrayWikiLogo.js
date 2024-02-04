@@ -1,13 +1,13 @@
 import { Stack, createStyles } from "@mantine/core";
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles((theme, { extraLarge }) => ({
     heading: {
         fontFamily: "'Playfair Display', serif",
         color: "white",
-        fontSize: "2rem",
+        fontSize: extraLarge ? "4em" : "2rem",
         //marginBottom: "-2rem",
         "@media (max-width: 800px)": {
-            fontSize: "1.5rem",
+            fontSize: extraLarge ? "2.2rem" : "1.5rem",
             //marginBottom: "-1rem",
         },
     },
@@ -33,14 +33,17 @@ const useStyles = createStyles((theme) => ({
     },
 }));
 
-export default function TigrayWikiLogo() {
-    const { classes } = useStyles();
+export default function TigrayWikiLogo({
+    disabled = false,
+    extraLarge = false,
+}) {
+    const { classes } = useStyles({ extraLarge });
     return (
         <Stack spacing={0} align="center">
             <h1
                 className={classes.heading}
                 onClick={() => {
-                    window.location.href = "/";
+                    !disabled && (window.location.href = "/");
                 }}
             >
                 <span className={classes.t}> Tigray</span>

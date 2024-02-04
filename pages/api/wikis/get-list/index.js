@@ -1,24 +1,64 @@
 import dbConnect from "../../../../lib/dbConnect";
-import { ObjectId } from "mongodb";
 import Wikis from "../../../../models/Wikis";
 
 const WIKIS_PER_PAGE = 10;
 
 export default async function handler(req, res) {
-    const {
-        query: { p },
+    let {
+        query: { page, pageSize, tag },
         method,
     } = req;
-
-    const page = p || 1;
-    const dbQuery = { isPublished: true };
+    //const page = p || 1;
+    //const dbQuery = { isPublished: true };
 
     await dbConnect();
 
     switch (method) {
         case "GET" /* Get a model by its ID */:
             try {
-                const skip = (page - 1) * WIKIS_PER_PAGE;
+                page = parseInt(page, 10) || 1;
+                pageSize = parseInt(pageSize, 10) || 10;
+                /*console.log("filters", eventFilters.split(","));
+                console.log(eventFilters[0]);*/
+
+                const wikis = await Wikis.aggregate([
+                    {
+                        $facet: {
+                            //metadata: [{ $count: "totalCount" }],
+                            data: [
+                                {
+                                    $match: {
+                                        tag: tag,
+                                        isPublished: true,
+                                    },
+                                },
+                                { $sort: { createdAt: -1 } },
+                                { $skip: (page - 1) * pageSize },
+
+                                { $limit: pageSize },
+                            ],
+                            count: [
+                                {
+                                    $match: {
+                                        tag: tag,
+                                        isPublished: true,
+                                    },
+                                },
+                                // },
+                                { $count: "total" },
+                            ],
+                        },
+                    },
+                    { $unwind: "$count" },
+                    {
+                        $addFields: {
+                            count: "$count.total",
+                        },
+                    },
+                ]);
+                res.status(200).json(wikis);
+
+                /*const skip = (page - 1) * WIKIS_PER_PAGE;
                 const countPromise =
                     //Wikis.estimatedDocumentCount(dbQuery);
                     Wikis.countDocuments(dbQuery);
@@ -42,8 +82,9 @@ export default async function handler(req, res) {
                 res.status(200).json({
                     success: true,
                     data: { pagination: { count, pageCount }, wikis },
-                });
+                });*/
             } catch (error) {
+                //console.log(error);
                 res.status(400).json({ success: false });
             }
             break;

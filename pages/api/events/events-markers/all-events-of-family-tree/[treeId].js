@@ -41,7 +41,7 @@ export default async function handler(req, res) {
                     {
                         userId: { $in: taggedUsersObjectIds },
                     },
-                    "_id type userName location"
+                    "_id userId type userName location eventDate"
                 ).sort({ eventDate: sortOption });
 
                 /*const eventsOfTreeMembers = await Events.find({

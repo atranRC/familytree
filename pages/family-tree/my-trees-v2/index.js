@@ -15,15 +15,7 @@ export default function MyTreesPageV2() {
     if (status === "loading") return <ProfileLoadingScreen />;
 
     return (
-        <AppShellContainer>
-            <TreePageTitleSection picUrl="https://img.freepik.com/free-vector/hand-drawn-tree-life-brown-shades_23-2148703761.jpg">
-                <Title order={2} fw={600}>
-                    Your Family Trees
-                </Title>
-                <Title order={5} fw={400} color="dimmed">
-                    Family Trees you&apos;ve created
-                </Title>
-            </TreePageTitleSection>
+        <AppShellContainer activePage="Trees">
             <MyTreesGrid />
         </AppShellContainer>
     );

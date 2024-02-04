@@ -1,9 +1,11 @@
 import { Box, Loader, ScrollArea, TextInput, Text } from "@mantine/core";
+import { IconLocation } from "@tabler/icons";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "react-query";
 
 export default function LocationAutocompleteV2({
+    defaultValue = "",
     setSelectedLocation,
     locationError,
     setLocationError,
@@ -12,7 +14,7 @@ export default function LocationAutocompleteV2({
     desc = "Select location from the dropdown suggestions",
     id = "def",
 }) {
-    const [locationInputValue, setLocationInputValue] = useState("");
+    const [locationInputValue, setLocationInputValue] = useState(defaultValue);
     const [suggestionOpen, setSuggestionOpen] = useState(false);
     const textInputRef = useRef(null);
 
@@ -67,6 +69,8 @@ export default function LocationAutocompleteV2({
                 }}
                 error={locationError && "please select a location"}
                 onFocus={() => setLocationError(false)}
+                icon={<IconLocation />}
+                radius="1.5em"
             />
 
             <div>

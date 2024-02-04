@@ -26,6 +26,17 @@ use("famtree");
     { $set: { sex: "male" } },
     { upsert: false, multi: true }
 );*/
+
+/*db.writtenstories.update(
+    {},
+    { $set: { location: null } },
+    { upsert: false, multi: true }
+);
+db.audiostories.update(
+    {},
+    { $set: { location: null } },
+    { upsert: false, multi: true }
+);*/
 /*db.events.update(
     {},
     { $set: { userName: "User" } },
@@ -41,6 +52,11 @@ db.featuredtimelinearticles.update(
     {},
     { $set: { featureDate: new Date() } },
     { upsert: false, multi: true }
+);*/
+/*db.treemembersbs.update(
+  {},
+  { $set: { deletedAt: null } },
+  { upsert: false, multi: true }
 );*/
 //db.users.find({})
 //delete all documents

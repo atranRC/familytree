@@ -12,6 +12,7 @@ import {
     Modal,
 } from "@mantine/core";
 import { get_auto_title, get_event_label } from "../../../lib/static_lists";
+import moment from "moment";
 
 export default function EventsMap({ treeId }) {
     const [markers, setMarkers] = useState([]);
@@ -36,24 +37,41 @@ export default function EventsMap({ treeId }) {
         enabled: false,
         onSuccess: (d) => {
             console.log("fetched events markers", d.data.data);
-            const m = d.data.data.map((event) => {
-                return {
-                    id: event._id,
-                    type: "event",
-                    geoloc: [
-                        event.location.lat.$numberDecimal,
-                        event.location.lon.$numberDecimal,
-                    ],
-                    popup: (
-                        <Stack>
-                            <Title order={3}>{event.type}</Title>
-                            <Title order={6} color="dimmed" fw={450}>
-                                {event.userName}
-                            </Title>
-                        </Stack>
-                    ),
-                };
-            });
+            const m = d.data.data
+                .filter((s) => s.location)
+                .map((event) => {
+                    return {
+                        id: event._id,
+                        type: "event",
+                        profileId: event.userId.toString(),
+                        geoloc: [
+                            event?.location?.lat || 0,
+                            event?.location?.lon || 0,
+                        ],
+                        popup: (
+                            <Stack>
+                                <Title order={3}>
+                                    {get_auto_title(
+                                        event?.type,
+                                        event?.userName,
+                                        event?.location?.value,
+
+                                        event?.eventDate ? (
+                                            moment(event?.eventDate).format(
+                                                "YYYY-MM-DD"
+                                            )
+                                        ) : (
+                                            <>-</>
+                                        )
+                                    )}
+                                </Title>
+                                <Title order={6} color="dimmed" fw={450}>
+                                    {event?.authorName}
+                                </Title>
+                            </Stack>
+                        ),
+                    };
+                });
             setMarkers(m);
             setMapVisible(false);
         },
@@ -79,6 +97,7 @@ export default function EventsMap({ treeId }) {
                 markers={markers}
                 setSelectedMarkerId={setSelectedMarkerId}
                 setModalOpen={setModalOpen}
+                withPopup={true}
             />
 
             <Modal

@@ -9,7 +9,7 @@ const EVENTS_PER_PAGE = 10;
 
 export default async function handler(req, res) {
     let {
-        query: { id, searchTerm, page, pageSize },
+        query: { id, searchTerm, page, pageSize, eventFilters },
         method,
     } = req;
 
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         res.status(401).json({ message: "You must be logged in." });
         return;
     }
-    const sessionProfileRelation = await getSessionProfileRelationUtil(
+    /*const sessionProfileRelation = await getSessionProfileRelationUtil(
         session,
         id
     );
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     ) {
         res.status(401).json({ message: "UNAUTHORIZED" });
         return;
-    }
+    }*/
 
     await dbConnect();
 
@@ -101,34 +101,59 @@ export default async function handler(req, res) {
             try {
                 page = parseInt(page, 10) || 1;
                 pageSize = parseInt(pageSize, 10) || 10;
+                /*console.log("filters", eventFilters.split(","));
+                console.log(eventFilters[0]);*/
+
+                let matchObj = {
+                    $match: {
+                        userId: ObjectId(id),
+                        description: {
+                            $regex: new RegExp(searchTerm, "i"),
+                        },
+                    },
+                };
+
+                if (eventFilters && eventFilters.split(",").length > 0) {
+                    matchObj["$match"]["type"] = {
+                        $in: eventFilters.split(","),
+                    };
+                }
 
                 const events = await Events.aggregate([
                     {
                         $facet: {
                             //metadata: [{ $count: "totalCount" }],
                             data: [
-                                {
-                                    $match: {
+                                //{
+                                /*$match: {
                                         userId: ObjectId(id),
                                         description: {
                                             $regex: new RegExp(searchTerm, "i"),
                                         },
-                                    },
-                                },
+                                        type: {
+                                            $in: eventFilters.split(","),
+                                        },
+                                    },*/
+                                matchObj,
+                                // },
                                 { $sort: { eventDate: -1 } },
                                 { $skip: (page - 1) * pageSize },
 
                                 { $limit: pageSize },
                             ],
                             count: [
-                                {
-                                    $match: {
+                                // {
+                                /*$match: {
                                         userId: ObjectId(id),
                                         description: {
                                             $regex: new RegExp(searchTerm, "i"),
                                         },
-                                    },
-                                },
+                                        type: {
+                                             $in: eventFilters.split(","),
+                                        },
+                                    },*/
+                                matchObj,
+                                // },
                                 { $count: "total" },
                             ],
                         },

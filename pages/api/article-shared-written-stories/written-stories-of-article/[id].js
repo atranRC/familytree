@@ -44,6 +44,7 @@ export default async function handler(req, res) {
                             uName = "Annonymous";
                         }
                         storiesDocs.push({
+                            _id: s._id,
                             articleId: s.articleId,
                             profileId: s.profileId,
                             writtenStoryId: s.writtenStoryId,
@@ -55,7 +56,6 @@ export default async function handler(req, res) {
                     });
                 }
                 res.status(200).json({
-                    success: true,
                     data: { pagination: { count, pageCount }, storiesDocs },
                 });
             } catch (error) {

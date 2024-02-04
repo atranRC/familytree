@@ -21,6 +21,10 @@ const FlaggedWikisSchema = mongoose.Schema(
             type: String,
             required: [true, "please provide description"],
         },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

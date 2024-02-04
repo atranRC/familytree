@@ -19,18 +19,18 @@ export default function WrittenStoriesTimeline({ treeId }) {
         enabled: false,
         onSuccess: (d) => {
             if (d.data.data.writtenStories.length > 0) {
-                console.log(
+                /*console.log(
                     "fetching more...",
                     d.data.data.writtenStories.length
-                );
+                );*/
                 //setReachedEnd(false);
                 let ia = writtenStoriesItems;
                 d.data.data.writtenStories.map((story) => {
                     ia.push({
-                        cardTitle: `${story.userName} - ${story.title}`,
-                        cardSubtitle: story.location.value,
-                        title: story.updatedAt.toString().split("T")[0],
-                        cardDetailedText: story.content,
+                        cardTitle: `${story?.userName} - ${story?.title}`,
+                        cardSubtitle: story?.location?.value,
+                        title: story?.updatedAt.toString().split("T")[0],
+                        cardDetailedText: story?.content,
                         media: {
                             type: "IMAGE",
                             source: {
@@ -41,7 +41,7 @@ export default function WrittenStoriesTimeline({ treeId }) {
                 });
                 setWrittenStoriesItems(ia);
             } else {
-                console.log("end");
+                //console.log("end");
                 //setReachedEnd(true);
             }
         },
@@ -79,7 +79,7 @@ export default function WrittenStoriesTimeline({ treeId }) {
     }
 
     return (
-        <div style={{ width: "100%", height: "100vh", marginBottom: "5rem" }}>
+        <div style={{ width: "100%", height: "100%" }}>
             <Chrono
                 items={writtenStoriesItems}
                 mode="VERTICAL_ALTERNATING"

@@ -17,9 +17,10 @@ export default async function handler(req, res) {
                 index: "searchUsers",
                 text: {
                     query: searchTerm,
-                    path: {
+                    /*path: {
                         wildcard: "*",
-                    },
+                    },*/
+                    path: ["name", "email", "fathers_name", "last_name"],
                     fuzzy: {
                         maxExpansions: 100,
                         maxEdits: 2,

@@ -2,8 +2,10 @@ import {
     Button,
     Group,
     Loader,
+    Paper,
     Radio,
     Stack,
+    Text,
     TextInput,
     Title,
 } from "@mantine/core";
@@ -24,6 +26,7 @@ export function EditTree({ treeId }) {
         queryFn: () => {
             return axios.get("/api/family-tree-api/" + treeId);
         },
+        refetchOnWindowFocus: false,
         onSuccess: (d) => {
             console.log("update data fetched", d.data.data);
             setTreeName(d.data.data.tree_name);
@@ -132,7 +135,7 @@ export function DeleteTree({ treeId, setConfirmDeleteOpened, treeName }) {
         },
         enabled: false,
         onSuccess: (d) => {
-            router.push("/family-tree/tree/my-trees");
+            router.push("/family-tree/my-trees-v2");
         },
     });
 
@@ -140,7 +143,7 @@ export function DeleteTree({ treeId, setConfirmDeleteOpened, treeName }) {
         refetchDelete();
     };
 
-    return (
+    /*return (
         <Stack spacing="md" align="center" justify="center">
             <Title order={5} fw={500}>
                 Are you sure you want to delete {treeName} ?
@@ -158,6 +161,40 @@ export function DeleteTree({ treeId, setConfirmDeleteOpened, treeName }) {
                     Delete
                 </Button>
             </Group>
+        </Stack>
+    );*/
+    return (
+        <Stack
+            sx={{
+                backgroundColor: "red",
+                borderRadius: "1.5em",
+                padding: "5px",
+            }}
+        >
+            <Title order={2} align="center" c="white">
+                Confirm Deletion
+            </Title>
+            <Paper withBorder p={"md"} radius={"1.5em"}>
+                <Stack justify="center" align="center">
+                    <Text color="dimmed" align="center">
+                        This action can not be undone. Are you sure you want to
+                        continue?
+                    </Text>
+
+                    <Group>
+                        <Button
+                            color="red"
+                            onClick={handleTreeDelete}
+                            loading={isLoadingDelete || isFetchingDelete}
+                        >
+                            Continue
+                        </Button>
+                        <Button onClick={() => setConfirmDeleteOpened(false)}>
+                            Cancel
+                        </Button>
+                    </Group>
+                </Stack>
+            </Paper>
         </Stack>
     );
 }

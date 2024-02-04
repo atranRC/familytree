@@ -1,0 +1,8 @@
+.titleTabLink {
+    color: lightslategray;
+}
+
+.titleTabLink:hover {
+    cursor: pointer;
+    color: black;
+}

@@ -4,8 +4,15 @@ import "leaflet/dist/leaflet.css";
 import { useState } from "react";
 import { Icon } from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
+import Link from "next/link";
 
-export default function Map({ markers, setSelectedMarkerId, setModalOpen }) {
+export default function Map({
+    markers,
+    setSelectedMarkerId,
+    setModalOpen,
+    withPopup = false,
+    onOpenLink = () => {},
+}) {
     const eventsIconUrl = "/event.png";
     const writtenStoriesIconUrl = "/pencil.png";
     const audioStoriesIconUrl = "/mic_loc.png";
@@ -20,63 +27,47 @@ export default function Map({ markers, setSelectedMarkerId, setModalOpen }) {
     const center = markers[0] ? markers[0].geoloc : [13.4966644, 39.4768259];
     const [opened, setOpened] = useState(false);
     return (
-        <div>
-            <div style={{ height: "100vh", width: "100%" }}>
-                <MapContainer center={center} zoom={5}>
-                    <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <MarkerClusterGroup>
-                        {markers.map((marker) => {
-                            let cus_ic = defaultIconUrl;
-                            if (marker.type === "event") {
-                                cus_ic = eventsIconUrl;
-                            }
-                            if (marker.type === "audioStory") {
-                                cus_ic = audioStoriesIconUrl;
-                            }
-                            if (marker.type === "writtenStory") {
-                                cus_ic = writtenStoriesIconUrl;
-                            }
+        <div style={{ height: "100%", width: "100%" }}>
+            <MapContainer center={center} zoom={5}>
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <MarkerClusterGroup>
+                    {markers.map((marker) => {
+                        let cus_ic = defaultIconUrl;
+                        if (marker.type === "event") {
+                            cus_ic = eventsIconUrl;
+                        }
+                        if (marker.type === "audioStory") {
+                            cus_ic = audioStoriesIconUrl;
+                        }
+                        if (marker.type === "writtenStory") {
+                            cus_ic = writtenStoriesIconUrl;
+                        }
 
-                            return (
-                                <Marker
-                                    key={marker.id}
-                                    position={marker.geoloc}
-                                    icon={
-                                        new Icon({
-                                            iconUrl: cus_ic,
-                                            iconSize: [38, 38],
-                                        })
-                                    }
-                                >
+                        return (
+                            <Marker
+                                key={marker.id}
+                                position={marker.geoloc}
+                                icon={
+                                    new Icon({
+                                        iconUrl: cus_ic,
+                                        iconSize: [38, 38],
+                                    })
+                                }
+                            >
+                                {withPopup && (
                                     <Popup>
                                         <p>{marker.popup}</p>
-                                        <p
-                                            style={{
-                                                color: "blue",
-                                                textDecoration: "underline",
-                                                cursor: "pointer",
-                                            }}
-                                            onClick={() => {
-                                                setSelectedMarkerId(marker.id);
-                                                if (
-                                                    marker.type !== "audioStory"
-                                                ) {
-                                                    setModalOpen(true);
-                                                }
-                                            }}
-                                        >
-                                            view more
-                                        </p>
                                     </Popup>
-                                </Marker>
-                            );
-                        })}
-                    </MarkerClusterGroup>
-                </MapContainer>
-            </div>
+                                )}
+                            </Marker>
+                        );
+                    })}
+                </MarkerClusterGroup>
+            </MapContainer>
         </div>
     );
 }
+//http://localhost:3000/profiles/6437eaa66de1295a1aabfa5e/events?contentId=6576b266c19ba0111a9218c0

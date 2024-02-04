@@ -26,8 +26,11 @@ const useStyles = createStyles((theme) => ({
 
     inner: {
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: "space-around",
+        flexWrap: "wrap",
         alignItems: "center",
+        gap: "1em",
+
         padding: `${theme.spacing.md}px ${theme.spacing.md}px`,
 
         [theme.fn.smallerThan("sm")]: {

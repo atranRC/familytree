@@ -19,7 +19,7 @@ export function TitleSection({ children }) {
         (state) => state.setDrawerOpened
     );
     const { data: session } = useSession();
-    console.log("this sesssssion", session);
+    //console.log("this sesssssion", session);
     return (
         <Paper mb="md" p="md" withBorder>
             <Group mb="md">

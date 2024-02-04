@@ -12,8 +12,10 @@ import {
     Modal,
     Divider,
     Group,
+    Spoiler,
 } from "@mantine/core";
 import { IconAnchor, IconPlant2 } from "@tabler/icons";
+import { getSecUrl } from "../../../utils/cloudinaryUtils";
 
 export default function StoriesMap({ treeId }) {
     const [markers, setMarkers] = useState(null);
@@ -39,32 +41,38 @@ export default function StoriesMap({ treeId }) {
         enabled: false,
         onSuccess: (d) => {
             console.log("fetched audio stories markers", d.data.data);
-            const m = d.data.data.map((story) => {
-                return {
-                    id: story._id,
-                    type: "audioStory",
-                    geoloc: [
-                        story.location.lat.$numberDecimal,
-                        story.location.lon.$numberDecimal,
-                    ],
-                    popup: (
-                        <Stack>
-                            <Title order={3}>{story.title}</Title>
-                            <Title order={6} color="dimmed" fw={450}>
-                                {story.userName}
-                            </Title>
-                            <audio controls preload="none">
-                                <source src={story.audioUrl} type="audio/ogg" />
-                                <source
-                                    src={story.audioUrl}
-                                    type="audio/mpeg"
-                                />
-                                Your browser does not support the audio element.
-                            </audio>
-                        </Stack>
-                    ),
-                };
-            });
+            const m = d.data.data
+                .filter((s) => s.location)
+                .map((story) => {
+                    return {
+                        id: story._id,
+                        type: "audioStory",
+                        geoloc: [
+                            story?.location?.lat || 0,
+                            story?.location?.lon || 0,
+                        ],
+                        popup: (
+                            <Stack>
+                                <Title order={3}>{story.title}</Title>
+                                <Title order={6} color="dimmed" fw={450}>
+                                    {story.userName}
+                                </Title>
+                                <audio controls preload="none">
+                                    <source
+                                        src={getSecUrl(story?.cloudinaryParams)}
+                                        type="audio/webm"
+                                    />
+                                    <source
+                                        src={getSecUrl(story?.cloudinaryParams)}
+                                        type="audio/ogg"
+                                    />
+                                    Your browser does not support the audio
+                                    element.
+                                </audio>
+                            </Stack>
+                        ),
+                    };
+                });
             setAudioMarkers(m);
             setMapVisible(false);
         },
@@ -87,24 +95,43 @@ export default function StoriesMap({ treeId }) {
         enabled: false,
         onSuccess: (d) => {
             console.log("fetched WrittenStories markers", d.data.data);
-            const m = d.data.data.map((story) => {
-                return {
-                    id: story._id,
-                    type: "writtenStory",
-                    geoloc: [
-                        story.location.lat.$numberDecimal,
-                        story.location.lon.$numberDecimal,
-                    ],
-                    popup: (
-                        <Stack>
-                            <Title order={3}>{story.title}</Title>
-                            <Title order={6} color="dimmed" fw={450}>
-                                {story.userName}
-                            </Title>
-                        </Stack>
-                    ),
-                };
-            });
+            const m = d.data.data
+                .filter((s) => s.location)
+                .map((story) => {
+                    return {
+                        id: story._id,
+                        type: "writtenStory",
+                        geoloc: [
+                            story?.location?.lat || 0,
+                            story?.location?.lon || 0,
+                        ],
+                        popup: (
+                            <Stack>
+                                <Title order={3}>{story.title}</Title>
+                                <Spoiler
+                                    maxHeight={100}
+                                    showLabel="Show more"
+                                    hideLabel="Hide"
+                                    w="200px"
+                                >
+                                    <Text
+                                        c="dimmed"
+                                        size="sm"
+                                        sx={{
+                                            maxHeight: "200px",
+                                            overflow: "auto",
+                                        }}
+                                    >
+                                        {story?.content}
+                                    </Text>
+                                </Spoiler>
+                                <Title order={6} color="dimmed" fw={450}>
+                                    {story.userName}
+                                </Title>
+                            </Stack>
+                        ),
+                    };
+                });
             setMarkers(m);
             setMapVisible(false);
         },
@@ -142,6 +169,7 @@ export default function StoriesMap({ treeId }) {
                 markers={[...markers, ...audioMarkers]}
                 setSelectedMarkerId={setSelectedMarkerId}
                 setModalOpen={setModalOpen}
+                withPopup={true}
             />
 
             <Modal

@@ -22,12 +22,12 @@ const AudioStoriesSchema = mongoose.Schema(
         },
         title: { type: String, required: [true, "please provide title"] },
         description: { type: String },
-        audioUrl: {
-            type: String,
+        cloudinaryParams: {
+            type: Object,
             required: [true, "please provide collab name"],
         },
         location: {
-            value: {
+            /*value: {
                 type: String,
                 required: [true, "please provide name"],
             },
@@ -36,7 +36,12 @@ const AudioStoriesSchema = mongoose.Schema(
             },
             lat: {
                 type: mongoose.Types.Decimal128,
-            },
+            },*/
+            type: Object,
+        },
+        deletedAt: {
+            type: Date,
+            default: null,
         },
     },
     { timestamps: true }

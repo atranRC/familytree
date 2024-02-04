@@ -18,6 +18,10 @@ const ArticleStaticMediaSchema = mongoose.Schema(
         },
         thumbnail: { type: String },
         tags: { type: Array },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

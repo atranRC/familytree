@@ -36,8 +36,9 @@ export default function MyTreesGrid() {
     const notifyTreeCreateError = () => toast.error("Something went wrong");
 
     const treesQuery = useQuery({
-        queryKey: ["get-my-trees", router.query, searchTerm, page],
-        refetchOnWindowFocus: false,
+        queryKey: ["get_my_trees_query", router.query, searchTerm, page],
+        //queryKey: ["get_my_trees_query", router.query, searchTerm, page],
+        //refetchOnWindowFocus: false,
         queryFn: () => {
             return axios.get(
                 `/api/v2/fam-trees?filter=${
@@ -54,9 +55,10 @@ export default function MyTreesGrid() {
 
     const onCreateTreeSuccess = () => {
         notifyTreeCreateSuccess();
-        queryClient.invalidateQueries({
-            queryKey: ["get-my-trees"],
-        });
+        /*queryClient.invalidateQueries({
+            queryKey: ["get_my_trees_query"],
+        });*/
+        treesQuery.refetch();
         setModalOpened(false);
     };
 
@@ -81,11 +83,12 @@ export default function MyTreesGrid() {
                 <div className={classes.searchCont}>
                     <TextInput
                         value={searchTerm}
-                        onChange={(event) =>
-                            setSearchTerm(event.currentTarget.value)
-                        }
+                        onChange={(event) => {
+                            setPage(1);
+                            setSearchTerm(event.currentTarget.value);
+                        }}
                         className={classes.searchBar}
-                        placeholder="Search tree ..."
+                        placeholder="Search trees ..."
                         radius="xl"
                         size="md"
                     />
@@ -186,18 +189,18 @@ export default function MyTreesGrid() {
                             <NoDataToShow message={"No Trees Found"} />
                         )}
                     </div>
-                    <Pagination
-                        page={page}
-                        onChange={setPage}
-                        total={
-                            parseInt(
-                                treesQuery.data?.data[0]?.metadata[0]
-                                    ?.totalCount / 10
-                            ) + 1
-                        }
-                        radius="md"
-                        withEdges
-                    />
+                    {treesQuery.data.data[0]?.data && (
+                        <Pagination
+                            page={page}
+                            onChange={setPage}
+                            total={
+                                parseInt(treesQuery.data?.data[0]?.count / 10) +
+                                1
+                            }
+                            radius="md"
+                            withEdges
+                        />
+                    )}
                 </Stack>
             )}
 

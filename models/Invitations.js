@@ -17,7 +17,7 @@ const InvitationsSchema = mongoose.Schema(
             required: [true, "please provide inviteeEmail"],
         },
         invitationType: {
-            type: String,
+            type: String, //member or collab
             required: [true, "please provide invitationType"],
         },
         treeId: {
@@ -35,6 +35,10 @@ const InvitationsSchema = mongoose.Schema(
             type: String,
             default: "pending",
             required: [true, "please provide invitationType"],
+        },
+        deletedAt: {
+            type: Date,
+            default: null,
         },
     },
     { timestamps: true }

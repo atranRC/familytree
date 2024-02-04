@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { Chrono } from "react-chrono";
 import { get_event_theme_img } from "../../../lib/static_lists";
+import { getSecUrl } from "../../../utils/cloudinaryUtils";
 
 export default function AudioStoriesTimeline({ treeId }) {
     const [page, setPage] = useState(1);
@@ -19,20 +20,20 @@ export default function AudioStoriesTimeline({ treeId }) {
         enabled: false,
         onSuccess: (d) => {
             if (d.data.data.audioStories.length > 0) {
-                console.log(
+                /*console.log(
                     "fetching more...",
                     d.data.data.audioStories.length
-                );
+                );*/
                 //setReachedEnd(false);
                 let ia = audioStoriesItems;
                 d.data.data.audioStories.map((story) => {
                     ia.push({
-                        renId: story._id.toString(),
-                        audioUrl: story.audioUrl,
-                        cardTitle: `${story.userName} - ${story.title}`,
-                        cardSubtitle: `by ${story.authorName} - ${story.location.value}`,
-                        title: story.updatedAt.toString().split("T")[0],
-                        cardDetailedText: story.description,
+                        renId: story?._id.toString(),
+                        cloudinaryParams: story?.cloudinaryParams,
+                        cardTitle: `${story?.userName} - ${story?.title}`,
+                        cardSubtitle: `by ${story?.authorName} - ${story?.location?.value}`,
+                        title: story?.updatedAt.toString().split("T")[0],
+                        cardDetailedText: story?.description,
                         media: {
                             type: "IMAGE",
                             source: {
@@ -43,7 +44,7 @@ export default function AudioStoriesTimeline({ treeId }) {
                 });
                 setAudioStoriesItems(ia);
             } else {
-                console.log("end");
+                //console.log("end");
                 //setReachedEnd(true);
             }
         },
@@ -81,7 +82,7 @@ export default function AudioStoriesTimeline({ treeId }) {
     }
 
     return (
-        <div style={{ width: "100%", height: "100vh", marginBottom: "5rem" }}>
+        <div style={{ width: "100%", height: "100%" }}>
             <Chrono
                 items={audioStoriesItems}
                 mode="VERTICAL_ALTERNATING"
@@ -104,10 +105,13 @@ export default function AudioStoriesTimeline({ treeId }) {
                         <div key={story.renId}>
                             <audio controls preload="none">
                                 <source
-                                    src={story.audioUrl}
+                                    src={getSecUrl(story.cloudinaryParams)}
                                     type="audio/webm"
                                 />
-                                <source src={story.audioUrl} type="audio/ogg" />
+                                <source
+                                    src={getSecUrl(story.cloudinaryParams)}
+                                    type="audio/ogg"
+                                />
                                 Your browser does not support the audio element.
                             </audio>
                         </div>

@@ -44,7 +44,7 @@ export default async function handler(req, res) {
                     const trees = await FamilyTrees.aggregate([
                         {
                             $facet: {
-                                metadata: [{ $count: "totalCount" }],
+                                //metadata: [{ $count: "totalCount" }],
                                 data: [
                                     {
                                         $match: {
@@ -57,7 +57,9 @@ export default async function handler(req, res) {
                                             },
                                         },
                                     },
+                                    { $sort: { updatedAt: -1 } },
                                     { $skip: (page - 1) * pageSize },
+
                                     { $limit: pageSize },
                                 ],
                                 count: [
@@ -94,7 +96,7 @@ export default async function handler(req, res) {
                     const trees = await FamilyTrees.aggregate([
                         {
                             $facet: {
-                                metadata: [{ $count: "totalCount" }],
+                                //metadata: [{ $count: "totalCount" }],
                                 data: [
                                     {
                                         $match: {
@@ -107,7 +109,9 @@ export default async function handler(req, res) {
                                             },
                                         },
                                     },
+                                    { $sort: { updatedAt: -1 } },
                                     { $skip: (page - 1) * pageSize },
+
                                     { $limit: pageSize },
                                 ],
                                 count: [
@@ -145,7 +149,7 @@ export default async function handler(req, res) {
                     const trees = await FamilyTrees.aggregate([
                         {
                             $facet: {
-                                metadata: [{ $count: "totalCount" }],
+                                //metadata: [{ $count: "totalCount" }],
                                 data: [
                                     {
                                         $match: {
@@ -158,7 +162,9 @@ export default async function handler(req, res) {
                                             },
                                         },
                                     },
+                                    { $sort: { updatedAt: -1 } },
                                     { $skip: (page - 1) * pageSize },
+
                                     { $limit: pageSize },
                                 ],
                                 count: [

@@ -26,7 +26,7 @@ const WrittenStoriesSchema = mongoose.Schema(
             required: [true, "please provide collab name"],
         },
         location: {
-            value: {
+            /*value: {
                 type: String,
                 required: [true, "please provide name"],
             },
@@ -35,7 +35,12 @@ const WrittenStoriesSchema = mongoose.Schema(
             },
             lat: {
                 type: mongoose.Types.Decimal128,
-            },
+            },*/
+            type: Object,
+        },
+        deletedAt: {
+            type: Date,
+            default: null,
         },
     },
     { timestamps: true }

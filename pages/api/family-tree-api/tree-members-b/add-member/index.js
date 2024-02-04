@@ -104,7 +104,7 @@ export default async function handler(req, res) {
                     data: { nToAdd: nodesToAdd, nToUp: nodesToUpdate },
                 });
             } catch (error) {
-                //console.log(error);
+                console.log(error);
                 res.status(400).json({ success: false });
             }
             break;

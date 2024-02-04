@@ -25,7 +25,7 @@ const ArticlesSchema = mongoose.Schema(
             required: [true, "please provide description"],
         },
         location: {
-            value: {
+            /*value: {
                 type: String,
             },
             lon: {
@@ -33,7 +33,9 @@ const ArticlesSchema = mongoose.Schema(
             },
             lat: {
                 type: mongoose.Types.Decimal128,
-            },
+            },*/
+            type: Object,
+            required: [true, "please provide location"],
         },
         date: {
             type: Date,
@@ -50,6 +52,10 @@ const ArticlesSchema = mongoose.Schema(
         },
         coverImage: {
             type: String,
+        },
+        deletedAt: {
+            type: Date,
+            default: null,
         },
     },
     { timestamps: true }

@@ -20,6 +20,7 @@ export default function UserMediaUploader({
     profileId,
     eventOrStory,
     eventOrStoryId,
+    onUploadSuccess,
 }) {
     const inputRef = useRef(null);
     const [files, setFiles] = useState([]);
@@ -92,9 +93,11 @@ export default function UserMediaUploader({
                 //setFiles(0);
                 //refetch photos
                 setUploadSuccess(true);
+
                 queryClient.invalidateQueries({
-                    queryKey: ["user-uploaded-media", eventOrStoryId],
+                    queryKey: ["user-uploaded-media" /*eventOrStoryId*/],
                 });
+                onUploadSuccess();
                 setIsUploading(false);
             }
         });

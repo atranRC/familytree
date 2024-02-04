@@ -19,32 +19,32 @@ export default function FamilyEventsTimeline({ treeId }) {
         enabled: false,
         onSuccess: (d) => {
             if (d.data.data.events.length > 0) {
-                console.log("fetching more...", d.data.data.events.length);
+                //console.log("fetching more...", d.data.data.events.length);
                 //setReachedEnd(false);
                 let ia = eventsItems;
                 d.data.data.events.map((event) => {
                     ia.push({
                         cardTitle: get_auto_title(
-                            event.type,
-                            event.userName,
-                            event.location.value,
-                            event.eventDate.toString().split("T")[0]
+                            event?.type,
+                            event?.userName,
+                            event?.location?.value,
+                            event?.eventDate.toString().split("T")[0]
                         ),
-                        cardSubtitle: event.location.value,
-                        title: event.eventDate.toString().split("T")[0],
+                        cardSubtitle: event?.location?.value,
+                        title: event?.eventDate.toString().split("T")[0],
                         //date: event.eventDate,
-                        cardDetailedText: event.description,
+                        cardDetailedText: event?.description,
                         media: {
                             type: "IMAGE",
                             source: {
-                                url: get_event_theme_img(event.type),
+                                url: get_event_theme_img(event?.type),
                             },
                         },
                     });
                 });
                 setEventsItems(ia);
             } else {
-                console.log("end");
+                //console.log("end");
                 //setReachedEnd(true);
             }
         },
@@ -81,7 +81,7 @@ export default function FamilyEventsTimeline({ treeId }) {
         );
     }
     return (
-        <div style={{ width: "100%", height: "100vh", marginBottom: "5rem" }}>
+        <div style={{ width: "100%", height: "100%" }}>
             <Chrono
                 items={eventsItems}
                 mode="VERTICAL_ALTERNATING"
@@ -91,9 +91,9 @@ export default function FamilyEventsTimeline({ treeId }) {
                 cardHeight={400}
                 lineWidth={4}
                 theme={{
-                    primary: "#296338",
+                    primary: "#9084e3",
 
-                    secondary: "#dce0dd",
+                    secondary: "#F8F9FA",
 
                     cardSubtitleColor: "grey",
                     titleColor: "black",

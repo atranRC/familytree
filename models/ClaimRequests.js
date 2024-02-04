@@ -18,6 +18,10 @@ const ClaimRequestsSchema = mongoose.Schema(
         claimerName: { type: String, required: [true, "please provide name"] },
         message: { type: String },
         status: { type: String, required: [true, "please provide status"] },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );

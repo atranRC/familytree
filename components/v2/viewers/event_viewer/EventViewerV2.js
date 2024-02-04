@@ -33,7 +33,10 @@ import { getEventStoryMapMarker } from "../../../../utils/utils";
 import { useContext, useEffect, useState } from "react";
 import EventEditor from "../../editors/event_editor.js/EventEditor";
 import { EventsQueryContext } from "../../page_comps/events/EventsPageComp";
-import { ProfilePageNotificationContext } from "../../../../pages/profiles/[id]/[view]";
+import {
+    ProfilePageNotificationContext,
+    ProfileRelationContext,
+} from "../../../../contexts/profilePageContexts";
 
 const Map = dynamic(() => import("../../../places_page/Map"), {
     ssr: false,
@@ -67,14 +70,18 @@ const markers = [
     },*/
 ];
 
-export default function EventViewerV2({ event }) {
+export default function EventViewerV2({
+    mode = "view",
+    onViewModeChange = () => {},
+}) {
     const eventsQueryRefetchContext = useContext(EventsQueryContext);
+    const profileRelationContext = useContext(ProfileRelationContext);
     const profilePageNotification = useContext(ProfilePageNotificationContext);
     const router = useRouter();
     const { data: session, status } = useSession();
     const { classes } = useStyles();
     const position = [51.505, -0.09];
-    const [mode, setMode] = useState("view"); //view or edit
+    //const [mode, setMode] = useState("view"); //view or edit
     const queryClient = useQueryClient();
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -86,6 +93,7 @@ export default function EventViewerV2({ event }) {
             return axios.get(`/api/events/${router.query["contentId"]}`);
         },
         onSuccess: (res) => {
+            console.log(res.data);
             //console.log("single event result", res.data);
         },
     });
@@ -117,7 +125,7 @@ export default function EventViewerV2({ event }) {
 
     useEffect(() => {
         if (eventQuery.data) {
-            setMode("view");
+            onViewModeChange("view");
         }
     }, [eventQuery.data]);
 
@@ -142,9 +150,11 @@ export default function EventViewerV2({ event }) {
                 onSaveError={() => {
                     profilePageNotification[1]("Error updating event");
                 }}
-                onReturn={() => setMode("view")}
+                onReturn={() => onViewModeChange("view")}
             />
         );
+
+    if (!eventQuery.data.data) return <div>not found</div>;
 
     return (
         <div className={classes.cont}>
@@ -152,30 +162,34 @@ export default function EventViewerV2({ event }) {
                 <Title fz={48} fw={200} sx={{ fontFamily: "Lora, serif" }}>
                     {get_event_label(eventQuery?.data?.data?.type)}
                 </Title>
-                <Menu shadow="md" width={200}>
-                    <Menu.Target>
-                        <ActionIcon variant="light" color="gray">
-                            <IconSettings />
-                        </ActionIcon>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                        <Menu.Label>Manage Event</Menu.Label>
-                        <Menu.Item
-                            icon={<IconPencil />}
-                            onClick={() => setMode("edit")}
-                        >
-                            Edit Event
-                        </Menu.Item>
-                        <Menu.Item
-                            color="red"
-                            icon={<IconTrash />}
-                            onClick={() => setModalOpen(true)}
-                            disabled={deleteEventMutation.isLoading}
-                        >
-                            Delete Event
-                        </Menu.Item>
-                    </Menu.Dropdown>
-                </Menu>
+                {(profileRelationContext.isSelf ||
+                    profileRelationContext.isOwner ||
+                    profileRelationContext.isRelativeWithPost) && (
+                    <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                            <ActionIcon variant="light" color="gray">
+                                <IconSettings />
+                            </ActionIcon>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                            <Menu.Label>Manage Event</Menu.Label>
+                            <Menu.Item
+                                icon={<IconPencil />}
+                                onClick={() => onViewModeChange("edit")}
+                            >
+                                Edit Event
+                            </Menu.Item>
+                            <Menu.Item
+                                color="red"
+                                icon={<IconTrash />}
+                                onClick={() => setModalOpen(true)}
+                                disabled={deleteEventMutation.isLoading}
+                            >
+                                Delete Event
+                            </Menu.Item>
+                        </Menu.Dropdown>
+                    </Menu>
+                )}
             </Group>
             <Text
                 fz={24}
@@ -223,7 +237,7 @@ export default function EventViewerV2({ event }) {
                 labelPosition="center"
             />
             <div className={classes.locationCont}>
-                {/*<div className={classes.map}>
+                <div className={classes.map}>
                     <Map
                         markers={getEventStoryMapMarker(eventQuery?.data?.data)}
                         //setSelectedMarkerId={setSelectedMarkerId}
@@ -234,7 +248,7 @@ export default function EventViewerV2({ event }) {
                     <Title fz={24} fw={200} sx={{ fontFamily: "Lora, serif" }}>
                         {` 📌 ${eventQuery?.data?.data?.location?.value}`}
                     </Title>
-                </div>*/}
+                </div>
             </div>
             <Divider
                 label={<IconSeeding color="gray" />}
@@ -243,10 +257,10 @@ export default function EventViewerV2({ event }) {
             />
             <div className={classes.photosCont}>
                 <EventOrStoryMediaViewer
-                    sessionProfileRelation={""}
+                    sessionProfileRelation={profileRelationContext}
                     profileUser={router.query["id"]}
                     sessionUser={session.user.id}
-                    eventOrStoryId={eventQuery?.data?.data._id}
+                    eventOrStoryId={eventQuery?.data?.data?._id}
                     eventOrStory="event"
                 />
             </div>

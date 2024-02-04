@@ -12,6 +12,10 @@ const CollabsSchema = mongoose.Schema({
     },
     name: { type: String, required: [true, "please provide collab name"] },
     role: { type: String },
+    deletedAt: {
+        type: Date,
+        default: null,
+    },
 });
 
 export default mongoose.models.Collabs ||

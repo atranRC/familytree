@@ -7,7 +7,7 @@ const PAGE_SIZE = 10;
 
 export default async function handler(req, res) {
     let {
-        query: { page, pageSize, id },
+        query: { page, pageSize, id, searchTerm },
         method,
     } = req;
 
@@ -29,23 +29,50 @@ export default async function handler(req, res) {
 
                 /*const unclaimedProfiles = await Users.find({
                     owner: session.user.id,
+                    { $match: { owner: session.user.id } },
                 });*/
                 const unclaimedProfiles = await Users.aggregate([
                     {
                         $facet: {
-                            metadata: [{ $count: "totalCount" }],
+                            //metadata: [{ $count: "totalCount" }],
                             data: [
-                                { $match: { owner: session.user.id } },
+                                {
+                                    $match: {
+                                        owner: session.user.id,
+                                        name: {
+                                            $regex: new RegExp(searchTerm, "i"),
+                                        },
+                                    },
+                                },
+                                { $sort: { updatedAt: -1 } },
                                 { $skip: (page - 1) * pageSize },
+
                                 { $limit: pageSize },
                             ],
+                            count: [
+                                {
+                                    $match: {
+                                        owner: session.user.id,
+                                        name: {
+                                            $regex: new RegExp(searchTerm, "i"),
+                                        },
+                                    },
+                                },
+                                { $count: "total" },
+                            ],
+                        },
+                    },
+                    { $unwind: "$count" },
+                    {
+                        $addFields: {
+                            count: "$count.total",
                         },
                     },
                 ]);
                 //console.log(unclaimedProfiles);
                 res.status(200).json(unclaimedProfiles);
             } catch (error) {
-                //console.log(error);
+                console.log(error);
                 res.status(400).json({ success: false });
             }
             break;
