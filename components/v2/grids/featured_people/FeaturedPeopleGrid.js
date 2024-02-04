@@ -37,6 +37,7 @@ const useStyles = createStyles((theme) => ({
             transition: "all 0.2s ease-in-out",
         },
         minWidth: "300px",
+        maxWidth: "300px",
     },
     img: {
         backgroundPosition: "center",
