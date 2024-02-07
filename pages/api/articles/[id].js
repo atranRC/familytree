@@ -10,14 +10,6 @@ export default async function handler(req, res) {
         method,
     } = req;
 
-    const session = await unstable_getServerSession(req, res, authOptions);
-    if (!session) {
-        res.status(401).json({ message: "You must be logged in." });
-        return;
-    }
-
-    await dbConnect();
-
     switch (method) {
         case "GET" /* Get a model by its ID */:
             try {
@@ -33,6 +25,17 @@ export default async function handler(req, res) {
 
         case "PUT" /* Edit a model by its ID */:
             try {
+                const session = await unstable_getServerSession(
+                    req,
+                    res,
+                    authOptions
+                );
+                if (!session) {
+                    res.status(401).json({ message: "You must be logged in." });
+                    return;
+                }
+
+                await dbConnect();
                 const article = await Articles.findByIdAndUpdate(id, req.body, {
                     new: true,
                     runValidators: true,
@@ -48,6 +51,17 @@ export default async function handler(req, res) {
 
         case "DELETE" /* Delete a model by its ID */:
             try {
+                const session = await unstable_getServerSession(
+                    req,
+                    res,
+                    authOptions
+                );
+                if (!session) {
+                    res.status(401).json({ message: "You must be logged in." });
+                    return;
+                }
+
+                await dbConnect();
                 const deletedArticle = await Articles.deleteOne({
                     _id: id,
                 });

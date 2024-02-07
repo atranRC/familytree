@@ -58,6 +58,11 @@ db.featuredtimelinearticles.update(
   { $set: { deletedAt: null } },
   { upsert: false, multi: true }
 );*/
+/*db.writtenstories.update(
+  {},
+  { $set: { location: null } },
+  { upsert: false, multi: true }
+);*/
 //db.users.find({})
 //delete all documents
 //db.sessions.deleteMany({});
