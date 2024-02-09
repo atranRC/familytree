@@ -178,7 +178,7 @@ export function AvatarMenuContent({ sessionUserEmail }) {
             </Menu.Item>
             <Menu.Item
                 icon={<IconLogout size={20} stroke={1.5} color="gray" />}
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: "/" })}
             >
                 Logout
             </Menu.Item>
