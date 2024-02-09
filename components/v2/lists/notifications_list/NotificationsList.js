@@ -26,7 +26,7 @@ export default function NotificationsList() {
             </Stack>
         );
     return (
-        <Stack align="center">
+        <Stack align="center" sx={{ height: "60vh", overflowY: "auto" }}>
             {notificationsQuery.data?.data[0]?.data.map((notification) => (
                 <NotificationCard
                     notification={notification}
