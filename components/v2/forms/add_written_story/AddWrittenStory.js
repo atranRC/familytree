@@ -26,8 +26,10 @@ import {
     ProfilePageNotificationContext,
     ProfilePageProfileContext,
 } from "../../../../contexts/profilePageContexts";
+import { useSession } from "next-auth/react";
 
 export default function AddWrittenStory({ onViewModeChange = () => {} }) {
+    const { data: session, status } = useSession();
     const router = useRouter();
 
     const writtenStoriesQueryRefetchContext = useContext(
@@ -59,12 +61,40 @@ export default function AddWrittenStory({ onViewModeChange = () => {} }) {
             !!form.values.content &&
             !!form.values.location,
     });
+
+    const createNotification = useMutation({
+        mutationFn: (id) => {
+            return axios.post(`/api/v2/notifications`, {
+                targetUserId: profileQueryContext._id,
+                targetUserName: profileQueryContext.name,
+                message: `${session.user.name} added a written story to your profile`,
+                url: `/profiles/${profileQueryContext._id}/written-stories?contentId=${id}`,
+            });
+        },
+        onSuccess: (res) => {},
+        onError: () => {
+            profilePageNotification[1]("Error sending notification");
+        },
+    });
+
     //{JSON.stringify(form.values)}
     const addStoryMutation = useMutation({
         mutationFn: () => {
             return axios.post(`/api/written-stories/`, form.values);
         },
         onSuccess: (res) => {
+            if (
+                profileQueryContext.owner === "self" &&
+                profileQueryContext._id.toString() !== session.user.id
+            ) {
+                /*console.log(
+                    "notification",
+                    profileQueryContext.owner,
+                    profileQueryContext._id,
+                    session.user.id
+                );*/
+                createNotification.mutate(res.data._id.toString());
+            }
             profilePageNotification[0]("Story added successfully");
             form.reset();
             writtenStoriesQueryRefetchContext();
@@ -85,6 +115,8 @@ export default function AddWrittenStory({ onViewModeChange = () => {} }) {
             profilePageNotification[1]("Error adding story");
         },
     });
+
+    if (status === "loading") return <div>loading...</div>;
     return (
         <div className={classes.cont}>
             <Stack spacing={3}>

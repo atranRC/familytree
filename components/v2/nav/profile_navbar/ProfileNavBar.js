@@ -49,6 +49,7 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { useRouter } from "next/router";
 import FamilyTreeLogo from "../../../FamilyTreeLogo";
+import NotificationIndicator from "../notifications/NotificationIndicator";
 
 const HEADER_HEIGHT = 60;
 
@@ -197,29 +198,34 @@ export const AvatarWithMenu = ({
         return <Link href={"/u/signin"}>Login</Link>;
 
     return (
-        <Menu
-            shadow="md"
-            width={200}
-            opened={opened}
-            onChange={setOpened}
-            styles={{ zIndex: 100 }}
-        >
-            <Menu.Target>
-                <Avatar
-                    radius="xl"
-                    size="md"
-                    color="blue"
-                    src={session.user.image}
-                />
-            </Menu.Target>
+        <Group>
+            <NotificationIndicator />
+            <Menu
+                shadow="md"
+                width={200}
+                opened={opened}
+                onChange={setOpened}
+                styles={{ zIndex: 100 }}
+            >
+                <Menu.Target>
+                    <Avatar
+                        radius="xl"
+                        size="md"
+                        color="blue"
+                        src={session.user.image}
+                    />
+                </Menu.Target>
 
-            {opened && (
-                <Menu.Dropdown>
-                    <AvatarMenuContent sessionUserEmail={session.user.email} />
-                </Menu.Dropdown>
-            )}
-            <Menu.Divider />
-        </Menu>
+                {opened && (
+                    <Menu.Dropdown>
+                        <AvatarMenuContent
+                            sessionUserEmail={session.user.email}
+                        />
+                    </Menu.Dropdown>
+                )}
+                <Menu.Divider />
+            </Menu>
+        </Group>
     );
 };
 

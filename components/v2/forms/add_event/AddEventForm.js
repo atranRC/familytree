@@ -32,10 +32,12 @@ import {
     ProfilePageNotificationContext,
     ProfilePageProfileContext,
 } from "../../../../contexts/profilePageContexts";
+import { useSession } from "next-auth/react";
 
 //type
 //description, location, eventDate,
 export default function AddEventForm({ onViewModeChange = () => {} }) {
+    const { data: session, status } = useSession();
     const router = useRouter();
 
     const eventsQueryRefetchContext = useContext(EventsQueryContext);
@@ -66,12 +68,40 @@ export default function AddEventForm({ onViewModeChange = () => {} }) {
             !!form.values.eventDate &&
             !!form.values.location,
     });
+    const createNotification = useMutation({
+        mutationFn: (id) => {
+            return axios.post(`/api/v2/notifications`, {
+                targetUserId: profileQueryContext._id,
+                targetUserName: profileQueryContext.name,
+                message: `${session.user.name} posted an event to your profile`,
+                url: `/profiles/${profileQueryContext._id}/events?contentId=${id}`,
+            });
+        },
+        onSuccess: (res) => {},
+        onError: () => {
+            profilePageNotification[1]("Error sending notification");
+        },
+    });
+
     //{JSON.stringify(form.values)}
     const addEventMutation = useMutation({
         mutationFn: () => {
             return axios.post(`/api/events/`, form.values);
         },
         onSuccess: (res) => {
+            if (
+                profileQueryContext.owner === "self" &&
+                profileQueryContext._id.toString() !== session.user.id
+            ) {
+                /*console.log(
+                    "notification",
+                    profileQueryContext.owner,
+                    profileQueryContext._id,
+                    session.user.id
+                );*/
+                createNotification.mutate(res.data._id.toString());
+            }
+
             profilePageNotification[0]("Event added successfully");
             form.reset();
             eventsQueryRefetchContext();
@@ -92,6 +122,8 @@ export default function AddEventForm({ onViewModeChange = () => {} }) {
             profilePageNotification[1]("Error adding event");
         },
     });
+
+    if (status === "loading") return <div>loading...</div>;
 
     return (
         <div className={classes.cont}>

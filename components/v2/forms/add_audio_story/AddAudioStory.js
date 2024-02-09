@@ -31,8 +31,10 @@ import {
     ProfilePageNotificationContext,
     ProfilePageProfileContext,
 } from "../../../../contexts/profilePageContexts";
+import { useSession } from "next-auth/react";
 
 export default function AddAudioStory({ onViewModeChange = () => {} }) {
+    const { data: session } = useSession();
     const router = useRouter();
 
     const audioStoriesQueryRefetchContext = useContext(
@@ -106,6 +108,22 @@ export default function AddAudioStory({ onViewModeChange = () => {} }) {
             !!form.values.location &&
             !!audioBase64,
     });
+
+    const createNotification = useMutation({
+        mutationFn: (id) => {
+            return axios.post(`/api/v2/notifications`, {
+                targetUserId: profileQueryContext._id,
+                targetUserName: profileQueryContext.name,
+                message: `${session.user.name} posted an Audio Story to your profile`,
+                url: `/profiles/${profileQueryContext._id}/audio-stories?contentId=${id}`,
+            });
+        },
+        onSuccess: (res) => {},
+        onError: () => {
+            profilePageNotification[1]("Error sending notification");
+        },
+    });
+
     //{JSON.stringify(form.values)}
     const addStoryMutation = useMutation({
         mutationFn: (cloudinaryResParams) => {
@@ -115,6 +133,18 @@ export default function AddAudioStory({ onViewModeChange = () => {} }) {
             });
         },
         onSuccess: (res) => {
+            if (
+                profileQueryContext.owner === "self" &&
+                profileQueryContext._id.toString() !== session.user.id
+            ) {
+                /*console.log(
+                    "notification",
+                    profileQueryContext.owner,
+                    profileQueryContext._id,
+                    session.user.id
+                );*/
+                createNotification.mutate(res.data._id.toString());
+            }
             profilePageNotification[0]("Story added successfully");
             form.reset();
             setAudioBase64();
