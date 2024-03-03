@@ -54,6 +54,8 @@ export default function UserViewerV22({ userId }) {
     if (userQuery.isLoading || userQuery.isFetching)
         return <ViewTaggedUserLoadingScreen />;
 
+    if (userQuery.isError) return <div>Error fetching tagged user</div>;
+
     return (
         <div className={classes.cont}>
             <Stack align="center" justify="center" spacing="0">

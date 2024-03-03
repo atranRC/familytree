@@ -43,6 +43,10 @@ const ArticleSharedWrittenStoriesSchema = mongoose.Schema(
             type: Boolean,
             required: [true, "please provide isAnnon"],
         },
+        isApproved: {
+            type: Boolean,
+            default: false,
+        },
         deletedAt: {
             type: Date,
             default: null,

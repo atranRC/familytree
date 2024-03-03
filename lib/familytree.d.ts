@@ -84,8 +84,9 @@ declare class FamilyTree extends FamilyTreeBase {
     /**
      * Load nodes data.
      * @param data node data array
+     * @param callback function called after the load
      */
-    load(data: Array<object>): FamilyTree;
+    load(data: Array<object>, callback?: () => void): FamilyTree;
 
     /**
      * Updates the node data, redraws the family and fires update event.
@@ -98,8 +99,9 @@ declare class FamilyTree extends FamilyTreeBase {
     /**
      * Loads nodes from xml.
      * @param xml Xml with node structure
+     * @param callback function called after the load
      */
-    loadXML(xml: string): FamilyTree;
+    loadXML(xml: string, callback?: () => void): FamilyTree;
     /**
      * Gets nodes as xml.
      */
@@ -133,6 +135,13 @@ declare class FamilyTree extends FamilyTreeBase {
      * @param viewBox 
      */
     getScale(viewBox?: Array<number>): number;
+
+    /**
+     * Sets the current scale of the family. 
+     * Returns the actual scale limited by scaleMax and scaleMin
+     * @param newScale new scale value
+     */
+    setScale(newScale: number): number;
     /**
      * Animates specified node with ripple animation - highlight the node.
      * @param id the id of the node
@@ -186,8 +195,18 @@ declare class FamilyTree extends FamilyTreeBase {
      * Sets orientation.
      * @param orientation  orientation type
      * @param lcn lyout config name for the specified sub tree
+     * @param callback called at the end of animation
      */
-    setOrientation(orientation: FamilyTree.orientation, lcn?: string): void;
+    setOrientation(orientation: FamilyTree.orientation, lcn?: string, callback?: () => void): void;
+
+
+    /**
+     * Moves specified nodes to the visible area.
+     * @param ids  Array of node ids
+     * @param callback called at the end of animation
+     */
+    moveNodesToVisibleArea(ids: Array<number | string>, callback?: () => void): void;
+
     /**
      * Search in the family.
      * @param value search for value
@@ -220,6 +239,15 @@ declare class FamilyTree extends FamilyTreeBase {
      * Destroys the object.
      */
     destroy(): void;
+    /**
+     * Replaces the id, pid, stpid, ppid and the ids in clinks, slinks, dottedLines, groupDottedLines.
+     * After the replacment updates the UI
+     * @param old_new_ids dictionary containing old and new ids
+     * @param callback called when the replacment completes
+     */
+    replaceIds(old_new_ids:  {
+        [key: string]: string | number
+    }, callback?: () => void): void;
     /**
      * Adds curved link.
      * @param from from node with id
@@ -281,19 +309,19 @@ declare class FamilyTree extends FamilyTreeBase {
      * @param filename The name of the exported file
      * {@link https://balkan.app/FamilyTreeJS/Docs/Exporting | See doc...}            
      */
-    exportCSV(filename: string): void;
+    exportCSV(filename: string | FamilyTree.exportCSVXMLJSONOptions): void;
     /**
      * Exports to XML   
      * @param filename The name of the exported file
      * {@link https://balkan.app/FamilyTreeJS/Docs/Exporting | See doc...}            
      */
-    exportXML(filename: string): void;
+    exportXML(filename: string | FamilyTree.exportCSVXMLJSONOptions): void;
     /**
      * Exports to JSON   
      * @param filename The name of the exported file
      * {@link https://balkan.app/FamilyTreeJS/Docs/Exporting | See doc...}            
      */
-     exportJSON(filename: string): void;
+     exportJSON(filename: string | FamilyTree.exportCSVXMLJSONOptions ): void;
 
     /**
      * Shares node data, uses build-in  device sharing functionallity.
@@ -355,7 +383,48 @@ declare class FamilyTree extends FamilyTreeBase {
      * @param front show on front or back 
      * @param anim animation type
      */
-     magnify(id: string | number, scale: number, front?: boolean, anim?: FamilyTree.anim | null, callback?: () => void): void;
+     magnify(id: string | number, scale: number, front?: boolean, anim?: FamilyTree.anim | null, callback?: () => void): void;     
+
+    /**
+     * Starts the move 
+     * @param movePosition move position
+     * @param tick callback function in each step
+     * @param func the name of the animation function, for example FamilyTree.anim.inSin
+     * @param duration duration before going to 100 percent speed
+     */
+    moveStart(movePosition: FamilyTree.move, tick?: () => void, func?: FamilyTree.anim, duration?: number): void;
+    /**
+     * Undo data operations like adding/removing nodes. Set undoRedoStorageName option before calling this method.
+     * @param callback called when the animation completes
+     */
+    undo(callback?: () => void): void;
+    /**
+     * Redo data operations like adding/removing nodes. Set undoRedoStorageName option before calling this method.
+     * @param callback called when the animation completes
+     */
+    redo(callback?: () => void): void;
+
+    /**
+     * Clears all Redo stack steps.
+     */
+    clearRedo(): void;
+    
+    /**
+     * Clears all Undo stack steps.
+     */
+    clearUndo(): void;
+    /**
+     * Returns the number of Undo stack steps
+     */
+    undoStepsCount(): number;
+    /**
+     * Returns the number of Redo stack steps
+     */    
+    redoStepsCount(): number;    
+    /**
+     * Ends the move
+     */
+    moveEnd(): void;
 
     /**
      * The onField() method of the FamilyTree class sets up a function that will be called whenever the specified event is delivered to the target.
@@ -389,7 +458,11 @@ declare class FamilyTree extends FamilyTreeBase {
         /**
          * name of the field
          */
-        name: string 
+        name: string         
+        /**
+         * field template name
+         */
+        field: string 
     }) => void | boolean): FamilyTree;
 
     /**
@@ -611,11 +684,15 @@ declare class FamilyTree extends FamilyTreeBase {
     searchUI: FamilyTree.searchUI;
     nodeMenuUI: FamilyTree.menuUI;
     filterUI: FamilyTree.filterUI;
+    xScrollUI: FamilyTree.xScrollUI;
+    yScrollUI: FamilyTree.yScrollUI;
+    undoRedoUI: FamilyTree.undoRedoUI;
     nodeCircleMenuUI: FamilyTree.circleMenuUI;
     nodeContextMenuUI: FamilyTree.menuUI;
     menuUI: FamilyTree.menuUI;
     toolbarUI: FamilyTree.toolbarUI;    
-    config: FamilyTree.options
+    config: FamilyTree.options;
+    roots: Array<FamilyTree.node>;
 
     static fileUploadDialog(scallback: (file: any) => void): void;
     static isMobile(): boolean;
@@ -642,6 +719,15 @@ declare class FamilyTree extends FamilyTreeBase {
     static isNEU(val: any): boolean;
     static gradientCircleForDefs(id: string | number, colors: Array<string> | string, r: number, strokeWidth: number): string;
     static convertCsvToNodes(text: string) : Array<Object>;
+    /**
+    * SVG Path rounding function. Takes an input path string or commands and outputs a path
+    * string where all line-line corners have been rounded. 
+    * @param commands The SVG input path or commands array
+    * @param radius 
+    * @param useFractionalRadius The amount to round the corners, either a value in the SVG coordinate space, or, if useFractionalRadius is true, a value from 0 to 1.
+    * @returns A new SVG path string with the rounding
+    */
+    static roundPathCorners(commands: string | Array<Array<any>>, radius: number, useFractionalRadius: boolean) : string;
     static convertNodesToCsv(nodes: Array<Object>) : string;
     static wrapText(text: string, field: Object): string;
     /**
@@ -753,9 +839,13 @@ declare class FamilyTree extends FamilyTreeBase {
     */
     static FIXED_POSITION_ON_CLICK: boolean;
     /**
-    * @ignore
+    * Render links before nodes, default is false
     */
     static RENDER_LINKS_BEFORE_NODES: boolean;
+    /**
+    * Render clinks before nodes, default is false
+    */
+    static RENDER_CLINKS_BEFORE_NODES: boolean;
     /**
     * @ignore
     */
@@ -765,6 +855,10 @@ declare class FamilyTree extends FamilyTreeBase {
     */
     static MIXED_LAYOUT_FOR_NODES_WITH_COLLAPSED_CHILDREN: boolean;
     /**
+    * Use mixed layout for example tree or treeLeftOffset if number of children is more then specified value
+    */
+    static MIXED_LAYOUT_IF_NUMBER_OF_CHILDREN_IS_MORE_THEN: boolean;
+    /**
     * @ignore
     */
     static LINK_ROUNDED_CORNERS: number;
@@ -772,10 +866,6 @@ declare class FamilyTree extends FamilyTreeBase {
     * @ignore
     */
     static MOVE_STEP: number;
-    /**
-    * @ignore
-    */
-    static MOVE_INTERVAL: number;
     /**
     * @ignore
     */
@@ -833,6 +923,9 @@ declare class FamilyTree extends FamilyTreeBase {
 
     static randomId(): any;
     static searchUI: any;
+    static editUI: any;
+    static pdfPrevUI: FamilyTree.pdfPrevUI;
+    // static menuUI: any;
     static attr: any;
     static toolbarUI: any;
     static elements: any;
@@ -976,7 +1069,15 @@ declare namespace FamilyTree {
         /**
          * indicates if the node is child of partner node
          */
-        isChildOfPartner?: boolean
+        isChildOfPartner?: boolean,
+        /**
+         * move the the node on x axis 
+         */
+        movex?: number | undefined,
+        /**
+         * move the the node on y axis 
+         */
+        movey?: number | undefined
     }
 
 
@@ -1054,7 +1155,7 @@ declare namespace FamilyTree {
          * @param type A case-sensitive string representing the event type to listen for.
          * @param listener The object that receives a notification when an event of the specified type occurs. This must be a JavaScript function. 
          */        
-        on(type: "searchclick", listener: (sender: FamilyTree, args: any, args1: any, args2: any) => void | boolean): searchUI;
+        on(type: "add-item" | "show-items" | "hide" | "searchclick" , listener: (sender: searchUI, args: any, args1: any, args2: any) => void | boolean): searchUI;
         /**
          * Hides the search grid
          */
@@ -1070,6 +1171,14 @@ declare namespace FamilyTree {
         input: HTMLElement;
         searchTableWrapper: HTMLElement; 
         lastSearch: Array<object>;        
+        /**
+         * FamilyTree instance
+         */
+        instance: FamilyTree;
+        /**
+         * Search in field with abbreviation.
+         */
+        searchFieldsAbbreviation: {[key: string]: string};
     }
 
     
@@ -1086,11 +1195,38 @@ declare namespace FamilyTree {
          */
         hide(): void;
         addFilterTag(data: object): boolean;
+                /**
+         * The on() method of the filterUI interface sets up a function that will be called whenever the specified event is delivered to the target.     * 
+         * @category Event Listeners
+         * @param type A case-sensitive string representing the event type to listen for.
+         * @param listener The object that receives a notification when an event of the specified type occurs. This must be a JavaScript function. 
+         */
+        on(type: "update" | "add-item" | "add-filter" | "show-items" , listener: (sender: filterUI, args: any, args1: any, args2: any) => void | boolean): filterUI;
         filterBy?: any;
+        element: HTMLElement;
+        instance: FamilyTree;
     }
 
 
-    interface menuUI {
+    
+    
+    interface xScrollUI {
+        addListener(svg: HTMLElement): void;   
+        create(width: number): void;   
+        setPosition(width: number): void;   
+        on(type: "change", listener: (sender: xScrollUI, args: any, args1: any, args2: any) => void | boolean): xScrollUI;
+        element: HTMLElement;
+    }
+
+    interface yScrollUI {
+        addListener(svg: HTMLElement): void;   
+        create(width: number): void;   
+        setPosition(width: number): void;   
+        on(type: "change", listener: (sender: yScrollUI, args: any, args1: any, args2: any) => void | boolean): yScrollUI;
+        element: HTMLElement;
+    }
+
+    interface menuUI  {
         init(obj: FamilyTree, menu: { [key: string]: menu }): void;
         /**
          * The on() method of the menuUI interface sets up a function that will be called whenever the specified event is delivered to the target.     * 
@@ -1107,6 +1243,11 @@ declare namespace FamilyTree {
          * @param menu 
          */
         showStickIn(stickToElement: HTMLElement, firstNodeId: string | number, secondNodeId: string | number, menu: { [key: string]: menu }): void;
+        /**
+         * Returns true if the menu is visible
+         */
+        isVisible(): boolean;
+
         /**
          * Hieds the menu
          */
@@ -1146,6 +1287,50 @@ declare namespace FamilyTree {
          * @param listener The object that receives a notification when an event of the specified type occurs. This must be a JavaScript function. 
          */        
         on(type: "click" | "show" | "drag" | "drop" | "mouseenter" | "mouseout", listener: (sender: circleMenuUI, args: any, args1: any, args2: any) => void | boolean): circleMenuUI;
+    }
+
+    interface undoRedoUI {
+        /**
+         * Inits undoRedoUI
+         * @param instance 
+         */
+        init(instance: FamilyTree): void;
+        /**
+         * Refreshes the UI buttonss
+         */
+        refresh(): void;
+        /** 
+         * @ignore
+         */
+        on(type: "change", listener: (sender: undoRedoUI, args: any) => void | boolean): undoRedoUI;
+        /**
+         * Occurs when the undo redo buttons needs to updated.
+         *  ```typescript     
+         * var family = new FamilyTree('#tree', {});
+         * family.undoRedoUI.onChange((args) => {
+         * //return false; to cancel the operation
+         * });
+         * ```
+         * @category Event Listeners
+         * @param listener 
+         */
+        onChange(listener: (args: {
+            /**
+             * Undo stack steps count
+             */
+            undoStepsCount: number,
+            /**
+             * Redo stack steps count
+             */
+            redoStepsCount: number
+        }) => void): undoRedoUI;
+        instance: FamilyTree;
+    }
+
+    interface pdfPrevUI {
+        show(family: FamilyTree, options: exportOptions): pdfPrevUI;
+        hide(family: FamilyTree): void;
+
     }
 
     interface keyNavigation {
@@ -1216,6 +1401,13 @@ declare namespace FamilyTree {
         nodeId? : number | string
     }
 
+    interface exportCSVXMLJSONOptions  {
+        filename?: string,
+        expandChildren?: boolean,
+        min?: boolean,
+        nodeId? : number | string
+    }
+
     interface linkTemplate {
         defs?: string,
         link?: string,
@@ -1260,6 +1452,13 @@ declare namespace FamilyTree {
         field?: string,
         desc?: boolean
     }
+    interface move {
+        left?: boolean,
+        right?: boolean,
+        up?: boolean,
+        down?: boolean,
+    }
+
     enum orientation {
         top,
         bottom,
@@ -1275,7 +1474,9 @@ declare namespace FamilyTree {
         mixed,
         tree,
         treeLeftOffset,
-        treeRightOffset
+        treeRightOffset,
+        treeLeft,
+        treeRight
     }
 
     enum align {
@@ -1308,6 +1509,11 @@ declare namespace FamilyTree {
         boundary
     }
 
+    enum draggable {
+        node,
+        tree
+    }
+
 
     enum action {
         update,
@@ -1330,6 +1536,9 @@ declare namespace FamilyTree {
         scroll,
         none
     }
+
+
+    
 
     
 
@@ -1472,7 +1681,7 @@ declare namespace FamilyTree {
          */
         nodeContextMenu?: FamilyTree.menu,
         /**
-         * Enables export to excel, export to svg and other FamilyTree operations. Also you can define your own FamilyTree operation.
+         * Enables export to csv, export to svg and other FamilyTree operations. Also you can define your own FamilyTree operation.
          * ```typescript     
          * var family = new FamilyTree('#tree', {
          *      menu:{
@@ -1565,6 +1774,10 @@ declare namespace FamilyTree {
          * ```
          */
         showXScroll?: boolean ,
+        /**
+         * Draggable node, drag the node anywhere on the canvas
+         */
+        draggable?: FamilyTree.draggable,
         /**
          * Shows vertical scrollbar. Default value - *false*.
          * ```typescript     
@@ -1664,7 +1877,7 @@ declare namespace FamilyTree {
          * Link binding in Family Tree JS maps node data to link template parameters.
          * ```typescript     
          * var family = new FamilyTree('#tree', {
-         *   nodeBinding: {
+         *   linkBinding: {
          *       link_field_0: "createdAt"
          *   },
          *   nodes: [
@@ -1908,6 +2121,8 @@ declare namespace FamilyTree {
          * - FamilyTree.layout.tree
          * - FamilyTree.layout.treeLeftOffset
          * - FamilyTree.layout.treeRightOffset
+         * - FamilyTree.layout.treeLeft
+         * - FamilyTree.layout.treeRight
          * 
          * Default value - *FamilyTree.layout.normal*
          * ```typescript     
@@ -2013,11 +2228,11 @@ declare namespace FamilyTree {
         /**
           * @ignore
           */
-        xScrollUI?: any,
+        xScrollUI?: FamilyTree.xScrollUI,
         /**
           * @ignore
           */
-        yScrollUI?: any,
+        yScrollUI?: FamilyTree.yScrollUI,
         /**
           * @ignore
           */
@@ -2042,6 +2257,10 @@ declare namespace FamilyTree {
          * @ignore
          */        
         menuUI?: FamilyTree.menuUI,
+        /**
+         * @ignore
+         */      
+        undoRedoUI?: FamilyTree.undoRedoUI,
         /**
          * @ignore
          */
@@ -2159,6 +2378,10 @@ declare namespace FamilyTree {
             readFromUrlParams?: boolean,
             writeToUrlParams?: boolean
         },
+        /**
+         * Set the session storage name to use undo/redo functionallity.
+         */
+        undoRedoStorageName?: string,
         /**
          * Configure the buildin edit form.
          * {@link https://balkan.app/FamilyTreeJS/Docs/Edit | See doc...}   
@@ -2313,7 +2536,15 @@ declare class FamilyTreeBase {
      * @param type A case-sensitive string representing the event type to listen for.
      * @param listener The object that receives a notification when an event of the specified type occurs. This must be a JavaScript function. 
      */
-     on(type: "init" | "add" | "node-tree-menu-show" | "field" | "update" | "renderbuttons" | "label" | "render-link" | "redraw" | "expcollclick" | "exportstart" | "exportend" | "click" | "dbclick" | "slink-click" | "clink-click" | "up-click" | "import" | "adding" | "added" | "updated" | "key-down" | "visibility-change" | "renderdefs" | "render" | "prerender" | "screen-reader-text" | "removed" | "ready" | "ripple" | "node-initialized" | "node-layout", listener: (sender: FamilyTree, args?: any, args1?: any, args2?: any) => void | boolean): FamilyTree;
+     on(type: "init" | "node-tree-menu-show" | "field" | "update" | "renderbuttons" | "label" | "render-link" | "redraw" | "expcollclick" | "exportstart" | "exportend" | "click" | "dbclick" | "slink-click" | "clink-click" | "up-click" | "import" | "updated" | "key-down" | "visibility-change" | "renderdefs" | "render" | "prerender" | "screen-reader-text" | "ready" | "ripple" | "node-initialized" | "node-layout", listener: (sender: FamilyTree, args?: any, args1?: any, args2?: any) => void | boolean): FamilyTree;
+
+         /**
+     * Removes an event listener previously registered. The event listener to be removed is identified using a combination of the event type and the event listener function itself. Returns true if success and false if fail.
+     * @param type A string which specifies the type of event for which to remove an event listener
+     * @param listener The event listener function of the event handler to remove from the event target
+     */
+    
+    removeListener(type: "init" | "node-tree-menu-show" | "field" | "update" | "renderbuttons" | "label" | "render-link" | "redraw" | "expcollclick" | "exportstart" | "exportend" | "click" | "dbclick" | "slink-click" | "clink-click" | "up-click" | "import" | "updated" | "key-down" | "visibility-change" | "renderdefs" | "render" | "prerender" | "screen-reader-text" | "removed" | "ready" | "ripple" | "node-initialized" | "node-layout", listener?: () => void): boolean;
 
     /**
      * Occurs when the node data has been updated, removed or added.
